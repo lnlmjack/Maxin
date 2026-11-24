@@ -1,4 +1,4 @@
-// Stacks padrão embutidas (1 = Topo, 52 = Boca/Base)
+// Mnemônicas padrão (1 = Topo, 52 = Boca/Base)
 const BUILTIN_STACKS = [
   {
     id: "tamariz",
@@ -29,7 +29,7 @@ const BUILTIN_STACKS = [
       "8 de paus", "3 de espadas", "ás de ouros", "7 de espadas", "5 de espadas",
       "dama de ouros", "ás de copas", "8 de espadas", "3 de ouros", "7 de copas",
       "dama de espadas", "5 de ouros", "7 de paus", "4 de ouros", "rei de paus",
-      "4 de ouros", "10 de ouros", "valete de copas", "dama de copas", "10 de paus",
+      "4 de paus", "10 de ouros", "valete de copas", "dama de copas", "10 de paus",
       "dama de paus", "4 de copas", "rei de espadas", "4 de espadas", "10 de copas",
       "valete de paus", "3 de paus", "valete de ouros", "6 de ouros", "9 de paus",
       "2 de espadas", "9 de copas", "8 de copas", "6 de copas", "6 de espadas",
@@ -37,9 +37,6 @@ const BUILTIN_STACKS = [
     ]
   }
 ];
-
-// Correção da posição 31 da Aronson (3 de paus -> 4 de ouros já estava na 29, na Aronson #31 é 4 de paus)
-BUILTIN_STACKS[1].cards[30] = "4 de paus";
 
 const VALUES = [
   { code: "A", label: "ás" },
@@ -65,71 +62,32 @@ const SUITS = [
 ];
 
 const RAW_PHRASES = [
-  "É",
-  "É A",
-  "AQUI",
-  "É ELA",
-  "A CARTA",
-  "ACHEI A",
-  "SUA CARTA",
-  "A SUA CARTA",
-  "É A SUA CARTA",
-  "A CARTA CERTA",
-  "ACHEI A CARTA",
-  "ESSA É A CARTA",
-  "A CARTA PENSADA",
-  "ESTA É A SUA CARTA",
-  "A CARTA QUE PENSOU",
-  "A SUA CARTA PENSADA",
-  "A CARTA ESCOLHIDA É",
-  "A CARTA QUE ESCOLHEU",
-  "A SUA CARTA ESCOLHIDA",
-  "ESSA É A SUA CARTA CERTA",
-  "A CARTA QUE VOCÊ PENSOU",
-  "A CARTA QUE VOCÊ FALOU É",
-  "A CARTA QUE VOCÊ PENSOU É",
-  "ESTA É A CARTA ESCOLHIDA",
-  "A CARTA QUE VOCÊ ESCOLHEU",
-  "A CARTA QUE VOCÊ PENSOU FOI",
-  "ESTA É A CARTA QUE VOCÊ DISSE",
-  "A CARTA QUE VOCÊ PENSOU FOI A",
-  "ESTA É A CARTA QUE VOCÊ PENSOU",
-  "A CARTA QUE VOCÊ ESCOLHEU FOI A",
-  "A CARTA QUE VOCÊ PENSOU ESTÁ AQUI",
-  "ESTA É A SUA CARTA LIVREMENTE DITA",
-  "ESSA É A CARTA QUE VOCÊ ESCOLHEU",
-  "A CARTA QUE VOCÊ PENSOU É ESSA AQUI",
-  "ESTA É A CARTA QUE VOCÊ IMAGINOU",
-  "A CARTA QUE VOCÊ ESCOLHEU ESTÁ AQUI",
-  "ESTA É A CARTA QUE VOCÊ PENSOU HOJE",
-  "A CARTA QUE VOCÊ PENSOU EM SEGREDO É",
-  "ESSA É A CARTA QUE VOCÊ ESCOLHEU HOJE",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE É",
-  "ESTA É A CARTA QUE VOCÊ FALOU AGORA",
-  "A CARTA QUE VOCÊ ESCOLHEU EM SEGREDO É",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE FOI",
-  "ESTA É A CARTA QUE VOCÊ ESCOLHEU HOJE",
-  "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR",
-  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE HOJE É",
-  "A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR",
-  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR",
-  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ESTÁ AQUI",
-  "A CARTA QUE VOCÊ PENSOU EM SEGREDO ESTÁ BEM AQUI",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ESTÁ BEM AQUI",
-  "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR",
-  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR",
-  "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO É",
-  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO É",
-  "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO FOI A",
-  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO FOI A",
-  "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO HOJE",
-  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO HOJE",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO É",
-  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO É",
-  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A",
-  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A",
-  "ESTA É A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO",
+  "É", "É A", "AQUI", "É ELA", "A CARTA", "ACHEI A", "SUA CARTA", "A SUA CARTA",
+  "É A SUA CARTA", "A CARTA CERTA", "ACHEI A CARTA", "ESSA É A CARTA",
+  "A CARTA PENSADA", "ESTA É A SUA CARTA", "A CARTA QUE PENSOU", "A SUA CARTA PENSADA",
+  "A CARTA ESCOLHIDA É", "A CARTA QUE ESCOLHEU", "A SUA CARTA ESCOLHIDA",
+  "ESSA É A SUA CARTA CERTA", "A CARTA QUE VOCÊ PENSOU", "A CARTA QUE VOCÊ FALOU É",
+  "A CARTA QUE VOCÊ PENSOU É", "ESTA É A CARTA ESCOLHIDA", "A CARTA QUE VOCÊ ESCOLHEU",
+  "A CARTA QUE VOCÊ PENSOU FOI", "ESTA É A CARTA QUE VOCÊ DISSE",
+  "A CARTA QUE VOCÊ PENSOU FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU",
+  "A CARTA QUE VOCÊ ESCOLHEU FOI A", "A CARTA QUE VOCÊ PENSOU ESTÁ AQUI",
+  "ESTA É A SUA CARTA LIVREMENTE DITA", "ESSA É A CARTA QUE VOCÊ ESCOLHEU",
+  "A CARTA QUE VOCÊ PENSOU É ESSA AQUI", "ESTA É A CARTA QUE VOCÊ IMAGINOU",
+  "A CARTA QUE VOCÊ ESCOLHEU ESTÁ AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU HOJE",
+  "A CARTA QUE VOCÊ PENSOU EM SEGREDO É", "ESSA É A CARTA QUE VOCÊ ESCOLHEU HOJE",
+  "A CARTA QUE VOCÊ PENSOU LIVREMENTE É", "ESTA É A CARTA QUE VOCÊ FALOU AGORA",
+  "A CARTA QUE VOCÊ ESCOLHEU EM SEGREDO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE FOI",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU HOJE", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR", "A CARTA QUE VOCÊ PENSOU LIVREMENTE HOJE É",
+  "A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ESTÁ AQUI", "A CARTA QUE VOCÊ PENSOU EM SEGREDO ESTÁ BEM AQUI",
+  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ESTÁ BEM AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO É",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO FOI A",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO HOJE",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO HOJE", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO É",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO",
   "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO ESTÁ AQUI"
 ];
 
@@ -146,8 +104,17 @@ RAW_PHRASES.forEach(phrase => {
   }
 });
 
-// Carrega stacks customizadas do localStorage
-let customStacks = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+function loadCustomStacks() {
+  try {
+    const raw = localStorage.getItem("maxin_custom_stacks");
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+let customStacks = loadCustomStacks();
 let activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
 
 const state = {
@@ -166,22 +133,36 @@ function getActiveStack() {
   return all.find(s => s.id === activeStackId) || all[0];
 }
 
-function renderStackSelector() {
-  const select = document.getElementById("stack-selector");
-  select.innerHTML = "";
-  getAllStacks().forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = s.name;
-    if (s.id === activeStackId) opt.selected = true;
-    select.appendChild(opt);
+function setActiveStack(newId) {
+  activeStackId = newId;
+  try {
+    localStorage.setItem("maxin_active_stack", activeStackId);
+  } catch (e) {}
+  syncStackSelectors();
+  renderStackOrderList();
+  calculateImmediate();
+}
+
+function syncStackSelectors() {
+  const all = getAllStacks();
+  const topSelect = document.getElementById("stack-selector");
+  const modalSelect = document.getElementById("modal-stack-select");
+
+  [topSelect, modalSelect].forEach(select => {
+    if (!select) return;
+    select.innerHTML = "";
+    all.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      if (s.id === activeStackId) opt.selected = true;
+      select.appendChild(opt);
+    });
   });
 }
 
 function renderStackOrderList() {
   const stack = getActiveStack();
-  document.getElementById("view-stack-name").textContent = `${stack.name} (52 cartas)`;
-
   const delBtn = document.getElementById("btn-delete-stack");
   if (stack.builtin) delBtn.classList.add("hidden");
   else delBtn.classList.remove("hidden");
@@ -197,15 +178,13 @@ function renderStackOrderList() {
   });
 }
 
-// Normaliza entradas escritas ou abreviadas (ex: "4♣", "4 de paus", "as de espadas", "Q♥")
 function parseCardLine(raw) {
   let clean = raw.trim().toLowerCase()
-    .replace(/^\d+[\.\)\-\s]+/, "") // remove numeração inicial tipo "1. " ou "12 - "
+    .replace(/^\d+[\.\)\-\s]+/, "")
     .trim();
   if (!clean) return null;
 
-  // Formato curto com símbolo ou letra (ex: "4♣", "10c", "q♥", "as")
-  const shortMatch = clean.match(/^(10|[a2-9jqk]|ás)\s*(?:de\s*)?([♣♥♠♦pceo]|paus|copas|espadas|ouros)$/);
+  const shortMatch = clean.match(/^(10|[a2-9jqk]|ás|as)\s*(?:de\s*)?([♣♥♠♦pceo]|paus|copas|espadas|ouros)$/);
   if (shortMatch) {
     const vMap = {
       "a": "ás", "ás": "ás", "as": "ás",
@@ -223,19 +202,18 @@ function parseCardLine(raw) {
     if (v && s) return `${v} de ${s}`;
   }
 
-  // Formato por extenso ("quatro de paus", "ás de espadas", "valete de copas")
   clean = clean
-    .replace(/^as\b/, "ás")
-    .replace(/^um\b/, "ás")
-    .replace(/^dois\b/, "2")
-    .replace(/^três\b|^tres\b/, "3")
-    .replace(/^quatro\b/, "4")
-    .replace(/^cinco\b/, "5")
-    .replace(/^seis\b/, "6")
-    .replace(/^sete\b/, "7")
-    .replace(/^oito\b/, "8")
-    .replace(/^nove\b/, "9")
-    .replace(/^dez\b/, "10");
+    .replace(/^as(?=\s|$)/, "ás")
+    .replace(/^um(?=\s|$)/, "ás")
+    .replace(/^dois(?=\s|$)/, "2")
+    .replace(/^(três|tres)(?=\s|$)/, "3")
+    .replace(/^quatro(?=\s|$)/, "4")
+    .replace(/^cinco(?=\s|$)/, "5")
+    .replace(/^seis(?=\s|$)/, "6")
+    .replace(/^sete(?=\s|$)/, "7")
+    .replace(/^oito(?=\s|$)/, "8")
+    .replace(/^nove(?=\s|$)/, "9")
+    .replace(/^dez(?=\s|$)/, "10");
 
   if (BUILTIN_STACKS[0].cards.includes(clean)) {
     return clean;
@@ -347,66 +325,49 @@ function resetAll() {
 }
 
 function init() {
-  renderStackSelector();
+  syncStackSelectors();
+  renderStackOrderList();
   renderGrid("target-values", VALUES, "val", "target");
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
-  // Trocar stack ativa no seletor do topo
-  document.getElementById("stack-selector").onchange = (e) => {
-    activeStackId = e.target.value;
-    localStorage.setItem("maxin_active_stack", activeStackId);
-    renderStackOrderList();
-    calculateImmediate();
-  };
+  document.getElementById("stack-selector").addEventListener("change", (e) => {
+    setActiveStack(e.target.value);
+  });
 
-  // Abrir/fechar modal de Stacks
+  document.getElementById("modal-stack-select").addEventListener("change", (e) => {
+    setActiveStack(e.target.value);
+  });
+
   const modalStacks = document.getElementById("modal-stacks");
-  document.getElementById("btn-stacks").onclick = () => {
+  document.getElementById("btn-stacks").addEventListener("click", () => {
+    syncStackSelectors();
     renderStackOrderList();
     modalStacks.classList.remove("hidden");
-  };
-  document.getElementById("btn-close-stacks").onclick = () => {
+  });
+
+  document.getElementById("btn-close-stacks").addEventListener("click", () => {
     modalStacks.classList.add("hidden");
-  };
+  });
 
-  // Alternar abas dentro do modal
-  const tabView = document.getElementById("tab-view");
-  const tabNew = document.getElementById("tab-new");
-  const panelView = document.getElementById("panel-view-stack");
-  const panelNew = document.getElementById("panel-new-stack");
-
-  tabView.onclick = () => {
-    tabView.classList.add("active");
-    tabNew.classList.remove("active");
-    panelView.classList.remove("hidden");
-    panelNew.classList.add("hidden");
-    renderStackOrderList();
-  };
-
-  tabNew.onclick = () => {
-    tabNew.classList.add("active");
-    tabView.classList.remove("active");
-    panelNew.classList.remove("hidden");
-    panelView.classList.add("hidden");
-  };
-
-  // Salvar nova mnemônica
-  document.getElementById("btn-save-stack").onclick = () => {
-    const name = document.getElementById("new-stack-name").value.trim();
-    const rawLines = document.getElementById("new-stack-cards").value.split(/\r?\n/).filter(l => l.trim() !== "");
+  document.getElementById("btn-save-stack").addEventListener("click", () => {
+    const nameInput = document.getElementById("new-stack-name");
+    const cardsInput = document.getElementById("new-stack-cards");
     const errEl = document.getElementById("new-stack-error");
     errEl.classList.add("hidden");
 
+    const name = nameInput.value.trim();
+    const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
     if (!name) {
-      errEl.textContent = "Digite um nome para a mnemônica.";
+      errEl.textContent = "Coloque um nome para a mnemônica.";
       errEl.classList.remove("hidden");
       return;
     }
 
     if (rawLines.length !== 52) {
-      errEl.textContent = `A lista precisa ter exatamente 52 cartas (você colocou ${rawLines.length}).`;
+      errEl.textContent = `A mnemônica precisa ter 52 cartas (você colocou ${rawLines.length}).`;
       errEl.classList.remove("hidden");
       return;
     }
@@ -415,7 +376,7 @@ function init() {
     for (let i = 0; i < rawLines.length; i++) {
       const card = parseCardLine(rawLines[i]);
       if (!card) {
-        errEl.textContent = `Não reconheci a carta da linha ${i + 1}: "${rawLines[i]}".`;
+        errEl.textContent = `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`;
         errEl.classList.remove("hidden");
         return;
       }
@@ -429,38 +390,32 @@ function init() {
 
     const newId = "custom_" + Date.now();
     customStacks.push({ id: newId, name, builtin: false, cards: parsed });
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    try {
+      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    } catch (e) {}
 
-    activeStackId = newId;
-    localStorage.setItem("maxin_active_stack", activeStackId);
+    nameInput.value = "";
+    cardsInput.value = "";
+    setActiveStack(newId);
+  });
 
-    document.getElementById("new-stack-name").value = "";
-    document.getElementById("new-stack-cards").value = "";
-    renderStackSelector();
-    tabView.click();
-    calculateImmediate();
-  };
-
-  // Excluir stack customizada
-  document.getElementById("btn-delete-stack").onclick = () => {
+  document.getElementById("btn-delete-stack").addEventListener("click", () => {
     const current = getActiveStack();
     if (current.builtin) return;
     customStacks = customStacks.filter(s => s.id !== current.id);
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-    activeStackId = "tamariz";
-    localStorage.setItem("maxin_active_stack", activeStackId);
-    renderStackSelector();
-    renderStackOrderList();
-    calculateImmediate();
-  };
+    try {
+      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    } catch (e) {}
+    setActiveStack("tamariz");
+  });
 
-  document.getElementById("btn-clear").onclick = resetAll;
-  document.getElementById("btn-stealth").onclick = () => {
+  document.getElementById("btn-clear").addEventListener("click", resetAll);
+  document.getElementById("btn-stealth").addEventListener("click", () => {
     document.getElementById("stealth-overlay").classList.remove("hidden");
-  };
-  document.getElementById("btn-exit-stealth").onclick = () => {
+  });
+  document.getElementById("btn-exit-stealth").addEventListener("click", () => {
     document.getElementById("stealth-overlay").classList.add("hidden");
-  };
+  });
 }
 
 init();
