@@ -188,6 +188,121 @@ const state = {
   bottomSuit: null
 };
 
+/* ESTADO E CONTROLE DO TIMER */
+let timerDuration = 5;
+let timerRemaining = 5;
+let timerInterval = null;
+let timerRunning = false;
+
+function formatTimerSec(sec) {
+  const safe = Math.max(0, Math.floor(sec));
+  const mins = Math.floor(safe / 60);
+  const rem = safe % 60;
+  return `${String(mins).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
+}
+
+function playTimerBeep() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+    setTimeout(() => {
+      if (ctx && typeof ctx.close === "function") ctx.close();
+    }, 500);
+  } catch (e) {}
+}
+
+function updateTimerUI(statusText, ringing = false) {
+  const disp = document.getElementById("timer-display");
+  const statusEl = document.getElementById("timer-status");
+  const toggleBtn = document.getElementById("btn-timer-toggle");
+
+  if (disp) disp.textContent = formatTimerSec(timerRemaining);
+  if (statusEl) {
+    if (statusText) statusEl.textContent = statusText;
+    statusEl.classList.toggle("ringing", ringing);
+  }
+  if (toggleBtn) {
+    toggleBtn.textContent = timerRunning ? "Pausar" : "Iniciar";
+    toggleBtn.classList.toggle("running", timerRunning);
+  }
+}
+
+function stopTimerInterval() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  timerRunning = false;
+}
+
+function startTimerCountdown(seconds) {
+  stopTimerInterval();
+  timerDuration = seconds;
+  timerRemaining = seconds;
+  timerRunning = true;
+  updateTimerUI(`Contando ${seconds}s...`, false);
+
+  timerInterval = setInterval(() => {
+    timerRemaining -= 1;
+    if (timerRemaining <= 0) {
+      timerRemaining = 0;
+      stopTimerInterval();
+      updateTimerUI("Tempo esgotado!", true);
+      playTimerBeep();
+      return;
+    }
+    updateTimerUI(`Contando ${timerDuration}s...`, false);
+  }, 1000);
+}
+
+function toggleTimerStartPause() {
+  if (timerRunning) {
+    stopTimerInterval();
+    updateTimerUI("Pausado", false);
+    return;
+  }
+  const startFrom = timerRemaining > 0 ? timerRemaining : timerDuration;
+  startTimerCountdown(startFrom);
+}
+
+function resetTimer() {
+  stopTimerInterval();
+  timerRemaining = timerDuration;
+  updateTimerUI("Pronto para iniciar", false);
+}
+
+function startQuickTimer(seconds) {
+  openTimerScreen();
+  startTimerCountdown(seconds);
+}
+
+function openTimerScreen() {
+  const timerEl = document.getElementById("timer-overlay");
+  const mainEl = document.getElementById("main-app");
+  if (timerEl) timerEl.classList.remove("hidden");
+  if (mainEl) mainEl.classList.add("hidden");
+  updateTimerUI();
+}
+
+function openCalcFromTimer() {
+  const timerEl = document.getElementById("timer-overlay");
+  const mainEl = document.getElementById("main-app");
+  if (timerEl) timerEl.classList.add("hidden");
+  if (mainEl) mainEl.classList.remove("hidden");
+  syncSelectors();
+  renderOrderList();
+}
+
 function getActiveStack() {
   if (stacks.length === 0) {
     return { id: "", name: "Sem stacks", cards: [] };
@@ -588,6 +703,7 @@ function init() {
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
+  updateTimerUI("Pronto para iniciar", false);
 }
 
 if (document.readyState === "loading") {
