@@ -193,12 +193,13 @@ const PICKER_ITEM_HEIGHT = 36;
 
 let selectedHours = 0;
 let selectedMinutes = 0;
-let selectedSeconds = 5;
-let timerInitialTotal = 5;
-let timerRemaining = 5;
+let selectedSeconds = 37;
+let timerInitialTotal = 37;
+let timerRemaining = 37;
 let timerInterval = null;
 let timerRunning = false;
 let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
+let holdingAlarmStealth = false;
 
 function formatIphoneClock(totalSec) {
   const safe = Math.max(0, Math.floor(totalSec));
@@ -490,6 +491,25 @@ function openCalcFromTimer() {
   if (mainEl) mainEl.classList.remove("hidden");
   syncSelectors();
   renderOrderList();
+}
+
+function holdStealthStart(ev) {
+  if (ev && ev.cancelable) ev.preventDefault();
+  if (holdingAlarmStealth) return;
+  holdingAlarmStealth = true;
+  const outEl = document.getElementById("stealth-output");
+  if (outEl && outEl.textContent.trim() === "Aguardando cartas...") {
+    outEl.innerHTML = `- Stack: <strong>${getActiveStack().name}</strong><br>- Selecione carta e boca na tela do sistema para ver topo e boca.`;
+  }
+  openStealth();
+}
+
+function holdStealthEnd(ev) {
+  if (ev && ev.cancelable) ev.preventDefault();
+  if (!holdingAlarmStealth) return;
+  holdingAlarmStealth = false;
+  closeStealth();
+  openTimerScreen();
 }
 
 function getActiveStack() {
