@@ -18,7 +18,7 @@ body {
   display: none !important;
 }
 
-/* SIMULADOR DE TIMER IDÊNTICO AO PRINT */
+/* SIMULADOR DE TIMER */
 .timer-overlay {
   min-height: 100dvh;
   width: 100%;
@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 18px 16px 10px;
+  padding: 18px 16px 12px;
 }
 
 .timer-header-row {
@@ -39,7 +39,7 @@ body {
 
 .timer-screen-title {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
@@ -74,13 +74,14 @@ body {
   width: 100%;
   max-width: 390px;
   margin: 0 auto;
-  gap: 24px;
+  gap: 26px;
 }
 
 .ios-wheel-picker {
   position: relative;
   width: 100%;
-  height: 196px;
+  height: 156px;
+  overflow: hidden;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
@@ -103,22 +104,23 @@ body {
 .ios-wheel-col {
   position: relative;
   z-index: 1;
-  height: 100%;
+  height: 156px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ios-wheel-list {
-  width: 68px;
-  height: 100%;
+  width: 72px;
+  height: 156px;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px 0;
+  padding: 60px 0;
 }
 
 .ios-wheel-list::-webkit-scrollbar {
@@ -127,11 +129,13 @@ body {
 
 .picker-item {
   width: 100%;
-  min-height: 36px;
+  flex: 0 0 36px;
+  height: 36px;
+  line-height: 36px;
   border: none;
   background: transparent;
   color: #636366;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   scroll-snap-align: center;
@@ -153,7 +157,7 @@ body {
 }
 
 .timer-countdown-box {
-  height: 196px;
+  height: 156px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -162,7 +166,7 @@ body {
 }
 
 .timer-display {
-  font-size: 3.4rem;
+  font-size: 3.3rem;
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
