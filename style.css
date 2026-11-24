@@ -244,7 +244,6 @@ textarea {
   color: #34d399;
 }
 
-/* Grade original com quadrados compactos para caber em qualquer tela de celular */
 .grid-values {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -264,20 +263,22 @@ textarea {
   color: #e6ebf5;
   border: 1px solid #2a3448;
   border-radius: 8px;
-  padding: 7px 2px;
+  padding: 6px 2px;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   min-width: 0;
-  aspect-ratio: 1.15 / 1;
+  aspect-ratio: 1.1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Naipes menores no celular para manter o visual clean */
 .suit-btn {
-  font-size: 1rem;
-  aspect-ratio: 1.6 / 1;
+  font-size: 0.92rem;
+  padding: 4px 2px;
+  aspect-ratio: 2.3 / 1;
 }
 
 .suit-btn.red {
@@ -302,8 +303,9 @@ textarea {
   }
 
   .suit-btn {
-    font-size: 0.9rem;
-    padding: 5px 1px;
+    font-size: 0.85rem;
+    padding: 3px 1px;
+    aspect-ratio: 2.4 / 1;
   }
 }
 
@@ -322,11 +324,23 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
+}
+
+.pos-value-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .pos-card strong {
   font-size: 1.35rem;
+}
+
+.pos-value-line span {
+  font-size: 0.85rem;
+  color: #cbd5e1;
 }
 
 .phrases-stack {
