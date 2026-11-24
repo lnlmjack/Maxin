@@ -188,16 +188,14 @@ const state = {
   bottomSuit: null
 };
 
-/* TIMER ESTILO IPHONE + SOM RADAR */
-let selectedHours = 0;
+/* TIMER ESTILO PRINT + SOMALARME.MP3 */
+let selectedHours = 1;
 let selectedMinutes = 0;
-let selectedSeconds = 5;
-let timerRemaining = 5;
+let selectedSeconds = 0;
+let timerRemaining = 3600;
 let timerInterval = null;
 let timerRunning = false;
 let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
-let alarmLoopInterval = null;
-let alarmAudioCtx = null;
 
 function formatIphoneClock(totalSec) {
   const safe = Math.max(0, Math.floor(totalSec));
@@ -210,62 +208,32 @@ function formatIphoneClock(totalSec) {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-function formatEndTimePreview(secondsFromNow) {
-  const endDate = new Date(Date.now() + Math.max(0, secondsFromNow) * 1000);
-  const hh = String(endDate.getHours()).padStart(2, "0");
-  const mm = String(endDate.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
-}
-
-function playSingleRadarPulse() {
+function playSomAlarmeMp3() {
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    if (!alarmAudioCtx || alarmAudioCtx.state === "closed") {
-      alarmAudioCtx = new AudioCtx();
+    const audioEl = document.getElementById("alarm-audio");
+    if (!audioEl) return;
+    audioEl.loop = true;
+    audioEl.currentTime = 0;
+    const playPromise = audioEl.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
     }
-    if (alarmAudioCtx.state === "suspended") {
-      alarmAudioCtx.resume();
-    }
-
-    const now = alarmAudioCtx.currentTime;
-    const notes = [1046.5, 1318.5, 1567.98, 2093.0]; // estilo arpejo Radar do iPhone
-    notes.forEach((freq, idx) => {
-      const osc = alarmAudioCtx.createOscillator();
-      const gain = alarmAudioCtx.createGain();
-      osc.type = "triangle";
-      const t0 = now + idx * 0.085;
-      osc.frequency.setValueAtTime(freq, t0);
-      osc.frequency.exponentialRampToValueAtTime(freq * 1.04, t0 + 0.075);
-      gain.gain.setValueAtTime(0.001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.22, t0 + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.08);
-      osc.connect(gain);
-      gain.connect(alarmAudioCtx.destination);
-      osc.start(t0);
-      osc.stop(t0 + 0.085);
-    });
   } catch (e) {}
 }
 
-function startIphoneAlarmSound() {
-  stopIphoneAlarmSound();
-  playSingleRadarPulse();
-  alarmLoopInterval = setInterval(() => {
-    playSingleRadarPulse();
-  }, 950);
-}
-
 function stopIphoneAlarmSound() {
-  if (alarmLoopInterval) {
-    clearInterval(alarmLoopInterval);
-    alarmLoopInterval = null;
-  }
-  const stopBtn = document.getElementById("btn-timer-stop-sound");
-  if (stopBtn) stopBtn.classList.add("hidden");
+  try {
+    const audioEl = document.getElementById("alarm-audio");
+    if (audioEl) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      audioEl.loop = false;
+    }
+  } catch (e) {}
   if (timerMode === "ringing") {
     timerMode = "picker";
     renderIphoneTimerState();
+    initIphonePicker();
   }
 }
 
@@ -285,10 +253,8 @@ function renderIphoneTimerState() {
   const pickerEl = document.getElementById("timer-picker");
   const countdownBox = document.getElementById("timer-countdown-box");
   const disp = document.getElementById("timer-display");
-  const endPreview = document.getElementById("timer-end-preview");
   const statusEl = document.getElementById("timer-status");
   const startBtn = document.getElementById("btn-timer-start");
-  const ringEl = document.querySelector(".timer-ring");
   const stopSoundBtn = document.getElementById("btn-timer-stop-sound");
 
   const showWheel = timerMode === "picker";
@@ -297,13 +263,9 @@ function renderIphoneTimerState() {
 
   if (!showWheel) {
     if (disp) disp.textContent = formatIphoneClock(timerRemaining);
-    if (ringEl) ringEl.classList.toggle("ringing", timerMode === "ringing");
-    if (endPreview) {
-      endPreview.textContent = timerMode === "ringing" ? "Timer" : formatEndTimePreview(timerRemaining);
-    }
     if (statusEl) {
       if (timerMode === "ringing") {
-        statusEl.textContent = "Tempo esgotado";
+        statusEl.textContent = "Timer concluído";
         statusEl.className = "timer-status ringing";
       } else if (timerMode === "paused") {
         statusEl.textContent = "Pausado";
@@ -317,14 +279,17 @@ function renderIphoneTimerState() {
 
   if (startBtn) {
     if (timerMode === "running") {
-      startBtn.textContent = "Pausar";
-      startBtn.className = "timer-btn-start running";
+      startBtn.textContent = "❚❚";
+      startBtn.className = "ios-circle-btn ios-btn-play running";
     } else if (timerMode === "paused") {
-      startBtn.textContent = "Retomar";
-      startBtn.className = "timer-btn-start";
+      startBtn.textContent = "▶";
+      startBtn.className = "ios-circle-btn ios-btn-play";
+    } else if (timerMode === "ringing") {
+      startBtn.textContent = "■";
+      startBtn.className = "ios-circle-btn ios-btn-play running";
     } else {
-      startBtn.textContent = "Iniciar";
-      startBtn.className = "timer-btn-start";
+      startBtn.textContent = "▶";
+      startBtn.className = "ios-circle-btn ios-btn-play";
     }
   }
 
@@ -341,7 +306,7 @@ function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `picker-item ${v === currentVal ? "selected" : ""}`;
-    btn.textContent = String(v).padStart(2, "0");
+    btn.textContent = String(v);
     btn.onclick = () => {
       onSelect(v);
       buildPickerColumn("picker-hours", 23, selectedHours, val => { selectedHours = val; });
@@ -379,7 +344,7 @@ function startCountdownWithSeconds(seconds) {
       stopTimerTick();
       timerMode = "ringing";
       renderIphoneTimerState();
-      startIphoneAlarmSound();
+      playSomAlarmeMp3();
       return;
     }
     renderIphoneTimerState();
@@ -389,8 +354,6 @@ function startCountdownWithSeconds(seconds) {
 function toggleIphoneTimer() {
   if (timerMode === "ringing") {
     stopIphoneAlarmSound();
-    timerMode = "picker";
-    renderIphoneTimerState();
     return;
   }
   if (timerMode === "running") {
