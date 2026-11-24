@@ -30,6 +30,15 @@ body {
   padding: 18px 16px 10px;
 }
 
+.timer-top-section {
+  width: 100%;
+  max-width: 390px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .timer-header-row {
   display: flex;
   align-items: center;
@@ -79,6 +88,78 @@ body {
 
 .timer-stop-chip {
   background: #3a1715;
+  color: #ff453a;
+  font-weight: 700;
+}
+
+/* Contagem no topo, igual ao print de execução */
+.timer-running-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timer-running-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 2px 14px;
+  border-bottom: 1px solid #1c1c1e;
+}
+
+.timer-running-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.timer-display {
+  font-size: 3.6rem;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.timer-sublabel {
+  font-size: 0.92rem;
+  color: #8e8e93;
+  font-variant-numeric: tabular-nums;
+}
+
+.ios-running-pause-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #2b1804;
+  border: 2px solid #ff9f0a;
+  color: #ff9f0a;
+  font-size: 1.15rem;
+  letter-spacing: -1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ios-running-pause-btn.paused {
+  background: #102a16;
+  border-color: #30d158;
+  color: #30d158;
+}
+
+.timer-status {
+  font-size: 0.85rem;
+  color: #ff9f0a;
+  min-height: 1.1em;
+}
+
+.timer-status.ringing {
   color: #ff453a;
   font-weight: 700;
 }
@@ -170,80 +251,6 @@ body {
   color: #ffffff;
   margin-left: 2px;
   pointer-events: none;
-}
-
-/* Tela de contagem em execução no estilo do print */
-.timer-running-panel {
-  width: 100%;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-}
-
-.timer-running-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 4px;
-  border-bottom: 1px solid #1c1c1e;
-}
-
-.timer-running-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.timer-display {
-  font-size: 3.5rem;
-  font-weight: 300;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  color: #ffffff;
-}
-
-.timer-sublabel {
-  font-size: 0.9rem;
-  color: #8e8e93;
-  font-variant-numeric: tabular-nums;
-}
-
-.ios-running-pause-btn {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: #2b1804;
-  border: 2px solid #ff9f0a;
-  color: #ff9f0a;
-  font-size: 1.15rem;
-  letter-spacing: -1px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.ios-running-pause-btn.paused {
-  background: #102a16;
-  border-color: #30d158;
-  color: #30d158;
-}
-
-.timer-status {
-  font-size: 0.85rem;
-  color: #ff9f0a;
-  min-height: 1.1em;
-}
-
-.timer-status.ringing {
-  color: #ff453a;
-  font-weight: 700;
 }
 
 .ios-action-row {
