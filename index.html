@@ -6,16 +6,42 @@
   <meta name="theme-color" content="#0b0d12" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_10" />
+  <link rel="stylesheet" href="style.css?v=20261124_11" />
 </head>
 <body>
-  <div class="app">
+  <!-- SIMULADOR DE TIMER (ESTILO IPHONE) -->
+  <div id="timer-overlay" class="timer-overlay">
+    <div class="timer-topbar">
+      <button id="btn-timer-5s" type="button" class="timer-pill-btn" onclick="startQuickTimer(5)">5s</button>
+      <button id="btn-to-calc" type="button" class="timer-pill-btn timer-pill-subtle" onclick="openCalcFromTimer()">Peek / Calc</button>
+    </div>
+
+    <div class="timer-center">
+      <div class="timer-label">Temporizador</div>
+      <div id="timer-display" class="timer-display">00:05</div>
+      <div id="timer-status" class="timer-status">Pronto para iniciar</div>
+
+      <div class="timer-controls">
+        <button id="btn-timer-toggle" type="button" class="timer-btn-start" onclick="toggleTimerStartPause()">Iniciar</button>
+        <button id="btn-timer-reset" type="button" class="timer-btn-cancel" onclick="resetTimer()">Zerar</button>
+      </div>
+    </div>
+
+    <div class="timer-footer-hint">
+      Toque em <strong>Peek / Calc</strong> para ir ao sistema ou em <strong>5s</strong> para disparar em 5 segundos.
+    </div>
+  </div>
+
+  <!-- TELA PRINCIPAL DO SISTEMA MAXIN -->
+  <div id="main-app" class="app hidden">
     <header class="topbar">
       <div class="brand-row">
         <h1>MAXIN</h1>
         <select id="stack-selector" class="stack-select" aria-label="Escolher stack" onchange="changeStack(this.value)"></select>
       </div>
       <div class="header-actions">
+        <button id="btn-back-timer" type="button" class="btn-ghost" onclick="openTimerScreen()">Timer</button>
+        <button id="btn-quick-5s" type="button" class="btn-ghost" onclick="startQuickTimer(5)">5s</button>
         <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksPanel()">Stacks</button>
         <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
         <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
@@ -33,22 +59,26 @@
 
       <div id="manual-content" class="manual-body">
         <h3>1. Visão Geral</h3>
-        <p>O <strong>Maxin</strong> gerencia baralhos mnemônicos de 52 cartas, calcula a posição exata da carta escolhida a partir do corte / peek da carta de baixo (boca) e gera frases de soletração pelo topo e pela boca.</p>
+        <p>O <strong>Maxin</strong> combina um simulador de <strong>Timer</strong> com o gerenciamento de baralhos mnemônicos de 52 cartas, cálculo da posição exata da carta escolhida pelo corte / peek da carta de baixo (boca) e frases de soletração pelo topo e pela boca.</p>
 
-        <h3>2. Barra Superior</h3>
+        <h3>2. Simulador de Timer e Fluxo de Performance</h3>
+        <p><strong>Timer:</strong> exibe a contagem regressiva para mostrar ao espectador. Toque em <strong>Iniciar</strong> (ou <strong>5s</strong>) para iniciar em 5 segundos; ao zerar, o alarme visual/sonoro dispara indicando onde parar de cortar o baralho.</p>
+        <p><strong>Peek / Calc:</strong> leva direto para a tela de cálculo/peek. Na tela principal, <strong>Timer</strong> volta à tela do relógio e <strong>5s</strong> inicia a contagem de 5 segundos e já abre a tela do timer para você virar ao espectador.</p>
+
+        <h3>3. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
         <p><strong>Stacks:</strong> abre ou fecha o painel de baralhos (para sair da tela de stacks e voltar à tela principal, toque em <strong>Stacks</strong> ou <strong>Fechar</strong>).</p>
         <p><strong>Limpar:</strong> desmarca <strong>Carta Escolhida</strong> e <strong>Peek da Carta de Baixo (Boca)</strong> e oculta o resultado.</p>
         <p><strong>Stealth:</strong> exibe uma tela discreta em formato de notas com o stack ativo, a posição e a frase pelo topo e pela boca. Toque em <strong>Sair</strong> para voltar.</p>
         <p><strong>Manual:</strong> abre ou fecha este manual completo dentro do programa.</p>
 
-        <h3>3. Criar, Editar e Excluir Stacks</h3>
+        <h3>4. Criar, Editar e Excluir Stacks</h3>
         <p><strong>Criar:</strong> digite o nome em <strong>Novo stack — nome</strong>, cole ou digite <strong>52 cartas</strong> em <strong>Novo stack — 52 cartas</strong> (uma por linha, separadas por vírgula <code>,</code> ou ponto e vírgula <code>;</code>) e toque em <strong>Salvar Novo Stack</strong>.</p>
         <p><strong>Formatos aceitos:</strong> nomes completos com ou sem acento (ex.: <code>ás de espadas</code>, <code>as de espadas</code>, <code>8 de Espadas</code>, <code>valete de copas</code>, <code>dama de ouros</code>, <code>rei de paus</code>), valores (<code>A</code>, <code>2</code>–<code>10</code>, <code>J</code>, <code>Q</code>, <code>K</code>) e naipes por nome, inicial (<code>p</code>, <code>c</code>, <code>e</code>, <code>o</code>) ou símbolo (<code>♣</code>, <code>♥</code>, <code>♠</code>, <code>♦</code>).</p>
         <p><strong>Editar:</strong> escolha qualquer stack (embutido ou criado por você) no seletor do painel, toque em <strong>Editar</strong>, ajuste nome ou cartas nos campos abaixo e toque em <strong>Salvar Alterações</strong> (ou <strong>Cancelar Edição</strong>).</p>
         <p><strong>Excluir:</strong> escolha o stack no painel e toque em <strong>Excluir</strong> para removê-lo da lista salva no navegador.</p>
 
-        <h3>4. Cálculo de Posição e Frases</h3>
+        <h3>5. Cálculo de Posição e Frases</h3>
         <p>Selecione o valor e o naipe em <strong>Carta Escolhida</strong> e em <strong>Peek da Carta de Baixo (Boca)</strong>. O sistema mostra automaticamente a posição <strong>Pelo Topo</strong> e <strong>Pela Boca</strong> e as respectivas frases de soletração.</p>
       </div>
     </section>
@@ -144,6 +174,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_10"></script>
+  <script src="app.js?v=20261124_11"></script>
 </body>
 </html>
