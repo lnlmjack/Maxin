@@ -60,7 +60,7 @@ const SUITS = [
   { symbol: "♦", name: "ouros", red: true }
 ];
 
-const RAW_PHRASES = [
+const BASE_PHRASES = [
   "É", "É A", "AQUI", "É ELA", "A CARTA", "ACHEI A", "SUA CARTA", "A SUA CARTA",
   "É A SUA CARTA", "A CARTA CERTA", "ACHEI A CARTA", "ESSA É A CARTA",
   "A CARTA PENSADA", "ESTA É A SUA CARTA", "A CARTA QUE PENSOU", "A SUA CARTA PENSADA",
@@ -94,19 +94,54 @@ function countLetters(text) {
   return text.replace(/[^a-zA-ZáéíóúâêôãõçÁÉÍÓÚÂÊÔÃÕÇ]/g, "").length;
 }
 
-const PHRASES_BY_LENGTH = {};
-RAW_PHRASES.forEach(phrase => {
-  const len = countLetters(phrase);
-  if (!PHRASES_BY_LENGTH[len]) PHRASES_BY_LENGTH[len] = [];
-  if (!PHRASES_BY_LENGTH[len].includes(phrase)) {
-    PHRASES_BY_LENGTH[len].push(phrase);
-  }
+const PHRASES_BY_LEN = {};
+BASE_PHRASES.forEach(p => {
+  const n = countLetters(p);
+  if (!PHRASES_BY_LEN[n]) PHRASES_BY_LEN[n] = p;
 });
+
+function getPhraseForPos(pos, sideLabel) {
+  // 1. Frase exata com exatamente `pos` letras
+  if (PHRASES_BY_LEN[pos]) {
+    const text = PHRASES_BY_LEN[pos];
+    return {
+      text,
+      letters: pos,
+      sub: `${pos} letras — cai EXATO na última letra (${pos}ª ${sideLabel})`
+    };
+  }
+
+  // 2. Frase com `pos - 1` letras -> soletra e vira a PRÓXIMA carta
+  if (pos > 1 && PHRASES_BY_LEN[pos - 1]) {
+    const text = PHRASES_BY_LEN[pos - 1];
+    return {
+      text,
+      letters: pos - 1,
+      sub: `${pos - 1} letras — soletra e vira a PRÓXIMA carta (${pos}ª ${sideLabel})`
+    };
+  }
+
+  // 3. Fallback garantido: usa uma frase conhecida e indica quantas cartas extras passar
+  const fallback = "A CARTA QUE VOCÊ PENSOU FOI";
+  const len = countLetters(fallback);
+  if (pos > len) {
+    return {
+      text: fallback,
+      letters: len,
+      sub: `${len} letras + passe mais ${pos - len} carta(s) para chegar na ${pos}ª ${sideLabel}`
+    };
+  }
+  return {
+    text: fallback,
+    letters: len,
+    sub: `${len} letras — conte ${pos} carta(s) (${sideLabel})`
+  };
+}
 
 let customStacks = [];
 try {
-  const saved = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
-  if (Array.isArray(saved)) customStacks = saved;
+  const raw = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+  if (Array.isArray(raw)) customStacks = raw;
 } catch (e) {}
 
 let activeStackId = "tamariz";
@@ -130,9 +165,9 @@ function getActiveStack() {
   return all.find(s => s.id === activeStackId) || all[0];
 }
 
-function syncStackSelectors() {
+function syncSelectors() {
   const all = getAllStacks();
-  ["stack-selector", "drawer-stack-select"].forEach(id => {
+  ["stack-selector", "panel-stack-select"].forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
     sel.innerHTML = "";
@@ -165,24 +200,12 @@ function renderOrderList() {
   });
 }
 
-function toggleStacksDrawer(forceState) {
-  const drawer = document.getElementById("stacks-drawer");
-  if (!drawer) return;
-  if (typeof forceState === "boolean") {
-    drawer.classList.toggle("hidden", !forceState);
-  } else {
-    drawer.classList.toggle("hidden");
-  }
-  syncStackSelectors();
-  renderOrderList();
-}
-
-function selectStack(newId) {
+function setStack(newId) {
   activeStackId = newId;
   try {
     localStorage.setItem("maxin_active_stack", activeStackId);
   } catch (e) {}
-  syncStackSelectors();
+  syncSelectors();
   renderOrderList();
   calculateImmediate();
 }
@@ -225,62 +248,11 @@ function parseCardLine(raw) {
   return BUILTIN_STACKS[0].cards.includes(clean) ? clean : null;
 }
 
-function saveNewStack() {
-  const nameInput = document.getElementById("new-stack-name");
-  const cardsInput = document.getElementById("new-stack-cards");
-  const errEl = document.getElementById("new-stack-error");
-  errEl.classList.add("hidden");
-
-  const name = nameInput.value.trim();
-  const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-  if (!name) {
-    errEl.textContent = "Digite um nome para o baralho de memória.";
-    errEl.classList.remove("hidden");
-    return;
-  }
-
-  if (rawLines.length !== 52) {
-    errEl.textContent = `O baralho precisa ter 52 cartas (você colocou ${rawLines.length}).`;
-    errEl.classList.remove("hidden");
-    return;
-  }
-
-  const parsed = [];
-  for (let i = 0; i < rawLines.length; i++) {
-    const card = parseCardLine(rawLines[i]);
-    if (!card) {
-      errEl.textContent = `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`;
-      errEl.classList.remove("hidden");
-      return;
-    }
-    if (parsed.includes(card)) {
-      errEl.textContent = `Carta repetida na linha ${i + 1}: "${card}".`;
-      errEl.classList.remove("hidden");
-      return;
-    }
-    parsed.push(card);
-  }
-
-  const newId = "custom_" + Date.now();
-  customStacks.push({ id: newId, name, builtin: false, cards: parsed });
-  try {
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-  } catch (e) {}
-
-  nameInput.value = "";
-  cardsInput.value = "";
-  selectStack(newId);
-}
-
-function deleteCurrentCustomStack() {
-  const current = getActiveStack();
-  if (current.builtin) return;
-  customStacks = customStacks.filter(s => s.id !== current.id);
-  try {
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-  } catch (e) {}
-  selectStack("tamariz");
+function showFeedback(type, msg) {
+  const fb = document.getElementById("new-stack-feedback");
+  fb.className = `feedback ${type}`;
+  fb.textContent = msg;
+  fb.classList.remove("hidden");
 }
 
 function renderGrid(containerId, items, type, group) {
@@ -309,37 +281,6 @@ function renderGrid(containerId, items, type, group) {
   });
 }
 
-function buildPhraseForSide(pos, sideLabel) {
-  const exactList = PHRASES_BY_LENGTH[pos];
-  if (exactList && exactList.length > 0) {
-    const text = exactList[0];
-    return {
-      text,
-      letters: countLetters(text),
-      sub: `${countLetters(text)} letras — cai EXATO na última letra (${pos}ª ${sideLabel})`
-    };
-  }
-
-  if (pos > 1 && PHRASES_BY_LENGTH[pos - 1]) {
-    const text = PHRASES_BY_LENGTH[pos - 1][0];
-    return {
-      text,
-      letters: countLetters(text),
-      sub: `${countLetters(text)} letras — soletra e vira a PRÓXIMA carta (${pos}ª ${sideLabel})`
-    };
-  }
-
-  const fallback = "A CARTA QUE VOCÊ PENSOU FOI";
-  const len = countLetters(fallback);
-  return {
-    text: fallback,
-    letters: len,
-    sub: pos > len
-      ? `${len} letras + passe mais ${pos - len} carta(s) (${pos}ª ${sideLabel})`
-      : `${len} letras — conte ${pos} carta(s) (${sideLabel})`
-  };
-}
-
 function calculateImmediate() {
   const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
   const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
@@ -358,23 +299,23 @@ function calculateImmediate() {
   const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
   const posBottom = 53 - posTop;
 
-  const topPhrase = buildPhraseForSide(posTop, "pelo topo");
-  const bottomPhrase = buildPhraseForSide(posBottom, "pela boca");
+  const topPhrase = getPhraseForPos(posTop, "pelo topo");
+  const bottomPhrase = getPhraseForPos(posBottom, "pela boca");
 
   document.getElementById("result-panel").classList.remove("hidden");
   document.getElementById("pos-top").textContent = posTop;
   document.getElementById("pos-bottom").textContent = posBottom;
 
-  document.getElementById("phrase-top-info").textContent = `FRASE PELO TOPO (${topPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-top-info").textContent = `FRASE CONTANDO PELO TOPO (${topPhrase.letters} LETRAS)`;
   document.getElementById("phrase-top-main").textContent = `"${topPhrase.text}"`;
   document.getElementById("phrase-top-sub").textContent = topPhrase.sub;
 
-  document.getElementById("phrase-bottom-info").textContent = `FRASE PELA BOCA (${bottomPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-bottom-info").textContent = `FRASE CONTANDO PELA BOCA (${bottomPhrase.letters} LETRAS)`;
   document.getElementById("phrase-bottom-main").textContent = `"${bottomPhrase.text}"`;
   document.getElementById("phrase-bottom-sub").textContent = bottomPhrase.sub;
 
   document.getElementById("stealth-output").innerHTML = `
-    - Baralho: <strong>${getActiveStack().name}</strong><br>
+    - Stack: <strong>${getActiveStack().name}</strong><br>
     - Topo: <strong>${posTop}ª</strong> ("${topPhrase.text}")<br>
     - Boca: <strong>${posBottom}ª</strong> ("${bottomPhrase.text}")
   `;
@@ -391,23 +332,89 @@ function resetAll() {
   document.getElementById("result-panel").classList.add("hidden");
 }
 
-function openStealth() {
-  document.getElementById("stealth-overlay").classList.remove("hidden");
-}
-
-function closeStealth() {
-  document.getElementById("stealth-overlay").classList.add("hidden");
-}
-
 function init() {
-  syncStackSelectors();
+  syncSelectors();
   renderOrderList();
   renderGrid("target-values", VALUES, "val", "target");
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
-  document.getElementById("stack-selector").addEventListener("change", (e) => selectStack(e.target.value));
+  const panel = document.getElementById("stacks-panel");
+  document.getElementById("btn-stacks").addEventListener("click", () => {
+    panel.classList.toggle("hidden");
+    syncSelectors();
+    renderOrderList();
+  });
+
+  document.getElementById("btn-close-stacks").addEventListener("click", () => {
+    panel.classList.add("hidden");
+  });
+
+  document.getElementById("stack-selector").addEventListener("change", (e) => setStack(e.target.value));
+  document.getElementById("panel-stack-select").addEventListener("change", (e) => setStack(e.target.value));
+
+  document.getElementById("btn-save-stack").addEventListener("click", () => {
+    const nameInput = document.getElementById("new-stack-name");
+    const cardsInput = document.getElementById("new-stack-cards");
+    document.getElementById("new-stack-feedback").classList.add("hidden");
+
+    const name = nameInput.value.trim();
+    const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+    if (!name) {
+      showFeedback("error", "Informe um nome para o stack.");
+      return;
+    }
+
+    if (rawLines.length !== 52) {
+      showFeedback("error", `É preciso colar 52 cartas (você colocou ${rawLines.length}).`);
+      return;
+    }
+
+    const parsed = [];
+    for (let i = 0; i < rawLines.length; i++) {
+      const card = parseCardLine(rawLines[i]);
+      if (!card) {
+        showFeedback("error", `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`);
+        return;
+      }
+      if (parsed.includes(card)) {
+        showFeedback("error", `Carta repetida na linha ${i + 1}: "${card}".`);
+        return;
+      }
+      parsed.push(card);
+    }
+
+    const newId = "custom_" + Date.now();
+    customStacks.push({ id: newId, name, builtin: false, cards: parsed });
+    try {
+      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    } catch (e) {}
+
+    nameInput.value = "";
+    cardsInput.value = "";
+    setStack(newId);
+    showFeedback("ok", `Stack "${name}" salvo e selecionado.`);
+  });
+
+  document.getElementById("btn-delete-stack").addEventListener("click", () => {
+    const current = getActiveStack();
+    if (current.builtin) return;
+    customStacks = customStacks.filter(s => s.id !== current.id);
+    try {
+      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    } catch (e) {}
+    setStack("tamariz");
+  });
+
+  document.getElementById("btn-clear").addEventListener("click", resetAll);
+  document.getElementById("btn-stealth").addEventListener("click", () => {
+    document.getElementById("stealth-overlay").classList.remove("hidden");
+  });
+  document.getElementById("btn-exit-stealth").addEventListener("click", () => {
+    document.getElementById("stealth-overlay").classList.add("hidden");
+  });
 }
 
 init();
