@@ -165,6 +165,28 @@ function renderOrderList() {
   });
 }
 
+function toggleStacksDrawer(forceState) {
+  const drawer = document.getElementById("stacks-drawer");
+  if (!drawer) return;
+  if (typeof forceState === "boolean") {
+    drawer.classList.toggle("hidden", !forceState);
+  } else {
+    drawer.classList.toggle("hidden");
+  }
+  syncStackSelectors();
+  renderOrderList();
+}
+
+function selectStack(newId) {
+  activeStackId = newId;
+  try {
+    localStorage.setItem("maxin_active_stack", activeStackId);
+  } catch (e) {}
+  syncStackSelectors();
+  renderOrderList();
+  calculateImmediate();
+}
+
 function parseCardLine(raw) {
   let clean = raw.trim().toLowerCase().replace(/^\d+[\.\)\-\s]+/, "").trim();
   if (!clean) return null;
@@ -203,6 +225,64 @@ function parseCardLine(raw) {
   return BUILTIN_STACKS[0].cards.includes(clean) ? clean : null;
 }
 
+function saveNewStack() {
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const errEl = document.getElementById("new-stack-error");
+  errEl.classList.add("hidden");
+
+  const name = nameInput.value.trim();
+  const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  if (!name) {
+    errEl.textContent = "Digite um nome para o baralho de memória.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+
+  if (rawLines.length !== 52) {
+    errEl.textContent = `O baralho precisa ter 52 cartas (você colocou ${rawLines.length}).`;
+    errEl.classList.remove("hidden");
+    return;
+  }
+
+  const parsed = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const card = parseCardLine(rawLines[i]);
+    if (!card) {
+      errEl.textContent = `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`;
+      errEl.classList.remove("hidden");
+      return;
+    }
+    if (parsed.includes(card)) {
+      errEl.textContent = `Carta repetida na linha ${i + 1}: "${card}".`;
+      errEl.classList.remove("hidden");
+      return;
+    }
+    parsed.push(card);
+  }
+
+  const newId = "custom_" + Date.now();
+  customStacks.push({ id: newId, name, builtin: false, cards: parsed });
+  try {
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+  } catch (e) {}
+
+  nameInput.value = "";
+  cardsInput.value = "";
+  selectStack(newId);
+}
+
+function deleteCurrentCustomStack() {
+  const current = getActiveStack();
+  if (current.builtin) return;
+  customStacks = customStacks.filter(s => s.id !== current.id);
+  try {
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+  } catch (e) {}
+  selectStack("tamariz");
+}
+
 function renderGrid(containerId, items, type, group) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -229,23 +309,23 @@ function renderGrid(containerId, items, type, group) {
   });
 }
 
-function getPhraseForPos(posTop) {
-  const exactList = PHRASES_BY_LENGTH[posTop];
+function buildPhraseForSide(pos, sideLabel) {
+  const exactList = PHRASES_BY_LENGTH[pos];
   if (exactList && exactList.length > 0) {
     const text = exactList[0];
     return {
       text,
       letters: countLetters(text),
-      sub: `${countLetters(text)} letras — cai EXATO na última letra (${posTop}ª carta pelo topo)`
+      sub: `${countLetters(text)} letras — cai EXATO na última letra (${pos}ª ${sideLabel})`
     };
   }
 
-  if (posTop > 1 && PHRASES_BY_LENGTH[posTop - 1]) {
-    const text = PHRASES_BY_LENGTH[posTop - 1][0];
+  if (pos > 1 && PHRASES_BY_LENGTH[pos - 1]) {
+    const text = PHRASES_BY_LENGTH[pos - 1][0];
     return {
       text,
       letters: countLetters(text),
-      sub: `${countLetters(text)} letras — soletra e vira a PRÓXIMA carta (${posTop}ª pelo topo)`
+      sub: `${countLetters(text)} letras — soletra e vira a PRÓXIMA carta (${pos}ª ${sideLabel})`
     };
   }
 
@@ -254,9 +334,9 @@ function getPhraseForPos(posTop) {
   return {
     text: fallback,
     letters: len,
-    sub: posTop > len
-      ? `${len} letras + passe mais ${posTop - len} carta(s) (${posTop}ª pelo topo)`
-      : `${len} letras — conte ${posTop} carta(s) do topo`
+    sub: pos > len
+      ? `${len} letras + passe mais ${pos - len} carta(s) (${pos}ª ${sideLabel})`
+      : `${len} letras — conte ${pos} carta(s) (${sideLabel})`
   };
 }
 
@@ -278,20 +358,25 @@ function calculateImmediate() {
   const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
   const posBottom = 53 - posTop;
 
-  const phraseObj = getPhraseForPos(posTop);
+  const topPhrase = buildPhraseForSide(posTop, "pelo topo");
+  const bottomPhrase = buildPhraseForSide(posBottom, "pela boca");
 
   document.getElementById("result-panel").classList.remove("hidden");
   document.getElementById("pos-top").textContent = posTop;
   document.getElementById("pos-bottom").textContent = posBottom;
-  document.getElementById("phrase-info").textContent = `FRASE PARA SOLETRAR (${phraseObj.letters} LETRAS)`;
-  document.getElementById("phrase-main").textContent = `"${phraseObj.text}"`;
-  document.getElementById("phrase-sub").textContent = phraseObj.sub;
+
+  document.getElementById("phrase-top-info").textContent = `FRASE PELO TOPO (${topPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-top-main").textContent = `"${topPhrase.text}"`;
+  document.getElementById("phrase-top-sub").textContent = topPhrase.sub;
+
+  document.getElementById("phrase-bottom-info").textContent = `FRASE PELA BOCA (${bottomPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-bottom-main").textContent = `"${bottomPhrase.text}"`;
+  document.getElementById("phrase-bottom-sub").textContent = bottomPhrase.sub;
 
   document.getElementById("stealth-output").innerHTML = `
-    - Stack: <strong>${getActiveStack().name}</strong><br>
-    - Topo: <strong>${posTop}ª</strong> | Boca: <strong>${posBottom}ª</strong><br>
-    - Frase: "${phraseObj.text}"<br>
-    - ${phraseObj.sub}
+    - Baralho: <strong>${getActiveStack().name}</strong><br>
+    - Topo: <strong>${posTop}ª</strong> ("${topPhrase.text}")<br>
+    - Boca: <strong>${posBottom}ª</strong> ("${bottomPhrase.text}")
   `;
 }
 
@@ -306,35 +391,15 @@ function resetAll() {
   document.getElementById("result-panel").classList.add("hidden");
 }
 
-function selectStack(newId) {
-  activeStackId = newId;
-  try {
-    localStorage.setItem("maxin_active_stack", activeStackId);
-  } catch (e) {}
-  syncStackSelectors();
-  renderOrderList();
-  calculateImmediate();
+function openStealth() {
+  document.getElementById("stealth-overlay").classList.remove("hidden");
+}
+
+function closeStealth() {
+  document.getElementById("stealth-overlay").classList.add("hidden");
 }
 
 function init() {
-  const drawer = document.getElementById("stacks-drawer");
-  const btnStacks = document.getElementById("btn-stacks");
-  const btnCloseStacks = document.getElementById("btn-close-stacks");
-
-  if (btnStacks && drawer) {
-    btnStacks.addEventListener("click", () => {
-      drawer.classList.toggle("hidden");
-      syncStackSelectors();
-      renderOrderList();
-    });
-  }
-
-  if (btnCloseStacks && drawer) {
-    btnCloseStacks.addEventListener("click", () => {
-      drawer.classList.add("hidden");
-    });
-  }
-
   syncStackSelectors();
   renderOrderList();
   renderGrid("target-values", VALUES, "val", "target");
@@ -343,73 +408,6 @@ function init() {
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
   document.getElementById("stack-selector").addEventListener("change", (e) => selectStack(e.target.value));
-  document.getElementById("drawer-stack-select").addEventListener("change", (e) => selectStack(e.target.value));
-
-  document.getElementById("btn-save-stack").addEventListener("click", () => {
-    const nameInput = document.getElementById("new-stack-name");
-    const cardsInput = document.getElementById("new-stack-cards");
-    const errEl = document.getElementById("new-stack-error");
-    errEl.classList.add("hidden");
-
-    const name = nameInput.value.trim();
-    const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-    if (!name) {
-      errEl.textContent = "Digite um nome para a mnemônica.";
-      errEl.classList.remove("hidden");
-      return;
-    }
-
-    if (rawLines.length !== 52) {
-      errEl.textContent = `A mnemônica precisa ter 52 cartas (você colocou ${rawLines.length}).`;
-      errEl.classList.remove("hidden");
-      return;
-    }
-
-    const parsed = [];
-    for (let i = 0; i < rawLines.length; i++) {
-      const card = parseCardLine(rawLines[i]);
-      if (!card) {
-        errEl.textContent = `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`;
-        errEl.classList.remove("hidden");
-        return;
-      }
-      if (parsed.includes(card)) {
-        errEl.textContent = `Carta repetida na linha ${i + 1}: "${card}".`;
-        errEl.classList.remove("hidden");
-        return;
-      }
-      parsed.push(card);
-    }
-
-    const newId = "custom_" + Date.now();
-    customStacks.push({ id: newId, name, builtin: false, cards: parsed });
-    try {
-      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-    } catch (e) {}
-
-    nameInput.value = "";
-    cardsInput.value = "";
-    selectStack(newId);
-  });
-
-  document.getElementById("btn-delete-stack").addEventListener("click", () => {
-    const current = getActiveStack();
-    if (current.builtin) return;
-    customStacks = customStacks.filter(s => s.id !== current.id);
-    try {
-      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-    } catch (e) {}
-    selectStack("tamariz");
-  });
-
-  document.getElementById("btn-clear").addEventListener("click", resetAll);
-  document.getElementById("btn-stealth").addEventListener("click", () => {
-    document.getElementById("stealth-overlay").classList.remove("hidden");
-  });
-  document.getElementById("btn-exit-stealth").addEventListener("click", () => {
-    document.getElementById("stealth-overlay").classList.add("hidden");
-  });
 }
 
 init();
