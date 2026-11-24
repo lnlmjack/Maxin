@@ -1,77 +1,76 @@
 function parseCardLine(raw) {
-  if (!raw || typeof raw !== "string") return null;
+  if (typeof raw !== "string") return null;
 
-  const cleaned = raw
-    .replace(/[\u200B-\u200D\uFEFF\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, " ")
+  const text = raw
+    .replace(/[^a-zA-Z0-9áéíóúâêôãõçÁÉÍÓÚÂÊÔÃÕÇ♣♥♠♦\s]/g, " ")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/^\d+[\.\)\-\s]+/, "")
     .trim();
 
-  if (!cleaned) return null;
+  if (!text) return null;
 
-  const valMap = {
-    "a": "ás",
-    "as": "ás",
-    "um": "ás",
-    "1": "ás",
-    "2": "2",
-    "dois": "2",
-    "3": "3",
-    "tres": "3",
-    "4": "4",
-    "quatro": "4",
-    "5": "5",
-    "cinco": "5",
-    "6": "6",
-    "seis": "6",
-    "7": "7",
-    "sete": "7",
-    "8": "8",
-    "oito": "8",
-    "9": "9",
-    "nove": "9",
-    "10": "10",
-    "dez": "10",
-    "j": "valete",
-    "valete": "valete",
-    "q": "dama",
-    "dama": "dama",
-    "k": "rei",
-    "rei": "rei"
+  const tokens = text.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return null;
+
+  // Se vier colado tipo "4♣", "10c", "q♥", "8e", "8deespadas"
+  const joined = tokens.join("");
+
+  const valAliases = {
+    "a": "ás", "as": "ás", "1": "ás", "um": "ás",
+    "2": "2", "dois": "2",
+    "3": "3", "tres": "3",
+    "4": "4", "quatro": "4",
+    "5": "5", "cinco": "5",
+    "6": "6", "seis": "6",
+    "7": "7", "sete": "7",
+    "8": "8", "oito": "8",
+    "9": "9", "nove": "9",
+    "10": "10", "dez": "10",
+    "j": "valete", "valete": "valete",
+    "q": "dama", "dama": "dama",
+    "k": "rei", "rei": "rei"
   };
 
-  const suitMap = {
-    "♣": "paus",
-    "p": "paus",
-    "paus": "paus",
-    "♥": "copas",
-    "c": "copas",
-    "copas": "copas",
-    "♠": "espadas",
-    "e": "espadas",
-    "espadas": "espadas",
-    "♦": "ouros",
-    "o": "ouros",
-    "ouros": "ouros"
+  const suitAliases = {
+    "♣": "paus", "p": "paus", "paus": "paus",
+    "♥": "copas", "c": "copas", "copas": "copas",
+    "♠": "espadas", "e": "espadas", "espadas": "espadas",
+    "♦": "ouros", "o": "ouros", "ouros": "ouros"
   };
 
-  // Tenta formato curto sem espaço (ex: "4♣", "10c", "q♥", "as")
-  const compact = cleaned.replace(/\s+/g, "");
-  const shortMatch = compact.match(/^(10|[2-9jqk]|as|um|dois|tres|quatro|cinco|seis|sete|oito|nove|dez|valete|dama|rei|a)(?:de)?(♣|♥|♠|♦|paus|copas|espadas|ouros|[pceo])$/);
-  if (shortMatch) {
-    const v = valMap[shortMatch[1]];
-    const s = suitMap[shortMatch[2]];
-    if (v && s) return `${v} de ${s}`;
+  let foundVal = null;
+  let foundSuit = null;
+
+  // Procura valor nos tokens
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === "de") continue;
+    if (!foundVal && valAliases[t]) {
+      foundVal = valAliases[t];
+      continue;
+    }
+    if (!foundSuit && suitAliases[t]) {
+      foundSuit = suitAliases[t];
+    }
   }
 
-  // Separa por espaços, removendo "de"
-  const parts = cleaned.split(/\s+/).filter(p => p && p !== "de");
-  if (parts.length >= 2) {
-    const v = valMap[parts[0]];
-    const s = suitMap[parts[1]];
-    if (v && s) return `${v} de ${s}`;
+  // Fallback para formato compacto (ex: "8espadas", "4paus", "10c")
+  if (!foundVal || !foundSuit) {
+    for (const [k, v] of Object.entries(valAliases)) {
+      if (joined.startsWith(k)) {
+        const rest = joined.slice(k.length).replace(/^de/, "");
+        if (suitAliases[rest]) {
+          foundVal = v;
+          foundSuit = suitAliases[rest];
+          break;
+        }
+      }
+    }
+  }
+
+  if (foundVal && foundSuit) {
+    return `${foundVal} de ${foundSuit}`;
   }
 
   return null;
