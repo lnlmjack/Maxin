@@ -190,13 +190,12 @@ const state = {
 
 /* TIMER + SOMALARME.MP3 */
 const PICKER_ITEM_HEIGHT = 36;
-const PICKER_PAD_TOP = 72;
 
 let selectedHours = 0;
 let selectedMinutes = 0;
-let selectedSeconds = 37;
-let timerInitialTotal = 37;
-let timerRemaining = 37;
+let selectedSeconds = 5;
+let timerInitialTotal = 5;
+let timerRemaining = 5;
 let timerInterval = null;
 let timerRunning = false;
 let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
@@ -222,15 +221,50 @@ function formatDurationSublabel(totalSec) {
   return `${secs} seg`;
 }
 
+function primeAlarmAudio() {
+  try {
+    const audioEl = document.getElementById("alarm-audio");
+    if (!audioEl) return;
+    if (!audioEl.getAttribute("src")) {
+      audioEl.setAttribute("src", "somalarme.mp3");
+    }
+    audioEl.load();
+    const prevMuted = audioEl.muted;
+    audioEl.muted = true;
+    const p = audioEl.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => {
+        audioEl.pause();
+        audioEl.currentTime = 0;
+        audioEl.muted = prevMuted;
+      }).catch(() => {
+        audioEl.muted = prevMuted;
+      });
+    } else {
+      audioEl.muted = prevMuted;
+    }
+  } catch (e) {}
+}
+
 function playSomAlarmeMp3() {
   try {
     const audioEl = document.getElementById("alarm-audio");
     if (!audioEl) return;
+    if (!audioEl.getAttribute("src")) {
+      audioEl.setAttribute("src", "somalarme.mp3");
+    }
+    audioEl.muted = false;
+    audioEl.volume = 1.0;
     audioEl.loop = true;
     audioEl.currentTime = 0;
     const playPromise = audioEl.play();
     if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {});
+      playPromise.catch(() => {
+        const fallbackAudio = new Audio("./somalarme.mp3");
+        fallbackAudio.loop = true;
+        fallbackAudio.volume = 1.0;
+        fallbackAudio.play().catch(() => {});
+      });
     }
   } catch (e) {}
 }
@@ -377,6 +411,7 @@ function initIphonePicker() {
 }
 
 function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
+  primeAlarmAudio();
   stopIphoneAlarmSound();
   stopTimerTick();
   const total = Math.max(1, Math.floor(seconds));
@@ -403,6 +438,7 @@ function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
 }
 
 function toggleIphoneTimer() {
+  primeAlarmAudio();
   if (timerMode === "ringing") {
     stopIphoneAlarmSound();
     return;
@@ -430,6 +466,7 @@ function cancelOrResetIphoneTimer() {
 }
 
 function triggerFiveSecondAlarmTimer() {
+  primeAlarmAudio();
   selectedHours = 0;
   selectedMinutes = 0;
   selectedSeconds = 5;
