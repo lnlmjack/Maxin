@@ -166,6 +166,8 @@ try {
   activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
 } catch (e) {}
 
+let editingStackId = null;
+
 const state = {
   targetVal: null,
   targetSuit: null,
@@ -180,6 +182,18 @@ function getAllStacks() {
 function getActiveStack() {
   const all = getAllStacks();
   return all.find(s => s.id === activeStackId) || all[0];
+}
+
+function updateEditModeUI() {
+  const saveBtn = document.getElementById("btn-save-stack");
+  const cancelBtn = document.getElementById("btn-cancel-edit");
+  if (editingStackId) {
+    if (saveBtn) saveBtn.textContent = "Salvar Alterações";
+    if (cancelBtn) cancelBtn.classList.remove("hidden");
+  } else {
+    if (saveBtn) saveBtn.textContent = "Salvar Novo Stack";
+    if (cancelBtn) cancelBtn.classList.add("hidden");
+  }
 }
 
 function syncSelectors() {
@@ -197,11 +211,18 @@ function syncSelectors() {
     });
   });
 
+  const isBuiltin = getActiveStack().builtin;
   const delBtn = document.getElementById("btn-delete-stack");
+  const editBtn = document.getElementById("btn-edit-stack");
   if (delBtn) {
-    if (getActiveStack().builtin) delBtn.classList.add("hidden");
+    if (isBuiltin) delBtn.classList.add("hidden");
     else delBtn.classList.remove("hidden");
   }
+  if (editBtn) {
+    if (isBuiltin) editBtn.classList.add("hidden");
+    else editBtn.classList.remove("hidden");
+  }
+  updateEditModeUI();
 }
 
 function renderOrderList() {
@@ -231,12 +252,45 @@ function toggleStacksPanel(forceOpen) {
 
 function changeStack(newId) {
   activeStackId = newId;
+  if (editingStackId && editingStackId !== newId) {
+    editingStackId = null;
+    const nameInput = document.getElementById("new-stack-name");
+    const cardsInput = document.getElementById("new-stack-cards");
+    if (nameInput) nameInput.value = "";
+    if (cardsInput) cardsInput.value = "";
+  }
   try {
     localStorage.setItem("maxin_active_stack", activeStackId);
   } catch (e) {}
   syncSelectors();
   renderOrderList();
   calculateImmediate();
+}
+
+function loadCurrentStackForEdit() {
+  const current = getActiveStack();
+  if (current.builtin) return;
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (fb) fb.classList.add("hidden");
+
+  editingStackId = current.id;
+  if (nameInput) nameInput.value = current.name;
+  if (cardsInput) cardsInput.value = current.cards.join("\n");
+  updateEditModeUI();
+  showFeedback("ok", `Editando "${current.name}". Altere e clique em "Salvar Alterações".`);
+}
+
+function cancelEditStack() {
+  editingStackId = null;
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (nameInput) nameInput.value = "";
+  if (cardsInput) cardsInput.value = "";
+  if (fb) fb.classList.add("hidden");
+  updateEditModeUI();
 }
 
 function parseCardLine(raw) {
@@ -364,21 +418,38 @@ function saveCustomStack() {
     parsed.push(card);
   }
 
-  const newId = "custom_" + Date.now();
-  customStacks.push({ id: newId, name, builtin: false, cards: parsed });
+  let targetId = null;
+  if (editingStackId) {
+    const idx = customStacks.findIndex(s => s.id === editingStackId);
+    if (idx !== -1) {
+      customStacks[idx] = { id: editingStackId, name, builtin: false, cards: parsed };
+      targetId = editingStackId;
+    }
+    editingStackId = null;
+  }
+
+  if (!targetId) {
+    targetId = "custom_" + Date.now();
+    customStacks.push({ id: targetId, name, builtin: false, cards: parsed });
+  }
+
   try {
     localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
   } catch (e) {}
 
   if (nameInput) nameInput.value = "";
   if (cardsInput) cardsInput.value = "";
-  changeStack(newId);
+  updateEditModeUI();
+  changeStack(targetId);
   showFeedback("ok", `Stack "${name}" salvo e selecionado.`);
 }
 
 function deleteCurrentStack() {
   const current = getActiveStack();
   if (current.builtin) return;
+  if (editingStackId === current.id) {
+    editingStackId = null;
+  }
   customStacks = customStacks.filter(s => s.id !== current.id);
   try {
     localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
