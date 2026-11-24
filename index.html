@@ -6,62 +6,82 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_13" />
+  <link rel="stylesheet" href="style.css?v=20261124_14" />
 </head>
 <body>
-  <!-- SIMULADOR DE TIMER ESTILO IPHONE -->
+  <!-- SIMULADOR DE TIMER IDÊNTICO AO PRINT -->
   <div id="timer-overlay" class="timer-overlay">
-    <div class="timer-topbar">
-      <div class="timer-top-left">
-        <button id="btn-timer-5s" type="button" class="timer-pill-btn" onclick="triggerFiveSecondAlarmTimer()">5s</button>
-        <button id="btn-timer-stop-sound" type="button" class="timer-pill-btn timer-pill-danger hidden" onclick="stopIphoneAlarmSound()">Parar Som</button>
+    <div class="timer-header-row">
+      <h2 class="timer-screen-title">Timers</h2>
+      <div class="timer-top-actions">
+        <button id="btn-timer-5s" type="button" class="timer-5s-chip" onclick="triggerFiveSecondAlarmTimer()">5s</button>
+        <button id="btn-timer-stop-sound" type="button" class="timer-5s-chip timer-stop-chip hidden" onclick="stopIphoneAlarmSound()">Parar</button>
       </div>
-      <button id="btn-to-calc" type="button" class="timer-pill-btn timer-pill-subtle" onclick="openCalcFromTimer()">Cartas</button>
     </div>
 
     <div class="timer-center">
-      <div class="timer-title">Timer</div>
-
-      <!-- Seletor de Horas / Minutos / Segundos estilo iPhone -->
-      <div id="timer-picker" class="iphone-picker">
-        <div class="picker-col">
-          <div class="picker-col-label">horas</div>
-          <div id="picker-hours" class="picker-list"></div>
+      <!-- Seletor estilo roda do print -->
+      <div id="timer-picker" class="ios-wheel-picker">
+        <div class="ios-wheel-highlight"></div>
+        <div class="ios-wheel-col">
+          <div id="picker-hours" class="ios-wheel-list"></div>
+          <span class="ios-unit-inline">hora</span>
         </div>
-        <div class="picker-col">
-          <div class="picker-col-label">min</div>
-          <div id="picker-minutes" class="picker-list"></div>
+        <div class="ios-wheel-col">
+          <div id="picker-minutes" class="ios-wheel-list"></div>
+          <span class="ios-unit-inline">min</span>
         </div>
-        <div class="picker-col">
-          <div class="picker-col-label">seg</div>
-          <div id="picker-seconds" class="picker-list"></div>
+        <div class="ios-wheel-col">
+          <div id="picker-seconds" class="ios-wheel-list"></div>
+          <span class="ios-unit-inline">s</span>
         </div>
       </div>
 
-      <!-- Mostrador circular durante contagem ou disparo -->
+      <!-- Mostrador em execução / disparo -->
       <div id="timer-countdown-box" class="timer-countdown-box hidden">
-        <div class="timer-ring">
-          <div id="timer-display" class="timer-display">00:05</div>
-          <div id="timer-end-preview" class="timer-end-preview"></div>
-        </div>
+        <div id="timer-display" class="timer-display">00:05</div>
         <div id="timer-status" class="timer-status"></div>
       </div>
 
-      <div class="timer-controls">
-        <button id="btn-timer-cancel" type="button" class="timer-btn-cancel" onclick="cancelOrResetIphoneTimer()">Cancelar</button>
-        <button id="btn-timer-start" type="button" class="timer-btn-start" onclick="toggleIphoneTimer()">Iniciar</button>
+      <!-- Botões circulares X e Play/Pause -->
+      <div class="ios-action-row">
+        <button id="btn-timer-cancel" type="button" class="ios-circle-btn ios-btn-x" aria-label="Cancelar" onclick="cancelOrResetIphoneTimer()">✕</button>
+        <button id="btn-timer-start" type="button" class="ios-circle-btn ios-btn-play" aria-label="Iniciar" onclick="toggleIphoneTimer()">▶</button>
       </div>
 
-      <div class="timer-when-done">
-        <span>Ao terminar</span>
-        <strong>Radar (iPhone)</strong>
+      <!-- Cartão Etiqueta / Som -->
+      <div class="ios-card-group">
+        <div class="ios-card-row">
+          <span class="ios-card-left">Etiqueta</span>
+          <span class="ios-card-right">Timer</span>
+        </div>
+        <div class="ios-card-divider"></div>
+        <div class="ios-card-row" onclick="triggerFiveSecondAlarmTimer()">
+          <span class="ios-card-left">Som</span>
+          <span class="ios-card-right">Ápice &rsaquo;</span>
+        </div>
       </div>
     </div>
 
-    <div class="timer-bottom-bar">
-      <button type="button" class="timer-tab-btn active">Timer</button>
-      <button type="button" class="timer-tab-btn" onclick="openCalcFromTimer()">Sistema</button>
-    </div>
+    <!-- Barra inferior estilo iOS (Relógio abre o sistema oculto) -->
+    <nav class="ios-tabbar" aria-label="Abas do relógio">
+      <button type="button" class="ios-tab-item" onclick="openCalcFromTimer()">
+        <span class="ios-tab-icon" aria-hidden="true">🌐</span>
+        <span>Relógio</span>
+      </button>
+      <button type="button" class="ios-tab-item" onclick="cancelOrResetIphoneTimer()">
+        <span class="ios-tab-icon" aria-hidden="true">⏰</span>
+        <span>Alarmes</span>
+      </button>
+      <button type="button" class="ios-tab-item" onclick="cancelOrResetIphoneTimer()">
+        <span class="ios-tab-icon" aria-hidden="true">⏱</span>
+        <span>Cronômetro</span>
+      </button>
+      <button type="button" class="ios-tab-item active">
+        <span class="ios-tab-icon" aria-hidden="true">⏲</span>
+        <span>Timers</span>
+      </button>
+    </nav>
   </div>
 
   <!-- TELA PRINCIPAL DO SISTEMA MAXIN -->
@@ -91,12 +111,11 @@
 
       <div id="manual-content" class="manual-body">
         <h3>1. Visão Geral</h3>
-        <p>O <strong>Maxin</strong> combina um simulador de <strong>Timer</strong> estilo iPhone com o gerenciamento de baralhos mnemônicos de 52 cartas, cálculo da posição exata da carta escolhida pelo corte / peek da carta de baixo (boca) e frases de soletração pelo topo e pela boca.</p>
+        <p>O <strong>Maxin</strong> combina um simulador de <strong>Timers</strong> com o gerenciamento de baralhos mnemônicos de 52 cartas, cálculo da posição exata da carta escolhida pelo corte / peek da carta de baixo (boca) e frases de soletração pelo topo e pela boca.</p>
 
-        <h3>2. Timer Estilo iPhone e Gatilho de 5 Segundos</h3>
-        <p><strong>Programar livremente:</strong> ajuste <strong>horas</strong>, <strong>min</strong> e <strong>seg</strong> na roda de seleção, toque em <strong>Iniciar</strong> para rodar como um timer real e em <strong>Cancelar</strong> para voltar à seleção.</p>
-        <p><strong>Botão 5s:</strong> ao voltar da tela das cartas (ou direto no timer), toque em <strong>5s</strong> para iniciar imediatamente uma contagem de 5 segundos com o som característico ao zerar.</p>
-        <p><strong>Cartas / Sistema:</strong> alterna entre a tela do timer e a tela do sistema de cartas.</p>
+        <h3>2. Timers, Som e Acesso Oculto</h3>
+        <p><strong>Acesso ao sistema:</strong> na tela de <strong>Timers</strong>, toque no ícone <strong>Relógio</strong> na barra inferior para abrir o sistema das cartas.</p>
+        <p><strong>5 segundos e som:</strong> toque em <strong>5s</strong> (ou ajuste o tempo na roda e toque em <strong>▶</strong>) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar.</p>
 
         <h3>3. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
@@ -207,6 +226,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_13"></script>
+  <audio id="alarm-audio" src="somalarme.mp3" preload="auto"></audio>
+  <script src="app.js?v=20261124_14"></script>
 </body>
 </html>
