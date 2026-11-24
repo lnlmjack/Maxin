@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>Maxin</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>MAXIN</h1>
+        <span id="stack-badge" class="badge">Tamariz (52)</span>
+      </div>
+      <div class="header-actions">
+        <button id="btn-cut" class="btn-ghost" title="Ajustar corte">Corte: <strong id="cut-label">0</strong></button>
+        <button id="btn-stealth" class="btn-ghost" title="Modo discreto">Stealth</button>
+      </div>
+    </header>
 
+    <!-- Painel de seleção rápida em 2 toques -->
+    <section class="card-picker">
+      <div class="section-label">1. Valor</div>
+      <div id="values-grid" class="grid-values"></div>
+
+      <div class="section-label">2. Naipe</div>
+      <div id="suits-grid" class="grid-suits"></div>
+    </section>
+
+    <!-- Resultado e Saídas (Outs) -->
+    <section id="result-panel" class="result-panel hidden">
+      <div class="result-header">
+        <div>
+          <span id="selected-card-name" class="card-title">4 de paus</span>
+          <span id="selected-card-sub" class="card-sub">Stack original: #1</span>
+        </div>
+        <div class="pos-box">
+          <small>POSIÇÃO REAL</small>
+          <strong id="real-position">1</strong>
+        </div>
+      </div>
+
+      <div class="outs-list" id="outs-list"></div>
+    </section>
+
+    <!-- Perfis rápidos (Datas / Números) -->
+    <section class="profiles-section">
+      <div class="profiles-header">
+        <span class="section-label">Perfis & Datas Salvas</span>
+        <button id="btn-add-profile" class="btn-small">+ Novo</button>
+      </div>
+      <div id="profiles-list" class="profiles-list"></div>
+    </section>
+  </div>
+
+  <!-- Modal de Corte / Carta do Topo ou Base -->
+  <div id="modal-cut" class="modal hidden">
+    <div class="modal-content">
+      <h2>Ajustar Corte do Baralho</h2>
+      <p>Informe a carta visível na <strong>base (face)</strong> ou no <strong>topo</strong> após o corte:</p>
+      <div class="row">
+        <select id="cut-ref">
+          <option value="bottom">Carta da Base (Face)</option>
+          <option value="top">Carta do Topo</option>
+        </select>
+        <select id="cut-card-select"></select>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-reset-cut" class="btn-ghost">Zerar Corte</button>
+        <button id="btn-save-cut" class="btn-primary">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Perfil -->
+  <div id="modal-profile" class="modal hidden">
+    <div class="modal-content">
+      <h2>Salvar Perfil / Número</h2>
+      <input type="text" id="prof-name" placeholder="Nome (ex: Show BH, João...)" />
+      <input type="number" id="prof-number" min="1" max="52" placeholder="Número (1 a 52, ex: dia/idade)" />
+      <div class="modal-actions">
+        <button id="btn-cancel-profile" class="btn-ghost">Cancelar</button>
+        <button id="btn-save-profile" class="btn-primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tela Stealth (Disfarce de Notas) -->
+  <div id="stealth-overlay" class="stealth-overlay hidden">
+    <div class="stealth-header">
+      <span>Notas Rápidas</span>
+      <button id="btn-exit-stealth" class="btn-stealth-exit">Sair</button>
+    </div>
+    <p class="stealth-note" id="stealth-output">
+      - Verificar repertório da semana<br>
+      - Comprar baralho Bicycle padrão<br>
+      - Revisar anotações do evento
+    </p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
