@@ -97,7 +97,7 @@ button {
   white-space: nowrap;
 }
 
-.drawer {
+.stacks-panel {
   background: var(--surface);
   border: 1px solid var(--accent);
   border-radius: 12px;
@@ -107,7 +107,7 @@ button {
   gap: 10px;
 }
 
-.drawer-head {
+.panel-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -116,7 +116,7 @@ button {
   color: var(--accent);
 }
 
-.row-between {
+.row-gap {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -134,7 +134,7 @@ button {
 }
 
 .order-list {
-  max-height: 170px;
+  max-height: 165px;
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -160,16 +160,16 @@ button {
   color: #ff8585;
 }
 
-.new-stack-box {
+.create-stack-box {
   border-top: 1px solid var(--border);
   padding-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.mini-label {
-  font-size: 0.76rem;
+.field-label {
+  font-size: 0.75rem;
   color: var(--muted);
   font-weight: 600;
 }
@@ -185,13 +185,22 @@ input, textarea {
   font-family: inherit;
 }
 
-.error-msg {
+.feedback {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.feedback.error {
   background: rgba(255, 92, 92, 0.15);
   border: 1px solid var(--red);
   color: #ff9c9c;
-  padding: 7px 9px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+}
+
+.feedback.ok {
+  background: rgba(61, 220, 151, 0.15);
+  border: 1px solid var(--green);
+  color: var(--green);
 }
 
 .picker-box {
