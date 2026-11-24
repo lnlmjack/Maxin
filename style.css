@@ -6,6 +6,7 @@
   --muted: #8b95a5;
   --accent: #4f8cff;
   --green: #3ddc97;
+  --amber: #f5b942;
   --red: #ff5c5c;
   --border: #262d3d;
 }
@@ -110,7 +111,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   letter-spacing: 0.6px;
   color: var(--accent);
 }
@@ -308,14 +309,27 @@ input, textarea {
   font-size: 0.85rem;
 }
 
+.phrases-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .phrase-box {
   background: var(--surface-2);
-  border-left: 3px solid var(--green);
   border-radius: 8px;
   padding: 10px 12px;
 }
 
-.phrase-box small {
+.phrase-box.top-box {
+  border-left: 3px solid var(--green);
+}
+
+.phrase-box.bottom-box {
+  border-left: 3px solid var(--amber);
+}
+
+.phrase-box.top-box small {
   display: block;
   font-size: 0.7rem;
   letter-spacing: 0.6px;
@@ -324,8 +338,17 @@ input, textarea {
   margin-bottom: 4px;
 }
 
+.phrase-box.bottom-box small {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.6px;
+  color: var(--amber);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
 .phrase-main {
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #fff;
   margin-bottom: 4px;
