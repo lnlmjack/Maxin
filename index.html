@@ -22,7 +22,30 @@
       </div>
     </header>
 
-    <!-- CARTA ESCOLHIDA PELO ESPECTADOR -->
+    <!-- PAINEL DE STACKS (VER ORDEM E CADASTRAR NOVA) -->
+    <section id="stacks-drawer" class="drawer hidden">
+      <div class="drawer-head">
+        <strong>MNEMÔNICAS &amp; ORDEM DAS CARTAS</strong>
+        <button id="btn-close-stacks" type="button" class="btn-ghost">Fechar</button>
+      </div>
+
+      <div class="row-between">
+        <select id="drawer-stack-select" class="full-select"></select>
+        <button id="btn-delete-stack" type="button" class="btn-danger hidden">Excluir</button>
+      </div>
+
+      <div id="stack-order-list" class="order-list"></div>
+
+      <div class="new-stack-box">
+        <div class="mini-label">Nova mnemônica (nome + 52 cartas, uma por linha)</div>
+        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Ordem)" />
+        <textarea id="new-stack-cards" rows="5" placeholder="Cole as 52 cartas (ex: 4 de paus ou 4♣)"></textarea>
+        <div id="new-stack-error" class="error-msg hidden"></div>
+        <button id="btn-save-stack" type="button" class="btn-primary">Salvar Mnemônica</button>
+      </div>
+    </section>
+
+    <!-- 1. CARTA ESCOLHIDA -->
     <section class="picker-box">
       <div class="box-header">
         <span class="step-tag">CARTA ESCOLHIDA</span>
@@ -32,7 +55,7 @@
       <div id="target-suits" class="grid-suits"></div>
     </section>
 
-    <!-- PEEK DA CARTA DE BAIXO DO BARALHO (BOCA) -->
+    <!-- 2. PEEK DA CARTA DE BAIXO (BOCA) -->
     <section class="picker-box">
       <div class="box-header">
         <span class="step-tag">PEEK DA CARTA DE BAIXO (BOCA)</span>
@@ -42,7 +65,7 @@
       <div id="bottom-suits" class="grid-suits"></div>
     </section>
 
-    <!-- RESULTADO IMEDIATO: TOPO, BOCA E FRASE -->
+    <!-- RESULTADO: POSIÇÕES E FRASE -->
     <section id="result-panel" class="result-panel hidden">
       <div class="positions-row">
         <div class="pos-card primary">
@@ -63,36 +86,6 @@
         <div id="phrase-sub" class="phrase-sub">—</div>
       </div>
     </section>
-  </div>
-
-  <!-- PAINEL DE MNEMÔNICAS (VER ORDEM E CADASTRAR NOVA) -->
-  <div id="modal-stacks" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Mnemônicas</h2>
-        <button id="btn-close-stacks" type="button" class="btn-ghost">Fechar</button>
-      </div>
-
-      <!-- ESCOLHER MNEMÔNICA E VER ORDEM -->
-      <div class="box-block">
-        <div class="row-between">
-          <label for="modal-stack-select" class="mini-label">Mnemônica ativa:</label>
-          <button id="btn-delete-stack" type="button" class="btn-danger hidden">Excluir mnemônica</button>
-        </div>
-        <select id="modal-stack-select" class="full-select"></select>
-
-        <div id="stack-order-list" class="order-list"></div>
-      </div>
-
-      <!-- COLOCAR NOME E AS 52 CARTAS DE UMA NOVA MNEMÔNICA -->
-      <div class="box-block">
-        <div class="mini-label">Adicionar nova mnemônica (52 cartas)</div>
-        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Stack)" />
-        <textarea id="new-stack-cards" rows="6" placeholder="Cole as 52 cartas uma por linha (ex: 4 de paus ou 4♣)"></textarea>
-        <div id="new-stack-error" class="error-msg hidden"></div>
-        <button id="btn-save-stack" type="button" class="btn-primary">Salvar Mnemônica</button>
-      </div>
-    </div>
   </div>
 
   <!-- Modo Stealth -->
