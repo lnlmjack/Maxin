@@ -694,6 +694,10 @@ textarea {
   padding: 8px;
 }
 
+.stealth-phrase-trigger {
+  cursor: pointer;
+}
+
 .phrase-main {
   margin-top: 3px;
   font-weight: 700;
