@@ -57,21 +57,6 @@ const BUILTIN_STACKS = [
   }
 ];
 
-// Ajuste exato das 52 cartas do ciclo +3 (1..13) com naipes paus, copas, espadas, ouros
-BUILTIN_STACKS[2].cards = (() => {
-  const ranks = ["ás", "2", "3", "4", "5", "6", "7", "8", "9", "10", "valete", "dama", "rei"];
-  const suits = ["paus", "copas", "espadas", "ouros"];
-  const list = [];
-  let rIdx = 0; // Ás
-  let sIdx = 0; // Paus
-  for (let i = 0; i < 52; i++) {
-    list.push(`${ranks[rIdx]} de ${suits[sIdx]}`);
-    rIdx = (rIdx + 3) % 13;
-    sIdx = (sIdx + 1) % 4;
-  }
-  return list;
-})();
-
 const VALUES = [
   { code: "A", label: "ás" },
   { code: "2", label: "2" },
@@ -282,6 +267,7 @@ function parseCardLine(raw) {
 
 function showFeedback(type, msg) {
   const fb = document.getElementById("new-stack-feedback");
+  if (!fb) return;
   fb.className = `feedback ${type}`;
   fb.textContent = msg;
   fb.classList.remove("hidden");
@@ -290,6 +276,7 @@ function showFeedback(type, msg) {
 function renderGrid(containerId, items, type, group) {
   const el = document.getElementById(containerId);
   if (!el) return;
+  el.innerHTML = "";
   items.forEach(item => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -389,7 +376,8 @@ function init() {
   document.getElementById("btn-save-stack").addEventListener("click", () => {
     const nameInput = document.getElementById("new-stack-name");
     const cardsInput = document.getElementById("new-stack-cards");
-    document.getElementById("new-stack-feedback").classList.add("hidden");
+    const fb = document.getElementById("new-stack-feedback");
+    if (fb) fb.classList.add("hidden");
 
     const name = nameInput.value.trim();
     const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
