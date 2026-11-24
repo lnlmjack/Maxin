@@ -35,26 +35,35 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 6px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .topbar h1 {
-  margin: 0 8px 0 0;
-  font-size: 1.1rem;
+  margin: 0;
+  font-size: 1.05rem;
   letter-spacing: 2px;
-  display: inline-block;
 }
 
-.badge {
-  font-size: 0.72rem;
+.stack-select {
   background: var(--surface-2);
-  color: var(--muted);
-  padding: 2px 8px;
-  border-radius: 99px;
+  color: var(--green);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  max-width: 135px;
 }
 
 .header-actions {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
 button {
@@ -67,8 +76,24 @@ button {
 .btn-ghost {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 6px 10px;
-  font-size: 0.82rem;
+  padding: 6px 9px;
+  font-size: 0.8rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 14px;
+  width: 100%;
+}
+
+.btn-danger {
+  background: rgba(255, 92, 92, 0.15);
+  border: 1px solid var(--red);
+  color: var(--red);
+  padding: 4px 8px;
+  font-size: 0.75rem;
 }
 
 .picker-box {
@@ -218,6 +243,141 @@ button {
   color: var(--muted);
 }
 
+/* Modal Stacks */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 30;
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.tabs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.tab-btn {
+  background: var(--surface-2);
+  padding: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.tab-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.view-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.order-list {
+  overflow-y: auto;
+  max-height: 56vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.order-item {
+  background: var(--surface-2);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
+.order-num {
+  color: var(--accent);
+  font-weight: 700;
+  min-width: 22px;
+}
+
+.order-item.red-suit {
+  color: #ff8585;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.helper-text {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.helper-text code {
+  color: var(--green);
+}
+
+.error-msg {
+  background: rgba(255, 92, 92, 0.15);
+  border: 1px solid var(--red);
+  color: #ff9c9c;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+/* Stealth */
 .stealth-overlay {
   position: fixed;
   inset: 0;
