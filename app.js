@@ -36,7 +36,6 @@ const SUITS = [
   { symbol: "♦", name: "ouros", red: true }
 ];
 
-// Pool de frases em português (o motor conta as letras reais automaticamente)
 const RAW_PHRASES = [
   "É",
   "É A",
@@ -110,7 +109,6 @@ function countLetters(text) {
   return text.replace(/[^a-zA-ZáéíóúâêôãõçÁÉÍÓÚÂÊÔÃÕÇ]/g, "").length;
 }
 
-// Indexa automaticamente pelo tamanho REAL contado em cada frase
 const PHRASES_BY_LENGTH = {};
 RAW_PHRASES.forEach(phrase => {
   const len = countLetters(phrase);
@@ -121,28 +119,13 @@ RAW_PHRASES.forEach(phrase => {
 });
 
 const state = {
-  targetVal: null,
-  targetSuit: null,
   bottomVal: null,
-  bottomSuit: null
+  bottomSuit: null,
+  topIdx: null,
+  posTop: 1
 };
 
-function spellCardName(cardName) {
-  return cardName
-    .replace(/^2 /, "DOIS ")
-    .replace(/^3 /, "TRÊS ")
-    .replace(/^4 /, "QUATRO ")
-    .replace(/^5 /, "CINCO ")
-    .replace(/^6 /, "SEIS ")
-    .replace(/^7 /, "SETE ")
-    .replace(/^8 /, "OITO ")
-    .replace(/^9 /, "NOVE ")
-    .replace(/^10 /, "DEZ ")
-    .replace(/^ás /, "ÁS ")
-    .toUpperCase();
-}
-
-function renderGrid(containerId, items, type, group) {
+function renderGrid(containerId, items, type) {
   const el = document.getElementById(containerId);
   items.forEach(item => {
     const btn = document.createElement("button");
@@ -153,143 +136,111 @@ function renderGrid(containerId, items, type, group) {
       el.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      if (group === "target") {
-        if (type === "val") state.targetVal = item.label;
-        else state.targetSuit = item.name;
-      } else {
-        if (type === "val") state.bottomVal = item.label;
-        else state.bottomSuit = item.name;
-      }
-      updateLabelsAndCalculate();
+      if (type === "val") state.bottomVal = item.label;
+      else state.bottomSuit = item.name;
+
+      onPeekChange();
     };
     el.appendChild(btn);
   });
 }
 
-function updateLabelsAndCalculate() {
-  const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
-  const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
+function onPeekChange() {
+  if (!state.bottomVal || !state.bottomSuit) return;
 
-  document.getElementById("label-target").textContent = targetCard || "—";
-  document.getElementById("label-bottom").textContent = bottomCard || "—";
-
-  if (!targetCard || !bottomCard) return;
-
-  const targetIdx = TAMARIZ.indexOf(targetCard);
+  const bottomCard = `${state.bottomVal} de ${state.bottomSuit}`;
   const bottomIdx = TAMARIZ.indexOf(bottomCard);
-  if (targetIdx === -1 || bottomIdx === -1) return;
+  if (bottomIdx === -1) return;
 
   const topIdx = (bottomIdx + 1) % 52;
-  const posFromTop = ((targetIdx - topIdx + 52) % 52) + 1;
-  const posFromBottom = 53 - posFromTop;
+  const topCard = TAMARIZ[topIdx];
 
-  document.getElementById("result-panel").classList.remove("hidden");
-  document.getElementById("pos-top").textContent = posFromTop;
-  document.getElementById("pos-bottom").textContent = posFromBottom;
+  state.topIdx = topIdx;
+  state.posTop = 1;
 
-  const phrases = buildPhrases(targetCard, posFromTop, posFromBottom);
+  document.getElementById("label-bottom").textContent = bottomCard;
+  document.getElementById("top-card-banner").classList.remove("hidden");
+  document.getElementById("top-card-name").textContent = topCard;
+  document.getElementById("pos-section").classList.remove("hidden");
+
+  renderPositionDetails();
+}
+
+function renderPositionDetails() {
+  if (state.topIdx === null) return;
+
+  const pos = state.posTop;
+  const posFromBottom = 53 - pos;
+  const cardIdx = (state.topIdx + pos - 1) % 52;
+  const cardAtPos = TAMARIZ[cardIdx];
+
+  document.getElementById("current-pos-display").textContent = pos;
+  document.getElementById("card-at-pos-name").textContent = cardAtPos;
+  document.getElementById("card-from-bottom-info").textContent =
+    `${pos}ª pelo topo · ${posFromBottom}ª pela boca (base)`;
+
   const listEl = document.getElementById("phrases-list");
   listEl.innerHTML = "";
 
-  phrases.forEach(item => {
+  const exactList = PHRASES_BY_LENGTH[pos] || [];
+  exactList.forEach(phrase => {
+    const len = countLetters(phrase);
     const div = document.createElement("div");
     div.className = "phrase-item";
     div.innerHTML = `
-      <div class="phrase-text">"${item.text}"</div>
-      <div class="phrase-meta">${item.note}</div>
+      <div class="phrase-text">"${phrase}"</div>
+      <div class="phrase-meta">${len} letras — cai EXATO na última letra (${pos}ª pelo topo)</div>
     `;
     listEl.appendChild(div);
   });
 
-  if (phrases.length > 0) {
-    document.getElementById("stealth-output").innerHTML = `
-      - Topo: <strong>${posFromTop}</strong> | Boca: <strong>${posFromBottom}</strong><br>
-      - Frase (${phrases[0].letters} letras):<br>
-      "${phrases[0].text}"<br>
-      - ${phrases[0].note}
-    `;
-  }
-}
-
-function buildPhrases(targetCard, posTop, posBottom) {
-  const results = [];
-  const spelledCard = spellCardName(targetCard);
-
-  // 1. Frases que citam a própria carta se baterem exato com posTop
-  const directTemplates = [
-    `O ${spelledCard}`,
-    `A CARTA É O ${spelledCard}`,
-    `VOCÊ PENSOU NO ${spelledCard}`,
-    `A SUA CARTA É O ${spelledCard}`,
-    `A CARTA ESCOLHIDA É O ${spelledCard}`,
-    `A CARTA QUE VOCÊ PENSOU É O ${spelledCard}`,
-    `A CARTA QUE VOCÊ ESCOLHEU É O ${spelledCard}`
-  ];
-
-  directTemplates.forEach(tpl => {
-    const len = countLetters(tpl);
-    if (len === posTop) {
-      results.push({
-        text: tpl,
-        letters: len,
-        note: `${len} letras — cai EXATO na última letra (${posTop}ª pelo topo)`
-      });
-    }
-  });
-
-  // 2. Frases com tamanho EXATO = posTop
-  const exactPool = PHRASES_BY_LENGTH[posTop] || [];
-  exactPool.forEach(phrase => {
-    const len = countLetters(phrase);
-    results.push({
-      text: phrase,
-      letters: len,
-      note: `${len} letras — cai EXATO na última letra (${posTop}ª pelo topo)`
-    });
-  });
-
-  // 3. Frases com tamanho EXATO = posTop - 1 (soletra e vira a próxima)
-  if (posTop > 1 && PHRASES_BY_LENGTH[posTop - 1]) {
-    const nextPhrase = PHRASES_BY_LENGTH[posTop - 1][0];
+  if (pos > 1 && PHRASES_BY_LENGTH[pos - 1]) {
+    const nextPhrase = PHRASES_BY_LENGTH[pos - 1][0];
     const len = countLetters(nextPhrase);
-    results.push({
-      text: nextPhrase,
-      letters: len,
-      note: `${len} letras — soletra e vira a PRÓXIMA carta (${posTop}ª do topo)`
-    });
+    const div = document.createElement("div");
+    div.className = "phrase-item";
+    div.innerHTML = `
+      <div class="phrase-text">"${nextPhrase}"</div>
+      <div class="phrase-meta">${len} letras — soletra e vira a PRÓXIMA carta (${pos}ª do topo)</div>
+    `;
+    listEl.appendChild(div);
   }
 
-  // 4. Opção pela BOCA (com contagem real garantida)
-  if (posBottom < posTop && PHRASES_BY_LENGTH[posBottom]) {
-    const bottomPhrase = PHRASES_BY_LENGTH[posBottom][0];
-    const len = countLetters(bottomPhrase);
-    results.push({
-      text: bottomPhrase,
-      letters: len,
-      note: `PELA BOCA (${len} letras) — soletra virando o baralho de face para cima`
-    });
-  }
-
-  return results;
+  const firstPhrase = listEl.querySelector(".phrase-text")?.textContent || "";
+  document.getElementById("stealth-output").innerHTML = `
+    - Topo: <strong>${TAMARIZ[state.topIdx]}</strong><br>
+    - Pos ${pos} pelo topo (boca ${posFromBottom}): <strong>${cardAtPos}</strong><br>
+    - Frase: ${firstPhrase}
+  `;
 }
 
 function resetAll() {
-  state.targetVal = null;
-  state.targetSuit = null;
   state.bottomVal = null;
   state.bottomSuit = null;
+  state.topIdx = null;
+  state.posTop = 1;
 
   document.querySelectorAll(".val-btn, .suit-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById("label-target").textContent = "—";
   document.getElementById("label-bottom").textContent = "—";
-  document.getElementById("result-panel").classList.add("hidden");
+  document.getElementById("top-card-banner").classList.add("hidden");
+  document.getElementById("pos-section").classList.add("hidden");
 }
 
 function init() {
-  renderGrid("target-values", VALUES, "val", "target");
-  renderGrid("target-suits", SUITS, "suit", "target");
-  renderGrid("bottom-values", VALUES, "val", "bottom");
-  renderGrid("bottom-suits", SUITS, "suit", "bottom");
+  renderGrid("bottom-values", VALUES, "val");
+  renderGrid("bottom-suits", SUITS, "suit");
+
+  document.getElementById("btn-minus").onclick = () => {
+    if (state.topIdx === null) return;
+    state.posTop = state.posTop > 1 ? state.posTop - 1 : 52;
+    renderPositionDetails();
+  };
+
+  document.getElementById("btn-plus").onclick = () => {
+    if (state.topIdx === null) return;
+    state.posTop = state.posTop < 52 ? state.posTop + 1 : 1;
+    renderPositionDetails();
+  };
 
   document.getElementById("btn-clear").onclick = resetAll;
   document.getElementById("btn-stealth").onclick = () => {
