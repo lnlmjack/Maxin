@@ -1,8 +1,7 @@
-const BUILTIN_STACKS = [
+const DEFAULT_STACKS = [
   {
     id: "tamariz",
     name: "Tamariz",
-    builtin: true,
     cards: [
       "4 de paus", "2 de copas", "7 de ouros", "3 de paus", "4 de copas",
       "6 de ouros", "ás de espadas", "5 de copas", "9 de espadas", "2 de espadas",
@@ -20,7 +19,6 @@ const BUILTIN_STACKS = [
   {
     id: "aronson",
     name: "Aronson",
-    builtin: true,
     cards: [
       "valete de espadas", "rei de copas", "5 de paus", "2 de copas", "9 de espadas",
       "ás de espadas", "3 de copas", "6 de paus", "8 de ouros", "ás de paus",
@@ -38,7 +36,6 @@ const BUILTIN_STACKS = [
   {
     id: "si_stebbins",
     name: "Si Stebbins",
-    builtin: true,
     cards: [
       "ás de paus", "4 de copas", "7 de espadas", "10 de ouros",
       "rei de paus", "3 de copas", "6 de espadas", "9 de ouros",
@@ -155,15 +152,31 @@ function getPhraseForPos(pos, sideLabel) {
   };
 }
 
-let customStacks = [];
+let stacks = DEFAULT_STACKS.map(s => ({ id: s.id, name: s.name, cards: [...s.cards] }));
 try {
-  const raw = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
-  if (Array.isArray(raw)) customStacks = raw;
+  const savedStacks = JSON.parse(localStorage.getItem("maxin_stacks") || "null");
+  if (Array.isArray(savedStacks)) {
+    stacks = savedStacks;
+  } else {
+    const legacyCustom = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+    if (Array.isArray(legacyCustom) && legacyCustom.length > 0) {
+      stacks = [...stacks, ...legacyCustom.map(s => ({ id: s.id, name: s.name, cards: [...s.cards] }))];
+    }
+  }
 } catch (e) {}
 
-let activeStackId = "tamariz";
+function persistStacks() {
+  try {
+    localStorage.setItem("maxin_stacks", JSON.stringify(stacks));
+  } catch (e) {}
+}
+
+let activeStackId = stacks[0] ? stacks[0].id : "tamariz";
 try {
-  activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
+  const savedActive = localStorage.getItem("maxin_active_stack");
+  if (savedActive && stacks.some(s => s.id === savedActive)) {
+    activeStackId = savedActive;
+  }
 } catch (e) {}
 
 let editingStackId = null;
@@ -175,13 +188,11 @@ const state = {
   bottomSuit: null
 };
 
-function getAllStacks() {
-  return [...BUILTIN_STACKS, ...customStacks];
-}
-
 function getActiveStack() {
-  const all = getAllStacks();
-  return all.find(s => s.id === activeStackId) || all[0];
+  if (stacks.length === 0) {
+    return { id: "", name: "Sem stacks", cards: [] };
+  }
+  return stacks.find(s => s.id === activeStackId) || stacks[0];
 }
 
 function updateEditModeUI() {
@@ -197,12 +208,23 @@ function updateEditModeUI() {
 }
 
 function syncSelectors() {
-  const all = getAllStacks();
+  const current = getActiveStack();
+  if (current && current.id) {
+    activeStackId = current.id;
+  }
+
   ["stack-selector", "panel-stack-select"].forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
     sel.innerHTML = "";
-    all.forEach(s => {
+    if (stacks.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Nenhum stack";
+      sel.appendChild(opt);
+      return;
+    }
+    stacks.forEach(s => {
       const opt = document.createElement("option");
       opt.value = s.id;
       opt.textContent = s.name;
@@ -211,17 +233,11 @@ function syncSelectors() {
     });
   });
 
-  const isBuiltin = getActiveStack().builtin;
+  const hasStacks = stacks.length > 0;
   const delBtn = document.getElementById("btn-delete-stack");
   const editBtn = document.getElementById("btn-edit-stack");
-  if (delBtn) {
-    if (isBuiltin) delBtn.classList.add("hidden");
-    else delBtn.classList.remove("hidden");
-  }
-  if (editBtn) {
-    if (isBuiltin) editBtn.classList.add("hidden");
-    else editBtn.classList.remove("hidden");
-  }
+  if (delBtn) delBtn.classList.toggle("hidden", !hasStacks);
+  if (editBtn) editBtn.classList.toggle("hidden", !hasStacks);
   updateEditModeUI();
 }
 
@@ -229,7 +245,9 @@ function renderOrderList() {
   const listEl = document.getElementById("stack-order-list");
   if (!listEl) return;
   listEl.innerHTML = "";
-  getActiveStack().cards.forEach((card, idx) => {
+  const active = getActiveStack();
+  if (!active || !active.cards || active.cards.length === 0) return;
+  active.cards.forEach((card, idx) => {
     const isRed = card.includes("copas") || card.includes("ouros");
     const div = document.createElement("div");
     div.className = `order-item ${isRed ? "red-suit" : ""}`;
@@ -268,8 +286,8 @@ function changeStack(newId) {
 }
 
 function loadCurrentStackForEdit() {
+  if (stacks.length === 0) return;
   const current = getActiveStack();
-  if (current.builtin) return;
   const nameInput = document.getElementById("new-stack-name");
   const cardsInput = document.getElementById("new-stack-cards");
   const fb = document.getElementById("new-stack-feedback");
@@ -420,9 +438,9 @@ function saveCustomStack() {
 
   let targetId = null;
   if (editingStackId) {
-    const idx = customStacks.findIndex(s => s.id === editingStackId);
+    const idx = stacks.findIndex(s => s.id === editingStackId);
     if (idx !== -1) {
-      customStacks[idx] = { id: editingStackId, name, builtin: false, cards: parsed };
+      stacks[idx] = { id: editingStackId, name, cards: parsed };
       targetId = editingStackId;
     }
     editingStackId = null;
@@ -430,12 +448,10 @@ function saveCustomStack() {
 
   if (!targetId) {
     targetId = "custom_" + Date.now();
-    customStacks.push({ id: targetId, name, builtin: false, cards: parsed });
+    stacks.push({ id: targetId, name, cards: parsed });
   }
 
-  try {
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-  } catch (e) {}
+  persistStacks();
 
   if (nameInput) nameInput.value = "";
   if (cardsInput) cardsInput.value = "";
@@ -445,16 +461,15 @@ function saveCustomStack() {
 }
 
 function deleteCurrentStack() {
+  if (stacks.length === 0) return;
   const current = getActiveStack();
-  if (current.builtin) return;
   if (editingStackId === current.id) {
     editingStackId = null;
   }
-  customStacks = customStacks.filter(s => s.id !== current.id);
-  try {
-    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-  } catch (e) {}
-  changeStack("tamariz");
+  stacks = stacks.filter(s => s.id !== current.id);
+  persistStacks();
+  const nextId = stacks[0] ? stacks[0].id : "";
+  changeStack(nextId);
 }
 
 function renderGrid(containerId, items, type, group) {
@@ -496,6 +511,7 @@ function calculateImmediate() {
   if (!targetCard || !bottomCard) return;
 
   const stack = getActiveStack().cards;
+  if (!stack || stack.length === 0) return;
   const targetIdx = stack.indexOf(targetCard);
   const bottomIdx = stack.indexOf(bottomCard);
   if (targetIdx === -1 || bottomIdx === -1) return;
