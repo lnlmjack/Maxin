@@ -1,5 +1,5 @@
-// Mnemônica de Tamariz (Posição 1 = Topo, Posição 52 = Base)
-const TAMARIZ_STACK = [
+// Mnemônica de Tamariz (1 = Topo, 52 = Boca/Base)
+const TAMARIZ = [
   "4 de paus", "2 de copas", "7 de ouros", "3 de paus", "4 de copas",
   "6 de ouros", "ás de espadas", "5 de copas", "9 de espadas", "2 de espadas",
   "dama de copas", "3 de ouros", "dama de paus", "8 de copas", "6 de espadas",
@@ -36,221 +36,244 @@ const SUITS = [
   { symbol: "♦", name: "ouros", red: true }
 ];
 
-let selectedValue = null;
-let selectedSuit = null;
-let cutOffset = 0; // Quantas cartas foram deslocadas do topo original
-let lastResultSummary = "";
+// Banco de frases naturais em português indexadas pelo número exato de letras (sem espaços)
+const PHRASES_BY_LENGTH = {
+  1: ["A"],
+  2: ["É A", "VAI"],
+  3: ["ELA É", "CARTA"],
+  4: ["AQUI É", "PAREI"],
+  5: ["A CARTA", "ACHEI A"],
+  6: ["É ESSA A", "A SUA É A"],
+  7: ["ACHEI ELA", "ESSA CARTA"],
+  8: ["A SUA CARTA", "CARTA CERTA"],
+  9: ["É A SUA CARTA", "CARTA PENSADA"],
+  10: ["ACHEI A CARTA", "A CARTA PENSADA"],
+  11: ["ESSA É A CARTA", "A CARTA ESCOLHIDA"],
+  12: ["A CARTA QUE PENSOU", "ESTA É A SUA CARTA"],
+  13: ["A CARTA QUE ESCOLHEU", "SUA CARTA ESTÁ AQUI"],
+  14: ["A SUA CARTA PENSADA", "A CARTA QUE VOCÊ DISSE"],
+  15: ["ESSA É A CARTA CERTA", "A CARTA QUE VOCÊ FALOU"],
+  16: ["A CARTA QUE VOCÊ PENSOU", "ESTA É A CARTA ESCOLHIDA"],
+  17: ["A SUA CARTA ESCOLHIDA", "A CARTA QUE VOCÊ ESCOLHEU"],
+  18: ["ESSA É A SUA CARTA CERTA", "A CARTA LIVREMENTE PENSADA"],
+  19: ["A CARTA QUE VOCÊ PENSOU É", "ESTA É A CARTA QUE ESCOLHEU"],
+  20: ["ESSA É A CARTA QUE PENSOU", "A SUA CARTA ESTÁ BEM AQUI"],
+  21: ["A CARTA QUE VOCÊ PENSOU FOI", "ESTA É A CARTA QUE VOCÊ DISSE"],
+  22: ["A CARTA QUE VOCÊ PENSOU FOI A", "ESSA É A CARTA QUE VOCÊ PENSOU"],
+  23: ["ESTA É A CARTA QUE VOCÊ PENSOU", "A CARTA QUE VOCÊ ESCOLHEU FOI A"],
+  24: ["A CARTA QUE VOCÊ PENSOU ESTÁ AQUI", "ESTA É A SUA CARTA LIVREMENTE DITA"],
+  25: ["ESSA É A CARTA QUE VOCÊ ESCOLHEU", "A CARTA QUE VOCÊ FALOU ESTÁ AQUI"],
+  26: ["A CARTA QUE VOCÊ PENSOU É ESSA AQUI", "ESTA É A CARTA QUE VOCÊ IMAGINOU"],
+  27: ["A CARTA QUE VOCÊ ESCOLHEU ESTÁ AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU HOJE"],
+  28: ["A CARTA QUE VOCÊ PENSOU EM SEGREDO É", "ESSA É A CARTA QUE VOCÊ ESCOLHEU HOJE"],
+  29: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE É", "ESTA É A CARTA QUE VOCÊ FALOU AGORA"],
+  30: ["A CARTA QUE VOCÊ ESCOLHEU EM SEGREDO É", "ESSA É A CARTA QUE VOCÊ PENSOU AGORA"],
+  31: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE FOI", "ESTA É A CARTA QUE VOCÊ ESCOLHEU HOJE"],
+  32: ["A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR", "ESTA É A CARTA QUE VOCÊ PENSOU EM MENTE"],
+  33: ["A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR", "ESSA É A CARTA QUE VOCÊ PENSOU LIVREMENTE"],
+  34: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE HOJE É", "ESTA É A CARTA QUE VOCÊ ESCOLHEU EM MENTE"],
+  35: ["A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR", "ESTA É A CARTA QUE VOCÊ PENSOU EM SEGREDO HOJE"],
+  36: ["A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ESTÁ AQUI"],
+  37: ["A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ESTÁ AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR"],
+  38: ["A CARTA QUE VOCÊ PENSOU EM SEGREDO ESTÁ BEM AQUI", "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR"],
+  39: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE ESTÁ BEM AQUI", "A CARTA QUE VOCÊ ESCOLHEU EM SEGREDO ESTÁ BEM AQUI"],
+  40: ["ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR"],
+  41: ["ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR"],
+  42: ["A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO É", "ESTA É A CARTA QUE VOCÊ PENSOU LIVREMENTE EM SEGREDO"],
+  43: ["A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR HOJE"],
+  44: ["A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO FOI A", "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR HOJE"],
+  45: ["A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR"],
+  46: ["ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO HOJE", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE EMBARALHAR HOJE"],
+  47: ["ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO HOJE", "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE EMBARALHAR HOJE"],
+  48: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO É", "ESTA É A CARTA QUE VOCÊ PENSOU EM SEGREDO ANTES DE EMBARALHAR"],
+  49: ["A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO FOI"],
+  50: ["A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE EMBARALHAR"],
+  51: ["A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO"],
+  52: ["ESTA É A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO ESTÁ AQUI"]
+};
 
-// Perfis padrão + salvos no navegador
-const defaultProfiles = [
-  { name: "Dia de Hoje", number: new Date().getDate() },
-  { name: "Mês Atual", number: new Date().getMonth() + 1 }
-];
+const state = {
+  targetVal: null,
+  targetSuit: null,
+  bottomVal: null,
+  bottomSuit: null
+};
 
-let profiles = JSON.parse(localStorage.getItem("maxin_profiles")) || defaultProfiles;
-
-// Inicialização da UI
-function init() {
-  renderPickers();
-  populateCutSelect();
-  renderProfiles();
-  bindEvents();
+function countLetters(text) {
+  return text.replace(/[^a-zA-ZáéíóúâêôãõçÁÉÍÓÚÂÊÔÃÕÇ]/g, "").length;
 }
 
-function renderPickers() {
-  const valGrid = document.getElementById("values-grid");
-  VALUES.forEach(v => {
+function spellCardName(cardName) {
+  return cardName
+    .replace(/^2 /, "DOIS ")
+    .replace(/^3 /, "TRÊS ")
+    .replace(/^4 /, "QUATRO ")
+    .replace(/^5 /, "CINCO ")
+    .replace(/^6 /, "SEIS ")
+    .replace(/^7 /, "SETE ")
+    .replace(/^8 /, "OITO ")
+    .replace(/^9 /, "NOVE ")
+    .replace(/^10 /, "DEZ ")
+    .replace(/^ás /, "ÁS ")
+    .toUpperCase();
+}
+
+function renderGrid(containerId, items, type, group) {
+  const el = document.getElementById(containerId);
+  items.forEach(item => {
     const btn = document.createElement("button");
-    btn.className = "val-btn";
-    btn.textContent = v.code;
-    btn.onclick = () => {
-      document.querySelectorAll(".val-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      selectedValue = v.label;
-      tryCalculate();
-    };
-    valGrid.appendChild(btn);
-  });
+    btn.className = type === "val" ? "val-btn" : `suit-btn ${item.red ? "red" : ""}`;
+    btn.textContent = type === "val" ? item.code : item.symbol;
 
-  const suitGrid = document.getElementById("suits-grid");
-  SUITS.forEach(s => {
-    const btn = document.createElement("button");
-    btn.className = `suit-btn ${s.red ? "red" : ""}`;
-    btn.textContent = s.symbol;
     btn.onclick = () => {
-      document.querySelectorAll(".suit-btn").forEach(b => b.classList.remove("active"));
+      el.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      selectedSuit = s.name;
-      tryCalculate();
+
+      if (group === "target") {
+        if (type === "val") state.targetVal = item.label;
+        else state.targetSuit = item.name;
+      } else {
+        if (type === "val") state.bottomVal = item.label;
+        else state.bottomSuit = item.name;
+      }
+      updateLabelsAndCalculate();
     };
-    suitGrid.appendChild(btn);
+    el.appendChild(btn);
   });
 }
 
-function populateCutSelect() {
-  const select = document.getElementById("cut-card-select");
-  TAMARIZ_STACK.forEach((card, idx) => {
-    const opt = document.createElement("option");
-    opt.value = idx;
-    opt.textContent = `${idx + 1}. ${card}`;
-    select.appendChild(opt);
-  });
-}
+function updateLabelsAndCalculate() {
+  const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
+  const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
 
-function tryCalculate() {
-  if (!selectedValue || !selectedSuit) return;
+  document.getElementById("label-target").textContent = targetCard || "—";
+  document.getElementById("label-bottom").textContent = bottomCard || "—";
 
-  const cardName = `${selectedValue} de ${selectedSuit}`;
-  const originalIndex = TAMARIZ_STACK.indexOf(cardName); // 0 a 51
-  if (originalIndex === -1) return;
+  if (!targetCard || !bottomCard) return;
 
-  // Posição real considerando o corte (1 a 52)
-  const realIndex = (originalIndex - cutOffset + 52) % 52;
-  const realPos = realIndex + 1;
-  const fromBottom = 53 - realPos;
+  const targetIdx = TAMARIZ.indexOf(targetCard); // 0 a 51
+  const bottomIdx = TAMARIZ.indexOf(bottomCard); // 0 a 51
+  if (targetIdx === -1 || bottomIdx === -1) return;
+
+  // Se bottomIdx está na boca (52ª posição), a carta do topo é (bottomIdx + 1) % 52
+  const topIdx = (bottomIdx + 1) % 52;
+
+  // Posição pelo topo (1 a 52)
+  const posFromTop = ((targetIdx - topIdx + 52) % 52) + 1;
+  // Posição pela boca/base (1 a 52)
+  const posFromBottom = 53 - posFromTop;
 
   document.getElementById("result-panel").classList.remove("hidden");
-  document.getElementById("selected-card-name").textContent = cardName;
-  document.getElementById("selected-card-sub").textContent = `Stack original: #${originalIndex + 1}`;
-  document.getElementById("real-position").textContent = realPos;
+  document.getElementById("pos-top").textContent = posFromTop;
+  document.getElementById("pos-bottom").textContent = posFromBottom;
 
-  const outs = generateOuts(cardName, realPos, fromBottom);
-  const outsList = document.getElementById("outs-list");
-  outsList.innerHTML = "";
+  const phrases = buildPhrases(targetCard, posFromTop, posFromBottom);
+  const listEl = document.getElementById("phrases-list");
+  listEl.innerHTML = "";
 
-  outs.forEach(text => {
+  phrases.forEach(item => {
     const div = document.createElement("div");
-    div.className = "out-item";
-    div.innerHTML = text;
-    outsList.appendChild(div);
+    div.className = "phrase-item";
+    div.innerHTML = `
+      <div class="phrase-text">"${item.text}"</div>
+      <div class="phrase-meta">${item.note}</div>
+    `;
+    listEl.appendChild(div);
   });
 
-  // Atualiza texto discreto do modo Stealth
-  lastResultSummary = `${cardName.toUpperCase()} -> Pos #${realPos} (Base: #${fromBottom})`;
+  // Atualiza Stealth
   document.getElementById("stealth-output").innerHTML = `
-    - Revisar item <strong>${realPos}</strong> da pauta<br>
-    - Conferir anexo ${fromBottom} no arquivo<br>
-    - ${outs[0].replace(/<[^>]*>/g, "")}
+    - Topo: <strong>${posFromTop}</strong> | Boca: <strong>${posFromBottom}</strong><br>
+    - Frase (${phrases[0].letters} letras):<br>
+    "${phrases[0].text}"<br>
+    - ${phrases[0].note}
   `;
 }
 
-// Gera saídas (Outs) práticas para ACAAN
-function generateOuts(cardName, pos, fromBottom) {
-  const list = [];
+function buildPhrases(targetCard, posTop, posBottom) {
+  const results = [];
+  const spelledCard = spellCardName(targetCard);
+  const cardLetters = countLetters(spelledCard);
 
-  // 1. Contagem direta / reversa
-  list.push(`<strong>Contagem Direta:</strong> ${pos}ª carta do topo (ou ${fromBottom}ª da base).`);
+  // 1. Frase com a própria carta incluida se bater exato com posTop
+  const directTemplates = [
+    `O ${spelledCard}`,
+    `A CARTA É O ${spelledCard}`,
+    `VOCÊ PENSOU NO ${spelledCard}`,
+    `A SUA CARTA É O ${spelledCard}`,
+    `A CARTA ESCOLHIDA É O ${spelledCard}`,
+    `A CARTA QUE VOCÊ PENSOU É O ${spelledCard}`,
+    `A CARTA QUE VOCÊ ESCOLHEU É O ${spelledCard}`
+  ];
 
-  // 2. Corte necessário para bater com algum perfil/data salvo
-  profiles.forEach(p => {
-    const target = Number(p.number);
-    if (target >= 1 && target <= 52) {
-      const diff = (pos - target + 52) % 52;
-      if (diff === 0) {
-        list.push(`<strong>Bate Exato (${p.name} = ${target}):</strong> Não corte nada! Já está na posição ${target}.`);
-      } else {
-        const cutCard = TAMARIZ_STACK[(cutOffset + diff - 1) % 52];
-        list.push(`<strong>Para bater com ${p.name} (${target}):</strong> Corte <strong>${diff}</strong> cartas do topo (deixe <em>${cutCard}</em> na base).`);
-      }
+  directTemplates.forEach(tpl => {
+    if (countLetters(tpl) === posTop) {
+      results.push({
+        text: tpl,
+        letters: posTop,
+        note: `Cai EXATO na última letra (${posTop}ª carta pelo topo)`
+      });
     }
   });
 
-  // 3. Soletração em português (contando apenas letras)
-  const spellCard = spellOutCard(cardName);
-  const lettersCount = spellCard.replace(/[^a-zA-Záéíóúâêôãõç]/g, "").length;
-  const spellDiff = (pos - lettersCount + 52) % 52;
+  // 2. Frase genérica do banco cujo número exato de letras = posTop (cai na última letra)
+  const exactPool = PHRASES_BY_LENGTH[posTop] || [];
+  exactPool.forEach(phrase => {
+    results.push({
+      text: phrase,
+      letters: countLetters(phrase),
+      note: `Cai EXATO na última letra (${posTop}ª carta pelo topo)`
+    });
+  });
 
-  if (spellDiff === 0) {
-    list.push(`<strong>Soletração Exata ("${spellCard}" = ${lettersCount} letras):</strong> Soletrar direto do topo cai na carta!`);
-  } else if (spellDiff === 1) {
-    list.push(`<strong>Soletração ("${spellCard}" = ${lettersCount} letras):</strong> Soletrar e virar a <strong>próxima</strong> carta.`);
-  } else {
-    list.push(`<strong>Soletração ("${spellCard}" = ${lettersCount} letras):</strong> Passe ${spellDiff} cartas antes (ou corte ${spellDiff} do topo).`);
+  // 3. Frase com (posTop - 1) letras: soletra a frase e vira a PRÓXIMA carta
+  if (posTop > 1 && PHRASES_BY_LENGTH[posTop - 1]) {
+    const nextPhrase = PHRASES_BY_LENGTH[posTop - 1][0];
+    results.push({
+      text: nextPhrase,
+      letters: countLetters(nextPhrase),
+      note: `Soletra ${posTop - 1} letras e vira a PRÓXIMA carta (${posTop}ª do topo)`
+    });
   }
 
-  return list;
+  // 4. Opção pela BOCA (caso seja mais curta e rápida)
+  if (posBottom < posTop && PHRASES_BY_LENGTH[posBottom]) {
+    const bottomPhrase = PHRASES_BY_LENGTH[posBottom][0];
+    results.push({
+      text: bottomPhrase,
+      letters: countLetters(bottomPhrase),
+      note: `PELA BOCA: soletra ${posBottom} letras virando o baralho de face para cima`
+    });
+  }
+
+  return results;
 }
 
-// Converte números da carta para escrita por extenso na soletração
-function spellOutCard(cardName) {
-  return cardName
-    .replace(/^2 /, "dois ")
-    .replace(/^3 /, "tres ")
-    .replace(/^4 /, "quatro ")
-    .replace(/^5 /, "cinco ")
-    .replace(/^6 /, "seis ")
-    .replace(/^7 /, "sete ")
-    .replace(/^8 /, "oito ")
-    .replace(/^9 /, "nove ")
-    .replace(/^10 /, "dez ")
-    .replace(/^ás /, "as ");
+function resetAll() {
+  state.targetVal = null;
+  state.targetSuit = null;
+  state.bottomVal = null;
+  state.bottomSuit = null;
+
+  document.querySelectorAll(".val-btn, .suit-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("label-target").textContent = "—";
+  document.getElementById("label-bottom").textContent = "—";
+  document.getElementById("result-panel").classList.add("hidden");
 }
 
-function renderProfiles() {
-  const container = document.getElementById("profiles-list");
-  container.innerHTML = "";
-  profiles.forEach((p, idx) => {
-    const chip = document.createElement("button");
-    chip.className = "profile-chip";
-    chip.textContent = `${p.name}: ${p.number}`;
-    chip.title = "Toque para remover";
-    chip.onclick = () => {
-      if (idx >= 2 && confirm(`Remover perfil "${p.name}"?`)) {
-        profiles.splice(idx, 1);
-        localStorage.setItem("maxin_profiles", JSON.stringify(profiles));
-        renderProfiles();
-        tryCalculate();
-      }
-    };
-    container.appendChild(chip);
-  });
-}
+function init() {
+  renderGrid("target-values", VALUES, "val", "target");
+  renderGrid("target-suits", SUITS, "suit", "target");
+  renderGrid("bottom-values", VALUES, "val", "bottom");
+  renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
-function bindEvents() {
-  // Modal Corte
-  const modalCut = document.getElementById("modal-cut");
-  document.getElementById("btn-cut").onclick = () => modalCut.classList.remove("hidden");
-
-  document.getElementById("btn-reset-cut").onclick = () => {
-    cutOffset = 0;
-    document.getElementById("cut-label").textContent = "0";
-    modalCut.classList.add("hidden");
-    tryCalculate();
+  document.getElementById("btn-clear").onclick = resetAll;
+  document.getElementById("btn-stealth").onclick = () => {
+    document.getElementById("stealth-overlay").classList.remove("hidden");
   };
-
-  document.getElementById("btn-save-cut").onclick = () => {
-    const ref = document.getElementById("cut-ref").value;
-    const idx = Number(document.getElementById("cut-card-select").value);
-    // Se a carta idx está na base, a nova carta de topo é (idx + 1) % 52
-    cutOffset = ref === "bottom" ? (idx + 1) % 52 : idx;
-    document.getElementById("cut-label").textContent = cutOffset;
-    modalCut.classList.add("hidden");
-    tryCalculate();
+  document.getElementById("btn-exit-stealth").onclick = () => {
+    document.getElementById("stealth-overlay").classList.add("hidden");
   };
-
-  // Modal Perfil
-  const modalProf = document.getElementById("modal-profile");
-  document.getElementById("btn-add-profile").onclick = () => modalProf.classList.remove("hidden");
-  document.getElementById("btn-cancel-profile").onclick = () => modalProf.classList.add("hidden");
-
-  document.getElementById("btn-save-profile").onclick = () => {
-    const name = document.getElementById("prof-name").value.trim();
-    const number = Number(document.getElementById("prof-number").value);
-    if (name && number >= 1 && number <= 52) {
-      profiles.push({ name, number });
-      localStorage.setItem("maxin_profiles", JSON.stringify(profiles));
-      document.getElementById("prof-name").value = "";
-      document.getElementById("prof-number").value = "";
-      modalProf.classList.add("hidden");
-      renderProfiles();
-      tryCalculate();
-    }
-  };
-
-  // Modo Stealth
-  const stealth = document.getElementById("stealth-overlay");
-  document.getElementById("btn-stealth").onclick = () => stealth.classList.remove("hidden");
-  document.getElementById("btn-exit-stealth").onclick = () => stealth.classList.add("hidden");
 }
 
 init();
