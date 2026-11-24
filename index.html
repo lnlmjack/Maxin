@@ -32,6 +32,7 @@
 
       <div class="row-gap">
         <select id="panel-stack-select" class="full-select" onchange="changeStack(this.value)"></select>
+        <button id="btn-edit-stack" type="button" class="btn-ghost hidden" onclick="loadCurrentStackForEdit()">Editar</button>
         <button id="btn-delete-stack" type="button" class="btn-danger hidden" onclick="deleteCurrentStack()">Excluir</button>
       </div>
 
@@ -45,7 +46,10 @@
         <textarea id="new-stack-cards" rows="6" placeholder="ás de copas&#10;2 de ouros&#10;8 de espadas"></textarea>
 
         <div id="new-stack-feedback" class="feedback hidden"></div>
-        <button id="btn-save-stack" type="button" class="btn-primary" onclick="saveCustomStack()">Salvar Novo Stack</button>
+        <div class="row-gap">
+          <button id="btn-save-stack" type="button" class="btn-primary" onclick="saveCustomStack()">Salvar Novo Stack</button>
+          <button id="btn-cancel-edit" type="button" class="btn-ghost hidden" onclick="cancelEditStack()">Cancelar Edição</button>
+        </div>
       </div>
     </section>
 
@@ -111,6 +115,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_4"></script>
+  <script src="app.js?v=20261124_5"></script>
 </body>
 </html>
