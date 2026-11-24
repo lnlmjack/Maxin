@@ -217,7 +217,19 @@ function renderOrderList() {
   });
 }
 
-function setStack(newId) {
+function toggleStacksPanel(forceOpen) {
+  const panel = document.getElementById("stacks-panel");
+  if (!panel) return;
+  if (typeof forceOpen === "boolean") {
+    panel.classList.toggle("hidden", !forceOpen);
+  } else {
+    panel.classList.toggle("hidden");
+  }
+  syncSelectors();
+  renderOrderList();
+}
+
+function changeStack(newId) {
   activeStackId = newId;
   try {
     localStorage.setItem("maxin_active_stack", activeStackId);
@@ -271,6 +283,61 @@ function showFeedback(type, msg) {
   fb.className = `feedback ${type}`;
   fb.textContent = msg;
   fb.classList.remove("hidden");
+}
+
+function saveCustomStack() {
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (fb) fb.classList.add("hidden");
+
+  const name = nameInput ? nameInput.value.trim() : "";
+  const rawLines = cardsInput ? cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean) : [];
+
+  if (!name) {
+    showFeedback("error", "Informe um nome para o stack.");
+    return;
+  }
+
+  if (rawLines.length !== 52) {
+    showFeedback("error", `É preciso colar 52 cartas (você colocou ${rawLines.length}).`);
+    return;
+  }
+
+  const parsed = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const card = parseCardLine(rawLines[i]);
+    if (!card) {
+      showFeedback("error", `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`);
+      return;
+    }
+    if (parsed.includes(card)) {
+      showFeedback("error", `Carta repetida na linha ${i + 1}: "${card}".`);
+      return;
+    }
+    parsed.push(card);
+  }
+
+  const newId = "custom_" + Date.now();
+  customStacks.push({ id: newId, name, builtin: false, cards: parsed });
+  try {
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+  } catch (e) {}
+
+  if (nameInput) nameInput.value = "";
+  if (cardsInput) cardsInput.value = "";
+  changeStack(newId);
+  showFeedback("ok", `Stack "${name}" salvo e selecionado.`);
+}
+
+function deleteCurrentStack() {
+  const current = getActiveStack();
+  if (current.builtin) return;
+  customStacks = customStacks.filter(s => s.id !== current.id);
+  try {
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+  } catch (e) {}
+  changeStack("tamariz");
 }
 
 function renderGrid(containerId, items, type, group) {
@@ -351,6 +418,16 @@ function resetAll() {
   document.getElementById("result-panel").classList.add("hidden");
 }
 
+function openStealth() {
+  const el = document.getElementById("stealth-overlay");
+  if (el) el.classList.remove("hidden");
+}
+
+function closeStealth() {
+  const el = document.getElementById("stealth-overlay");
+  if (el) el.classList.add("hidden");
+}
+
 function init() {
   syncSelectors();
   renderOrderList();
@@ -358,83 +435,6 @@ function init() {
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
-
-  const panel = document.getElementById("stacks-panel");
-  document.getElementById("btn-stacks").addEventListener("click", () => {
-    panel.classList.toggle("hidden");
-    syncSelectors();
-    renderOrderList();
-  });
-
-  document.getElementById("btn-close-stacks").addEventListener("click", () => {
-    panel.classList.add("hidden");
-  });
-
-  document.getElementById("stack-selector").addEventListener("change", (e) => setStack(e.target.value));
-  document.getElementById("panel-stack-select").addEventListener("change", (e) => setStack(e.target.value));
-
-  document.getElementById("btn-save-stack").addEventListener("click", () => {
-    const nameInput = document.getElementById("new-stack-name");
-    const cardsInput = document.getElementById("new-stack-cards");
-    const fb = document.getElementById("new-stack-feedback");
-    if (fb) fb.classList.add("hidden");
-
-    const name = nameInput.value.trim();
-    const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-    if (!name) {
-      showFeedback("error", "Informe um nome para o stack.");
-      return;
-    }
-
-    if (rawLines.length !== 52) {
-      showFeedback("error", `É preciso colar 52 cartas (você colocou ${rawLines.length}).`);
-      return;
-    }
-
-    const parsed = [];
-    for (let i = 0; i < rawLines.length; i++) {
-      const card = parseCardLine(rawLines[i]);
-      if (!card) {
-        showFeedback("error", `Carta inválida na linha ${i + 1}: "${rawLines[i]}".`);
-        return;
-      }
-      if (parsed.includes(card)) {
-        showFeedback("error", `Carta repetida na linha ${i + 1}: "${card}".`);
-        return;
-      }
-      parsed.push(card);
-    }
-
-    const newId = "custom_" + Date.now();
-    customStacks.push({ id: newId, name, builtin: false, cards: parsed });
-    try {
-      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-    } catch (e) {}
-
-    nameInput.value = "";
-    cardsInput.value = "";
-    setStack(newId);
-    showFeedback("ok", `Stack "${name}" salvo e selecionado.`);
-  });
-
-  document.getElementById("btn-delete-stack").addEventListener("click", () => {
-    const current = getActiveStack();
-    if (current.builtin) return;
-    customStacks = customStacks.filter(s => s.id !== current.id);
-    try {
-      localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
-    } catch (e) {}
-    setStack("tamariz");
-  });
-
-  document.getElementById("btn-clear").addEventListener("click", resetAll);
-  document.getElementById("btn-stealth").addEventListener("click", () => {
-    document.getElementById("stealth-overlay").classList.remove("hidden");
-  });
-  document.getElementById("btn-exit-stealth").addEventListener("click", () => {
-    document.getElementById("stealth-overlay").classList.add("hidden");
-  });
 }
 
 init();
