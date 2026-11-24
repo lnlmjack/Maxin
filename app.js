@@ -1,500 +1,714 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+const DEFAULT_STACKS = [
+  {
+    id: "tamariz",
+    name: "Tamariz",
+    cards: [
+      "4 de paus", "2 de copas", "7 de ouros", "3 de paus", "4 de copas",
+      "6 de ouros", "ás de espadas", "5 de copas", "9 de espadas", "2 de espadas",
+      "dama de copas", "3 de ouros", "dama de paus", "8 de copas", "6 de espadas",
+      "5 de espadas", "9 de copas", "rei de paus", "2 de ouros", "valete de copas",
+      "3 de espadas", "8 de espadas", "6 de copas", "10 de paus", "5 de ouros",
+      "rei de ouros", "2 de paus", "3 de copas", "8 de ouros", "5 de paus",
+      "rei de espadas", "valete de ouros", "8 de paus", "10 de espadas", "rei de copas",
+      "valete de paus", "7 de espadas", "10 de copas", "ás de ouros", "4 de espadas",
+      "7 de copas", "4 de ouros", "ás de paus", "9 de paus", "valete de espadas",
+      "dama de ouros", "7 de paus", "dama de espadas", "10 de ouros", "6 de paus",
+      "ás de copas", "9 de ouros"
+    ]
+  },
+  {
+    id: "aronson",
+    name: "Aronson",
+    cards: [
+      "valete de espadas", "rei de copas", "5 de paus", "2 de copas", "9 de espadas",
+      "ás de espadas", "3 de copas", "6 de paus", "8 de ouros", "ás de paus",
+      "10 de espadas", "5 de copas", "2 de ouros", "rei de ouros", "7 de ouros",
+      "8 de paus", "3 de espadas", "ás de ouros", "7 de espadas", "5 de espadas",
+      "dama de ouros", "ás de copas", "8 de espadas", "3 de ouros", "7 de copas",
+      "dama de espadas", "5 de ouros", "7 de paus", "4 de ouros", "rei de paus",
+      "4 de paus", "10 de ouros", "valete de copas", "dama de copas", "10 de paus",
+      "dama de paus", "4 de copas", "rei de espadas", "4 de espadas", "10 de copas",
+      "valete de paus", "3 de paus", "valete de ouros", "6 de ouros", "9 de paus",
+      "2 de espadas", "9 de copas", "8 de copas", "6 de copas", "6 de espadas",
+      "2 de paus", "9 de ouros"
+    ]
+  },
+  {
+    id: "si_stebbins",
+    name: "Si Stebbins",
+    cards: [
+      "ás de paus", "4 de copas", "7 de espadas", "10 de ouros",
+      "rei de paus", "3 de copas", "6 de espadas", "9 de ouros",
+      "dama de paus", "2 de copas", "5 de espadas", "8 de ouros",
+      "valete de paus", "ás de copas", "4 de espadas", "7 de ouros",
+      "10 de paus", "rei de copas", "3 de espadas", "6 de ouros",
+      "9 de paus", "dama de copas", "2 de espadas", "5 de ouros",
+      "8 de paus", "valete de copas", "ás de espadas", "4 de ouros",
+      "7 de paus", "10 de copas", "rei de espadas", "3 de ouros",
+      "6 de paus", "9 de copas", "dama de espadas", "2 de ouros",
+      "5 de paus", "8 de copas", "valete de espadas", "ás de ouros",
+      "4 de paus", "7 de copas", "10 de espadas", "rei de ouros",
+      "3 de paus", "6 de copas", "9 de espadas", "dama de ouros",
+      "2 de paus", "5 de copas", "8 de espadas", "valete de ouros"
+    ]
+  }
+];
+
+const VALUES = [
+  { code: "A", label: "ás" },
+  { code: "2", label: "2" },
+  { code: "3", label: "3" },
+  { code: "4", label: "4" },
+  { code: "5", label: "5" },
+  { code: "6", label: "6" },
+  { code: "7", label: "7" },
+  { code: "8", label: "8" },
+  { code: "9", label: "9" },
+  { code: "10", label: "10" },
+  { code: "J", label: "valete" },
+  { code: "Q", label: "dama" },
+  { code: "K", label: "rei" }
+];
+
+const SUITS = [
+  { symbol: "♣", name: "paus", red: false },
+  { symbol: "♥", name: "copas", red: true },
+  { symbol: "♠", name: "espadas", red: false },
+  { symbol: "♦", name: "ouros", red: true }
+];
+
+const BASE_PHRASES = [
+  "É", "É A", "AQUI", "É ELA", "A CARTA", "ACHEI A", "SUA CARTA", "A SUA CARTA",
+  "É A SUA CARTA", "A CARTA CERTA", "ACHEI A CARTA", "ESSA É A CARTA",
+  "A CARTA PENSADA", "ESTA É A SUA CARTA", "A CARTA QUE PENSOU", "A SUA CARTA PENSADA",
+  "A CARTA ESCOLHIDA É", "A CARTA QUE ESCOLHEU", "A SUA CARTA ESCOLHIDA",
+  "ESSA É A SUA CARTA CERTA", "A CARTA QUE VOCÊ PENSOU", "A CARTA QUE VOCÊ FALOU É",
+  "A CARTA QUE VOCÊ PENSOU É", "ESTA É A CARTA ESCOLHIDA", "A CARTA QUE VOCÊ ESCOLHEU",
+  "A CARTA QUE VOCÊ PENSOU FOI", "ESTA É A CARTA QUE VOCÊ DISSE",
+  "A CARTA QUE VOCÊ PENSOU FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU",
+  "A CARTA QUE VOCÊ ESCOLHEU FOI A", "A CARTA QUE VOCÊ PENSOU ESTÁ AQUI",
+  "ESTA É A SUA CARTA LIVREMENTE DITA", "ESSA É A CARTA QUE VOCÊ ESCOLHEU",
+  "A CARTA QUE VOCÊ PENSOU É ESSA AQUI", "ESTA É A CARTA QUE VOCÊ IMAGINOU",
+  "A CARTA QUE VOCÊ ESCOLHEU ESTÁ AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU HOJE",
+  "A CARTA QUE VOCÊ PENSOU EM SEGREDO É", "ESSA É A CARTA QUE VOCÊ ESCOLHEU HOJE",
+  "A CARTA QUE VOCÊ PENSOU LIVREMENTE É", "ESTA É A CARTA QUE VOCÊ FALOU AGORA",
+  "A CARTA QUE VOCÊ ESCOLHEU EM SEGREDO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE FOI",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU HOJE", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR", "A CARTA QUE VOCÊ PENSOU LIVREMENTE HOJE É",
+  "A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ESTÁ AQUI", "A CARTA QUE VOCÊ PENSOU EM SEGREDO ESTÁ BEM AQUI",
+  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ESTÁ BEM AQUI", "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE EMBARALHAR",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE EMBARALHAR", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO É",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO FOI A",
+  "A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ PENSOU ANTES DE CORTAR O BARALHO HOJE",
+  "ESTA É A CARTA QUE VOCÊ ESCOLHEU ANTES DE CORTAR O BARALHO HOJE", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO É",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO É", "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A",
+  "A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO FOI A", "ESTA É A CARTA QUE VOCÊ ESCOLHEU LIVREMENTE ANTES DE CORTAR O BARALHO",
+  "A CARTA QUE VOCÊ PENSOU LIVREMENTE ANTES DE CORTAR O BARALHO ESTÁ AQUI"
+];
+
+function countLetters(text) {
+  return text.replace(/[^a-zA-ZáéíóúâêôãõçÁÉÍÓÚÂÊÔÃÕÇ]/g, "").length;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: #0b0d12;
-  color: #e6ebf5;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow-x: hidden;
-}
+const PHRASES_BY_LEN = {};
+BASE_PHRASES.forEach(p => {
+  const n = countLetters(p);
+  if (!PHRASES_BY_LEN[n]) PHRASES_BY_LEN[n] = p;
+});
 
-.hidden {
-  display: none !important;
-}
-
-/* SIMULADOR DE TIMER */
-.timer-overlay {
-  min-height: 100dvh;
-  width: 100%;
-  background: #000000;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 16px;
-}
-
-.timer-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.timer-pill-btn {
-  background: #1c1c1e;
-  color: #ff9f0a;
-  border: 1px solid #2c2c2e;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.timer-pill-subtle {
-  color: #8e8e93;
-}
-
-.timer-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-align: center;
-}
-
-.timer-label {
-  font-size: 0.9rem;
-  color: #8e8e93;
-  letter-spacing: 0.04em;
-}
-
-.timer-display {
-  font-size: clamp(3.6rem, 18vw, 5.5rem);
-  font-weight: 200;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-
-.timer-status {
-  font-size: 0.85rem;
-  color: #a1a1aa;
-  min-height: 1.2em;
-}
-
-.timer-status.ringing {
-  color: #ff453a;
-  font-weight: 700;
-}
-
-.timer-controls {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 8px;
-}
-
-.timer-btn-start,
-.timer-btn-cancel {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.timer-btn-cancel {
-  background: #1c1c1e;
-  border-color: #3a3a3c;
-  color: #ffffff;
-}
-
-.timer-btn-start {
-  background: #102a16;
-  border-color: #30d158;
-  color: #30d158;
-}
-
-.timer-btn-start.running {
-  background: #2b1210;
-  border-color: #ff453a;
-  color: #ff453a;
-}
-
-.timer-footer-hint {
-  text-align: center;
-  font-size: 0.75rem;
-  color: #636366;
-}
-
-/* SISTEMA PRINCIPAL MAXIN */
-.app {
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.topbar {
-  width: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.brand-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.brand-row h1 {
-  margin: 0;
-  font-size: 1.15rem;
-  letter-spacing: 0.08em;
-}
-
-.stack-select,
-.full-select,
-input[type="text"],
-textarea {
-  background: #141822;
-  color: #e6ebf5;
-  border: 1px solid #273043;
-  border-radius: 8px;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  max-width: 100%;
-}
-
-.header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
-  max-width: 100%;
-}
-
-.header-actions button {
-  max-width: 100%;
-  white-space: nowrap;
-}
-
-.btn-ghost,
-.btn-primary,
-.btn-danger,
-.btn-stealth-exit {
-  border-radius: 8px;
-  padding: 6px 9px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid #2c364b;
-}
-
-.btn-ghost {
-  background: #141923;
-  color: #e6ebf5;
-}
-
-.btn-primary {
-  background: #2f6fed;
-  border-color: #2f6fed;
-  color: #ffffff;
-}
-
-.btn-danger {
-  background: #7f1d1d;
-  border-color: #b91c1c;
-  color: #fef2f2;
-}
-
-.stacks-panel,
-.picker-box,
-.result-panel {
-  width: 100%;
-  max-width: 100%;
-  background: #121620;
-  border: 1px solid #222a3a;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-.panel-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.panel-hint {
-  margin: 6px 0 0;
-  font-size: 0.82rem;
-  color: #9fb0cc;
-}
-
-.row-gap {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  max-width: 100%;
-}
-
-.full-select {
-  flex: 1 1 160px;
-  min-width: 0;
-}
-
-.order-list {
-  margin-top: 8px;
-  max-height: 200px;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-  gap: 5px;
-}
-
-.order-item {
-  background: #0d1018;
-  border: 1px solid #1f2736;
-  border-radius: 6px;
-  padding: 5px 7px;
-  font-size: 0.78rem;
-  display: flex;
-  gap: 5px;
-}
-
-.order-item.red-suit {
-  color: #ff6b7a;
-}
-
-.order-num {
-  color: #60a5fa;
-  font-weight: 700;
-}
-
-.create-stack-box {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.field-label {
-  font-size: 0.8rem;
-  color: #b8c4d9;
-  margin-top: 4px;
-}
-
-.feedback {
-  padding: 7px 9px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-}
-
-.feedback.error {
-  background: #3b1216;
-  border: 1px solid #991b1b;
-  color: #fecaca;
-}
-
-.feedback.ok {
-  background: #103224;
-  border: 1px solid #15803d;
-  color: #bbf7d0;
-}
-
-.manual-body {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 0.84rem;
-  line-height: 1.4;
-}
-
-.manual-body h3 {
-  margin: 6px 0 2px;
-  font-size: 0.9rem;
-  color: #93c5fd;
-}
-
-.manual-body p {
-  margin: 0;
-}
-
-.box-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.step-tag {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #9fb0cc;
-}
-
-.picked-name {
-  font-size: 0.85rem;
-  color: #34d399;
-}
-
-.grid-values {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
-  margin-bottom: 6px;
-}
-
-.grid-suits {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
-}
-
-.val-btn,
-.suit-btn {
-  background: #181e2c;
-  color: #e6ebf5;
-  border: 1px solid #2a3448;
-  border-radius: 8px;
-  padding: 6px 2px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  min-width: 0;
-  aspect-ratio: 1.1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.suit-btn {
-  font-size: 0.92rem;
-  padding: 4px 2px;
-  aspect-ratio: 2.3 / 1;
-}
-
-.suit-btn.red {
-  color: #ff6b7a;
-}
-
-.val-btn.active,
-.suit-btn.active {
-  background: #2563eb;
-  border-color: #60a5fa;
-  color: #ffffff;
-}
-
-@media (max-width: 380px) {
-  .grid-values {
-    gap: 4px;
+function getPhraseForPos(pos, sideLabel) {
+  if (PHRASES_BY_LEN[pos]) {
+    const text = PHRASES_BY_LEN[pos];
+    return {
+      text,
+      letters: pos,
+      sub: `${pos} letras — cai EXATO na última letra (${pos}ª ${sideLabel})`
+    };
   }
 
-  .val-btn {
-    font-size: 0.76rem;
-    padding: 5px 1px;
+  if (pos > 1 && PHRASES_BY_LEN[pos - 1]) {
+    const text = PHRASES_BY_LEN[pos - 1];
+    return {
+      text,
+      letters: pos - 1,
+      sub: `${pos - 1} letras — soletra e vira a PRÓXIMA carta (${pos}ª ${sideLabel})`
+    };
   }
 
-  .suit-btn {
-    font-size: 0.85rem;
-    padding: 3px 1px;
-    aspect-ratio: 2.4 / 1;
+  const fallback = "A CARTA QUE VOCÊ PENSOU FOI";
+  const len = countLetters(fallback);
+  if (pos > len) {
+    return {
+      text: fallback,
+      letters: len,
+      sub: `${len} letras + passe mais ${pos - len} cartas para chegar na ${pos}ª ${sideLabel}`
+    };
+  }
+  return {
+    text: fallback,
+    letters: len,
+    sub: `${len} letras — conte ${pos} cartas (${sideLabel})`
+  };
+}
+
+let stacks = DEFAULT_STACKS.map(s => ({ id: s.id, name: s.name, cards: [...s.cards] }));
+try {
+  const savedStacks = JSON.parse(localStorage.getItem("maxin_stacks") || "null");
+  if (Array.isArray(savedStacks)) {
+    stacks = savedStacks;
+  } else {
+    const legacyCustom = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+    if (Array.isArray(legacyCustom) && legacyCustom.length > 0) {
+      stacks = [...stacks, ...legacyCustom.map(s => ({ id: s.id, name: s.name, cards: [...s.cards] }))];
+    }
+  }
+} catch (e) {}
+
+function persistStacks() {
+  try {
+    localStorage.setItem("maxin_stacks", JSON.stringify(stacks));
+  } catch (e) {}
+}
+
+let activeStackId = stacks[0] ? stacks[0].id : "tamariz";
+try {
+  const savedActive = localStorage.getItem("maxin_active_stack");
+  if (savedActive && stacks.some(s => s.id === savedActive)) {
+    activeStackId = savedActive;
+  }
+} catch (e) {}
+
+let editingStackId = null;
+
+const state = {
+  targetVal: null,
+  targetSuit: null,
+  bottomVal: null,
+  bottomSuit: null
+};
+
+/* ESTADO E CONTROLE DO TIMER */
+let timerDuration = 5;
+let timerRemaining = 5;
+let timerInterval = null;
+let timerRunning = false;
+
+function formatTimerSec(sec) {
+  const safe = Math.max(0, Math.floor(sec));
+  const mins = Math.floor(safe / 60);
+  const rem = safe % 60;
+  return `${String(mins).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
+}
+
+function playTimerBeep() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+    setTimeout(() => {
+      if (ctx && typeof ctx.close === "function") ctx.close();
+    }, 500);
+  } catch (e) {}
+}
+
+function updateTimerUI(statusText, ringing = false) {
+  const disp = document.getElementById("timer-display");
+  const statusEl = document.getElementById("timer-status");
+  const toggleBtn = document.getElementById("btn-timer-toggle");
+
+  if (disp) disp.textContent = formatTimerSec(timerRemaining);
+  if (statusEl) {
+    if (statusText) statusEl.textContent = statusText;
+    statusEl.classList.toggle("ringing", ringing);
+  }
+  if (toggleBtn) {
+    toggleBtn.textContent = timerRunning ? "Pausar" : "Iniciar";
+    toggleBtn.classList.toggle("running", timerRunning);
   }
 }
 
-.positions-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 8px;
+function stopTimerInterval() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  timerRunning = false;
 }
 
-.pos-card {
-  background: #0d1018;
-  border: 1px solid #232c3d;
-  border-radius: 10px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
+function startTimerCountdown(seconds) {
+  stopTimerInterval();
+  timerDuration = seconds;
+  timerRemaining = seconds;
+  timerRunning = true;
+  updateTimerUI(`Contando ${seconds}s...`, false);
+
+  timerInterval = setInterval(() => {
+    timerRemaining -= 1;
+    if (timerRemaining <= 0) {
+      timerRemaining = 0;
+      stopTimerInterval();
+      updateTimerUI("Tempo esgotado!", true);
+      playTimerBeep();
+      return;
+    }
+    updateTimerUI(`Contando ${timerDuration}s...`, false);
+  }, 1000);
 }
 
-.pos-value-line {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  white-space: nowrap;
+function toggleTimerStartPause() {
+  if (timerRunning) {
+    stopTimerInterval();
+    updateTimerUI("Pausado", false);
+    return;
+  }
+  const startFrom = timerRemaining > 0 ? timerRemaining : timerDuration;
+  startTimerCountdown(startFrom);
 }
 
-.pos-card strong {
-  font-size: 1.35rem;
+function resetTimer() {
+  stopTimerInterval();
+  timerRemaining = timerDuration;
+  updateTimerUI("Pronto para iniciar", false);
 }
 
-.pos-value-line span {
-  font-size: 0.85rem;
-  color: #cbd5e1;
+function startQuickTimer(seconds) {
+  openTimerScreen();
+  startTimerCountdown(seconds);
 }
 
-.phrases-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+function openTimerScreen() {
+  const timerEl = document.getElementById("timer-overlay");
+  const mainEl = document.getElementById("main-app");
+  if (timerEl) timerEl.classList.remove("hidden");
+  if (mainEl) mainEl.classList.add("hidden");
+  updateTimerUI();
 }
 
-.phrase-box {
-  background: #0d1018;
-  border: 1px solid #232c3d;
-  border-radius: 10px;
-  padding: 8px;
+function openCalcFromTimer() {
+  const timerEl = document.getElementById("timer-overlay");
+  const mainEl = document.getElementById("main-app");
+  if (timerEl) timerEl.classList.add("hidden");
+  if (mainEl) mainEl.classList.remove("hidden");
+  syncSelectors();
+  renderOrderList();
 }
 
-.phrase-main {
-  margin-top: 3px;
-  font-weight: 700;
-  font-size: 0.9rem;
+function getActiveStack() {
+  if (stacks.length === 0) {
+    return { id: "", name: "Sem stacks", cards: [] };
+  }
+  return stacks.find(s => s.id === activeStackId) || stacks[0];
 }
 
-.phrase-sub {
-  margin-top: 2px;
-  font-size: 0.78rem;
-  color: #9fb0cc;
+function updateEditModeUI() {
+  const saveBtn = document.getElementById("btn-save-stack");
+  const cancelBtn = document.getElementById("btn-cancel-edit");
+  if (editingStackId) {
+    if (saveBtn) saveBtn.textContent = "Salvar Alterações";
+    if (cancelBtn) cancelBtn.classList.remove("hidden");
+  } else {
+    if (saveBtn) saveBtn.textContent = "Salvar Novo Stack";
+    if (cancelBtn) cancelBtn.classList.add("hidden");
+  }
 }
 
-.stealth-overlay {
-  position: fixed;
-  inset: 0;
-  background: #080a0f;
-  color: #e6ebf5;
-  padding: 14px;
-  z-index: 999;
-  overflow-y: auto;
+function syncSelectors() {
+  const current = getActiveStack();
+  if (current && current.id) {
+    activeStackId = current.id;
+  }
+
+  ["stack-selector", "panel-stack-select"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = "";
+    if (stacks.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Nenhum stack";
+      sel.appendChild(opt);
+      return;
+    }
+    stacks.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      if (s.id === activeStackId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+
+  const hasStacks = stacks.length > 0;
+  const delBtn = document.getElementById("btn-delete-stack");
+  const editBtn = document.getElementById("btn-edit-stack");
+  if (delBtn) delBtn.classList.toggle("hidden", !hasStacks);
+  if (editBtn) editBtn.classList.toggle("hidden", !hasStacks);
+  updateEditModeUI();
 }
 
-.stealth-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+function renderOrderList() {
+  const listEl = document.getElementById("stack-order-list");
+  if (!listEl) return;
+  listEl.innerHTML = "";
+  const active = getActiveStack();
+  if (!active || !active.cards || active.cards.length === 0) return;
+  active.cards.forEach((card, idx) => {
+    const isRed = card.includes("copas") || card.includes("ouros");
+    const div = document.createElement("div");
+    div.className = `order-item ${isRed ? "red-suit" : ""}`;
+    div.innerHTML = `<span class="order-num">#${idx + 1}</span><span>${card}</span>`;
+    listEl.appendChild(div);
+  });
 }
 
-.stealth-note {
-  font-size: 0.9rem;
-  line-height: 1.55;
+function toggleManualPanel(forceOpen) {
+  const manualPanel = document.getElementById("manual-panel");
+  const stacksPanel = document.getElementById("stacks-panel");
+  if (!manualPanel) return;
+  if (typeof forceOpen === "boolean") {
+    manualPanel.classList.toggle("hidden", !forceOpen);
+  } else {
+    manualPanel.classList.toggle("hidden");
+  }
+  if (!manualPanel.classList.contains("hidden") && stacksPanel) {
+    stacksPanel.classList.add("hidden");
+  }
+}
+
+function toggleStacksPanel(forceOpen) {
+  const panel = document.getElementById("stacks-panel");
+  const manualPanel = document.getElementById("manual-panel");
+  if (!panel) return;
+  if (typeof forceOpen === "boolean") {
+    panel.classList.toggle("hidden", !forceOpen);
+  } else {
+    panel.classList.toggle("hidden");
+  }
+  if (!panel.classList.contains("hidden") && manualPanel) {
+    manualPanel.classList.add("hidden");
+  }
+  syncSelectors();
+  renderOrderList();
+}
+
+function changeStack(newId) {
+  activeStackId = newId;
+  if (editingStackId && editingStackId !== newId) {
+    editingStackId = null;
+    const nameInput = document.getElementById("new-stack-name");
+    const cardsInput = document.getElementById("new-stack-cards");
+    if (nameInput) nameInput.value = "";
+    if (cardsInput) cardsInput.value = "";
+  }
+  try {
+    localStorage.setItem("maxin_active_stack", activeStackId);
+  } catch (e) {}
+  syncSelectors();
+  renderOrderList();
+  calculateImmediate();
+}
+
+function loadCurrentStackForEdit() {
+  if (stacks.length === 0) return;
+  const current = getActiveStack();
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (fb) fb.classList.add("hidden");
+
+  editingStackId = current.id;
+  if (nameInput) nameInput.value = current.name;
+  if (cardsInput) cardsInput.value = current.cards.join("\n");
+  updateEditModeUI();
+  showFeedback("ok", `Editando "${current.name}". Altere e clique em "Salvar Alterações".`);
+}
+
+function cancelEditStack() {
+  editingStackId = null;
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (nameInput) nameInput.value = "";
+  if (cardsInput) cardsInput.value = "";
+  if (fb) fb.classList.add("hidden");
+  updateEditModeUI();
+}
+
+function parseCardLine(raw) {
+  if (typeof raw !== "string") return null;
+
+  var normalized = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  var cleaned = "";
+  for (var i = 0; i < normalized.length; i++) {
+    var ch = normalized.charAt(i);
+    var code = normalized.charCodeAt(i);
+    var isLetter = code >= 97 && code <= 122;
+    var isDigit = code >= 48 && code <= 57;
+    var isSuitSymbol = ch === "\u2663" || ch === "\u2665" || ch === "\u2660" || ch === "\u2666";
+    if (isLetter || isDigit || isSuitSymbol) {
+      cleaned += ch;
+    } else {
+      cleaned += " ";
+    }
+  }
+
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  if (!cleaned) return null;
+
+  var values = {
+    "a": "ás", "as": "ás", "1": "ás", "um": "ás",
+    "2": "2", "dois": "2",
+    "3": "3", "tres": "3",
+    "4": "4", "quatro": "4",
+    "5": "5", "cinco": "5",
+    "6": "6", "seis": "6",
+    "7": "7", "sete": "7",
+    "8": "8", "oito": "8",
+    "9": "9", "nove": "9",
+    "10": "10", "dez": "10",
+    "j": "valete", "valete": "valete",
+    "q": "dama", "dama": "dama",
+    "k": "rei", "rei": "rei"
+  };
+
+  var suits = {
+    "\u2663": "paus", "p": "paus", "paus": "paus",
+    "\u2665": "copas", "c": "copas", "copas": "copas",
+    "\u2660": "espadas", "e": "espadas", "espadas": "espadas",
+    "\u2666": "ouros", "o": "ouros", "ouros": "ouros"
+  };
+
+  var parts = cleaned.split(" ");
+  var foundVal = null;
+  var foundSuit = null;
+
+  for (var j = 0; j < parts.length; j++) {
+    var token = parts[j];
+    if (!token || token === "de") continue;
+    if (!foundVal && values[token]) {
+      foundVal = values[token];
+      continue;
+    }
+    if (!foundSuit && suits[token]) {
+      foundSuit = suits[token];
+    }
+  }
+
+  if (!foundVal || !foundSuit) {
+    var compact = cleaned.replace(/\s+/g, "");
+    for (var key in values) {
+      if (Object.prototype.hasOwnProperty.call(values, key) && compact.indexOf(key) === 0) {
+        var rest = compact.slice(key.length);
+        if (rest.indexOf("de") === 0) rest = rest.slice(2);
+        if (suits[rest]) {
+          foundVal = values[key];
+          foundSuit = suits[rest];
+          break;
+        }
+      }
+    }
+  }
+
+  return (foundVal && foundSuit) ? (foundVal + " de " + foundSuit) : null;
+}
+
+function showFeedback(type, msg) {
+  const fb = document.getElementById("new-stack-feedback");
+  if (!fb) return;
+  fb.className = `feedback ${type}`;
+  fb.textContent = msg;
+  fb.classList.remove("hidden");
+}
+
+function saveCustomStack() {
+  const nameInput = document.getElementById("new-stack-name");
+  const cardsInput = document.getElementById("new-stack-cards");
+  const fb = document.getElementById("new-stack-feedback");
+  if (fb) fb.classList.add("hidden");
+
+  const name = nameInput ? nameInput.value.trim() : "";
+  const rawLines = cardsInput
+    ? cardsInput.value.split(/\r?\n|[,;]+/).map(l => l.trim()).filter(Boolean)
+    : [];
+
+  if (!name) {
+    showFeedback("error", "Informe um nome para o stack.");
+    return;
+  }
+
+  if (rawLines.length !== 52) {
+    showFeedback("error", `É preciso colar 52 cartas (encontrei ${rawLines.length}).`);
+    return;
+  }
+
+  const parsed = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const card = parseCardLine(rawLines[i]);
+    if (!card) {
+      showFeedback("error", `Carta inválida na posição ${i + 1}: "${rawLines[i]}".`);
+      return;
+    }
+    if (parsed.includes(card)) {
+      showFeedback("error", `Carta repetida na posição ${i + 1}: "${card}".`);
+      return;
+    }
+    parsed.push(card);
+  }
+
+  let targetId = null;
+  if (editingStackId) {
+    const idx = stacks.findIndex(s => s.id === editingStackId);
+    if (idx !== -1) {
+      stacks[idx] = { id: editingStackId, name, cards: parsed };
+      targetId = editingStackId;
+    }
+    editingStackId = null;
+  }
+
+  if (!targetId) {
+    targetId = "custom_" + Date.now();
+    stacks.push({ id: targetId, name, cards: parsed });
+  }
+
+  persistStacks();
+
+  if (nameInput) nameInput.value = "";
+  if (cardsInput) cardsInput.value = "";
+  updateEditModeUI();
+  changeStack(targetId);
+  showFeedback("ok", `Stack "${name}" salvo e selecionado.`);
+}
+
+function deleteCurrentStack() {
+  if (stacks.length === 0) return;
+  const current = getActiveStack();
+  if (editingStackId === current.id) {
+    editingStackId = null;
+  }
+  stacks = stacks.filter(s => s.id !== current.id);
+  persistStacks();
+  const nextId = stacks[0] ? stacks[0].id : "";
+  changeStack(nextId);
+}
+
+function renderGrid(containerId, items, type, group) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = "";
+  items.forEach(item => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = type === "val" ? "val-btn" : `suit-btn ${item.red ? "red" : ""}`;
+    btn.textContent = type === "val" ? item.code : item.symbol;
+
+    btn.onclick = () => {
+      el.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (group === "target") {
+        if (type === "val") state.targetVal = item.label;
+        else state.targetSuit = item.name;
+      } else {
+        if (type === "val") state.bottomVal = item.label;
+        else state.bottomSuit = item.name;
+      }
+      calculateImmediate();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function calculateImmediate() {
+  const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
+  const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
+
+  const lblTarget = document.getElementById("label-target");
+  const lblBottom = document.getElementById("label-bottom");
+  if (lblTarget) lblTarget.textContent = targetCard || "—";
+  if (lblBottom) lblBottom.textContent = bottomCard || "—";
+
+  if (!targetCard || !bottomCard) return;
+
+  const stack = getActiveStack().cards;
+  if (!stack || stack.length === 0) return;
+  const targetIdx = stack.indexOf(targetCard);
+  const bottomIdx = stack.indexOf(bottomCard);
+  if (targetIdx === -1 || bottomIdx === -1) return;
+
+  const topIdx = (bottomIdx + 1) % 52;
+  const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
+  const posBottom = 53 - posTop;
+
+  const topPhrase = getPhraseForPos(posTop, "pelo topo");
+  const bottomPhrase = getPhraseForPos(posBottom, "pela boca");
+
+  document.getElementById("result-panel").classList.remove("hidden");
+  document.getElementById("pos-top").textContent = `${posTop}ª`;
+  document.getElementById("pos-bottom").textContent = `${posBottom}ª`;
+
+  document.getElementById("phrase-top-info").textContent = `FRASE CONTANDO PELO TOPO (${topPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-top-main").textContent = `"${topPhrase.text}"`;
+  document.getElementById("phrase-top-sub").textContent = topPhrase.sub;
+
+  document.getElementById("phrase-bottom-info").textContent = `FRASE CONTANDO PELA BOCA (${bottomPhrase.letters} LETRAS)`;
+  document.getElementById("phrase-bottom-main").textContent = `"${bottomPhrase.text}"`;
+  document.getElementById("phrase-bottom-sub").textContent = bottomPhrase.sub;
+
+  document.getElementById("stealth-output").innerHTML = `
+    - Stack: <strong>${getActiveStack().name}</strong><br>
+    - Topo: <strong>${posTop}ª</strong> ("${topPhrase.text}")<br>
+    - Boca: <strong>${posBottom}ª</strong> ("${bottomPhrase.text}")
+  `;
+}
+
+function resetAll() {
+  state.targetVal = null;
+  state.targetSuit = null;
+  state.bottomVal = null;
+  state.bottomSuit = null;
+  document.querySelectorAll(".val-btn, .suit-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("label-target").textContent = "—";
+  document.getElementById("label-bottom").textContent = "—";
+  document.getElementById("result-panel").classList.add("hidden");
+}
+
+function openStealth() {
+  const el = document.getElementById("stealth-overlay");
+  if (el) el.classList.remove("hidden");
+}
+
+function closeStealth() {
+  const el = document.getElementById("stealth-overlay");
+  if (el) el.classList.add("hidden");
+}
+
+function init() {
+  openTimerScreen();
+  syncSelectors();
+  renderOrderList();
+  renderGrid("target-values", VALUES, "val", "target");
+  renderGrid("target-suits", SUITS, "suit", "target");
+  renderGrid("bottom-values", VALUES, "val", "bottom");
+  renderGrid("bottom-suits", SUITS, "suit", "bottom");
+  updateTimerUI("Pronto para iniciar", false);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
 }
