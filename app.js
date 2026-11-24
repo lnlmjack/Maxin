@@ -301,15 +301,15 @@ function syncPickerValuesFromScroll() {
   const mList = document.getElementById("picker-minutes");
   const sList = document.getElementById("picker-seconds");
 
-  if (hList) {
+  if (hList && hList.scrollHeight > hList.clientHeight) {
     const idx = Math.round(hList.scrollTop / PICKER_ITEM_HEIGHT);
     selectedHours = Math.max(0, Math.min(23, idx));
   }
-  if (mList) {
+  if (mList && mList.scrollHeight > mList.clientHeight) {
     const idx = Math.round(mList.scrollTop / PICKER_ITEM_HEIGHT);
     selectedMinutes = Math.max(0, Math.min(59, idx));
   }
-  if (sList) {
+  if (sList && sList.scrollHeight > sList.clientHeight) {
     const idx = Math.round(sList.scrollTop / PICKER_ITEM_HEIGHT);
     selectedSeconds = Math.max(0, Math.min(59, idx));
   }
@@ -383,6 +383,17 @@ function highlightColumnItem(listEl, activeValue) {
   if (unitH) unitH.textContent = selectedHours === 1 ? "hora" : "horas";
 }
 
+function setColumnScrollPos(el, value) {
+  if (!el) return;
+  const targetTop = value * PICKER_ITEM_HEIGHT;
+  el.scrollTop = targetTop;
+  requestAnimationFrame(() => {
+    if (el.scrollTop !== targetTop) {
+      el.scrollTop = targetTop;
+    }
+  });
+}
+
 function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -396,13 +407,13 @@ function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
     btn.textContent = String(v);
     btn.onclick = () => {
       onSelect(v);
-      el.scrollTop = v * PICKER_ITEM_HEIGHT;
+      setColumnScrollPos(el, v);
       highlightColumnItem(el, v);
     };
     el.appendChild(btn);
   }
 
-  el.scrollTop = currentVal * PICKER_ITEM_HEIGHT;
+  setColumnScrollPos(el, currentVal);
 
   el.onscroll = () => {
     const idx = Math.max(0, Math.min(maxVal, Math.round(el.scrollTop / PICKER_ITEM_HEIGHT)));
@@ -505,6 +516,7 @@ function openTimerScreen() {
 }
 
 function openCalcFromTimer() {
+  syncPickerValuesFromScroll();
   const timerEl = document.getElementById("timer-overlay");
   const mainEl = document.getElementById("main-app");
   if (timerEl) timerEl.classList.add("hidden");
