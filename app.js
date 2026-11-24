@@ -121,11 +121,13 @@ RAW_PHRASES.forEach(phrase => {
 const state = {
   bottomVal: null,
   bottomSuit: null,
+  targetVal: null,
+  targetSuit: null,
   topIdx: null,
   posTop: 1
 };
 
-function renderGrid(containerId, items, type) {
+function renderGrid(containerId, items, type, group) {
   const el = document.getElementById(containerId);
   items.forEach(item => {
     const btn = document.createElement("button");
@@ -136,10 +138,15 @@ function renderGrid(containerId, items, type) {
       el.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      if (type === "val") state.bottomVal = item.label;
-      else state.bottomSuit = item.name;
-
-      onPeekChange();
+      if (group === "bottom") {
+        if (type === "val") state.bottomVal = item.label;
+        else state.bottomSuit = item.name;
+        onPeekChange();
+      } else if (group === "target") {
+        if (type === "val") state.targetVal = item.label;
+        else state.targetSuit = item.name;
+        onTargetChange();
+      }
     };
     el.appendChild(btn);
   });
@@ -156,14 +163,73 @@ function onPeekChange() {
   const topCard = TAMARIZ[topIdx];
 
   state.topIdx = topIdx;
-  state.posTop = 1;
 
   document.getElementById("label-bottom").textContent = bottomCard;
   document.getElementById("top-card-banner").classList.remove("hidden");
   document.getElementById("top-card-name").textContent = topCard;
+  document.getElementById("target-section").classList.remove("hidden");
   document.getElementById("pos-section").classList.remove("hidden");
 
+  if (state.targetVal && state.targetSuit) {
+    onTargetChange();
+  } else {
+    renderPositionDetails();
+  }
+}
+
+function onTargetChange() {
+  if (!state.targetVal || !state.targetSuit) return;
+  const targetCard = `${state.targetVal} de ${state.targetSuit}`;
+  document.getElementById("label-target").textContent = targetCard;
+
+  if (state.topIdx === null) return;
+  const targetIdx = TAMARIZ.indexOf(targetCard);
+  if (targetIdx === -1) return;
+
+  state.posTop = ((targetIdx - state.topIdx + 52) % 52) + 1;
   renderPositionDetails();
+}
+
+function getPhrasesForPosition(pos) {
+  const list = [];
+
+  // 1. Frases exatas com o mesmo número de letras que a posição
+  const exact = PHRASES_BY_LENGTH[pos] || [];
+  exact.forEach(p => {
+    list.push({
+      text: p,
+      note: `${countLetters(p)} letras — cai EXATO na última letra (${pos}ª pelo topo)`
+    });
+  });
+
+  // 2. Frase com (pos - 1) letras + virar a próxima carta
+  if (pos > 1 && PHRASES_BY_LENGTH[pos - 1]) {
+    const p = PHRASES_BY_LENGTH[pos - 1][0];
+    list.push({
+      text: p,
+      note: `${countLetters(p)} letras — soletra e vira a PRÓXIMA carta (${pos}ª do topo)`
+    });
+  }
+
+  // 3. Fallback garantido para qualquer posição de 1 a 52
+  if (list.length === 0) {
+    const basePhrase = "A CARTA QUE VOCÊ PENSOU FOI";
+    const baseLen = countLetters(basePhrase); // 21 letras
+    if (pos > baseLen) {
+      const extra = pos - baseLen;
+      list.push({
+        text: basePhrase,
+        note: `${baseLen} letras + passe mais ${extra} carta(s) para chegar na ${pos}ª`
+      });
+    } else {
+      list.push({
+        text: "A CARTA QUE VOCÊ PENSOU",
+        note: `16 letras — conte ${pos} carta(s) do topo`
+      });
+    }
+  }
+
+  return list;
 }
 
 function renderPositionDetails() {
@@ -179,56 +245,49 @@ function renderPositionDetails() {
   document.getElementById("card-from-bottom-info").textContent =
     `${pos}ª pelo topo · ${posFromBottom}ª pela boca (base)`;
 
+  const phrases = getPhrasesForPosition(pos);
   const listEl = document.getElementById("phrases-list");
   listEl.innerHTML = "";
 
-  const exactList = PHRASES_BY_LENGTH[pos] || [];
-  exactList.forEach(phrase => {
-    const len = countLetters(phrase);
+  phrases.forEach(item => {
     const div = document.createElement("div");
     div.className = "phrase-item";
     div.innerHTML = `
-      <div class="phrase-text">"${phrase}"</div>
-      <div class="phrase-meta">${len} letras — cai EXATO na última letra (${pos}ª pelo topo)</div>
+      <div class="phrase-text">"${item.text}"</div>
+      <div class="phrase-meta">${item.note}</div>
     `;
     listEl.appendChild(div);
   });
 
-  if (pos > 1 && PHRASES_BY_LENGTH[pos - 1]) {
-    const nextPhrase = PHRASES_BY_LENGTH[pos - 1][0];
-    const len = countLetters(nextPhrase);
-    const div = document.createElement("div");
-    div.className = "phrase-item";
-    div.innerHTML = `
-      <div class="phrase-text">"${nextPhrase}"</div>
-      <div class="phrase-meta">${len} letras — soletra e vira a PRÓXIMA carta (${pos}ª do topo)</div>
-    `;
-    listEl.appendChild(div);
-  }
-
-  const firstPhrase = listEl.querySelector(".phrase-text")?.textContent || "";
   document.getElementById("stealth-output").innerHTML = `
     - Topo: <strong>${TAMARIZ[state.topIdx]}</strong><br>
-    - Pos ${pos} pelo topo (boca ${posFromBottom}): <strong>${cardAtPos}</strong><br>
-    - Frase: ${firstPhrase}
+    - Pos ${pos} (boca ${posFromBottom}): <strong>${cardAtPos}</strong><br>
+    - Frase: "${phrases[0].text}"<br>
+    - ${phrases[0].note}
   `;
 }
 
 function resetAll() {
   state.bottomVal = null;
   state.bottomSuit = null;
+  state.targetVal = null;
+  state.targetSuit = null;
   state.topIdx = null;
   state.posTop = 1;
 
   document.querySelectorAll(".val-btn, .suit-btn").forEach(b => b.classList.remove("active"));
   document.getElementById("label-bottom").textContent = "—";
+  document.getElementById("label-target").textContent = "—";
   document.getElementById("top-card-banner").classList.add("hidden");
+  document.getElementById("target-section").classList.add("hidden");
   document.getElementById("pos-section").classList.add("hidden");
 }
 
 function init() {
-  renderGrid("bottom-values", VALUES, "val");
-  renderGrid("bottom-suits", SUITS, "suit");
+  renderGrid("bottom-values", VALUES, "val", "bottom");
+  renderGrid("bottom-suits", SUITS, "suit", "bottom");
+  renderGrid("target-values", VALUES, "val", "target");
+  renderGrid("target-suits", SUITS, "suit", "target");
 
   document.getElementById("btn-minus").onclick = () => {
     if (state.topIdx === null) return;
