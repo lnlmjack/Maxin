@@ -437,4 +437,8 @@ function init() {
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
 }
 
-init();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
