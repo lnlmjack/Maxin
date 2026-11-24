@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_18" />
+  <link rel="stylesheet" href="style.css?v=20261124_19" />
 </head>
 <body>
   <!-- SIMULADOR DE TIMER -->
@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <!-- Mostrador em execução / disparo NO TOPO -->
+      <!-- Mostrador em execução NO TOPO -->
       <div id="timer-countdown-box" class="timer-running-panel hidden">
         <div class="timer-running-row">
           <div class="timer-running-meta">
@@ -86,11 +86,8 @@
         type="button"
         class="ios-tab-item ios-hold-btn"
         onpointerdown="holdStealthStart(event)"
-        onpointerup="holdStealthEnd(event)"
-        onpointercancel="holdStealthEnd(event)"
         ontouchstart="holdStealthStart(event)"
-        ontouchend="holdStealthEnd(event)"
-        ontouchcancel="holdStealthEnd(event)"
+        onmousedown="holdStealthStart(event)"
         oncontextmenu="return false;"
       >
         <span class="ios-tab-icon" aria-hidden="true">⏰</span>
@@ -251,6 +248,6 @@
   </div>
 
   <audio id="alarm-audio" src="somalarme.mp3" preload="auto" playsinline></audio>
-  <script src="app.js?v=20261124_18"></script>
+  <script src="app.js?v=20261124_19"></script>
 </body>
 </html>
