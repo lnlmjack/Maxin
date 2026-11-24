@@ -21,50 +21,44 @@
       </div>
     </header>
 
-    <!-- 1. PEEK DA BOCA -->
+    <!-- 1. CARTA DITA PELA PESSOA -->
     <section class="picker-box">
       <div class="box-header">
-        <span class="step-tag">1. PEEK DA BOCA (BASE)</span>
-        <strong id="label-bottom" class="picked-name">—</strong>
-      </div>
-      <div id="bottom-values" class="grid-values"></div>
-      <div id="bottom-suits" class="grid-suits"></div>
-    </section>
-
-    <!-- TOPO ATUAL -->
-    <section id="top-card-banner" class="top-banner hidden">
-      <small>CARTA NO TOPO</small>
-      <strong id="top-card-name">—</strong>
-    </section>
-
-    <!-- 2. CARTA DITA PELA PESSOA -->
-    <section class="picker-box">
-      <div class="box-header">
-        <span class="step-tag">2. CARTA DITA PELA PESSOA</span>
+        <span class="step-tag">1. CARTA DITA PELA PESSOA</span>
         <strong id="label-target" class="picked-name">—</strong>
       </div>
       <div id="target-values" class="grid-values"></div>
       <div id="target-suits" class="grid-suits"></div>
     </section>
 
-    <!-- RESULTADO: POSIÇÕES E FRASES PARA SOLETRAR -->
+    <!-- 2. PEEK DA ÚLTIMA CARTA (BOCA) -->
+    <section class="picker-box">
+      <div class="box-header">
+        <span class="step-tag">2. PEEK DA ÚLTIMA CARTA (BOCA)</span>
+        <strong id="label-bottom" class="picked-name">—</strong>
+      </div>
+      <div id="bottom-values" class="grid-values"></div>
+      <div id="bottom-suits" class="grid-suits"></div>
+    </section>
+
+    <!-- POSIÇÕES + FRASE PARA SOLETRAR -->
     <section id="result-panel" class="result-panel hidden">
       <div class="positions-row">
         <div class="pos-card primary">
-          <small>PELO TOPO</small>
+          <small>POSIÇÃO PELO TOPO</small>
           <strong id="pos-top">—</strong>
           <span>ª carta</span>
         </div>
         <div class="pos-card secondary">
-          <small>PELA BOCA (BASE)</small>
+          <small>POSIÇÃO PELA BOCA</small>
           <strong id="pos-bottom">—</strong>
           <span>ª carta</span>
         </div>
       </div>
 
       <div class="phrases-header">
-        <span>FRASES PARA SOLETRAR</span>
-        <small>1 letra = 1 carta</small>
+        <span>FRASE PARA SOLETRAR</span>
+        <small id="spell-summary">—</small>
       </div>
       <div id="phrases-list" class="phrases-list"></div>
     </section>
@@ -77,7 +71,7 @@
       <button id="btn-exit-stealth" class="btn-stealth-exit">Sair</button>
     </div>
     <div id="stealth-output" class="stealth-note">
-      Aguardando seleção...
+      Aguardando cartas...
     </div>
   </div>
 
