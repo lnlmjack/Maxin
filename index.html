@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_19" />
+  <link rel="stylesheet" href="style.css?v=20261124_20" />
 </head>
 <body>
   <!-- SIMULADOR DE TIMER -->
@@ -136,7 +136,8 @@
         <h3>2. Timers, Som e Acesso Oculto</h3>
         <p><strong>Acesso ao sistema:</strong> na tela de <strong>Timers</strong>, toque no ícone <strong>Relógio</strong> na barra inferior para abrir o sistema das cartas.</p>
         <p><strong>Peek rápido segurando Alarmes:</strong> na tela de <strong>Timers</strong>, pressione e segure <strong>Alarmes</strong> na barra inferior para abrir o <strong>Stealth</strong>; ao soltar, ele volta automaticamente para a tela de <strong>Timers</strong>.</p>
-        <p><strong>Ajustar e tocar som:</strong> role ou toque nos valores de <strong>horas</strong>, <strong>min</strong> e <strong>s</strong> e aperte <strong>▶</strong> (ou toque em <strong>+</strong> para 5 segundos) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar.</p>
+        <p><strong>Atalho oculto nas frases:</strong> toque em qualquer área das frases exibidas no resultado para voltar direto para a tela de <strong>Timers</strong>.</p>
+        <p><strong>Ajustar e tocar som:</strong> role ou toque nos valores de <strong>horas</strong>, <strong>min</strong> e <strong>s</strong> e aperte <strong>▶</strong> (ou toque em <strong>5s</strong> / <strong>+</strong>) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar, mantendo o tempo programado antes na roda.</p>
 
         <h3>3. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
@@ -221,13 +222,13 @@
       </div>
 
       <div class="phrases-stack">
-        <div class="phrase-box top-box">
+        <div id="phrase-top-trigger" class="phrase-box top-box stealth-phrase-trigger" onclick="openTimerScreen()">
           <small id="phrase-top-info">FRASE CONTANDO PELO TOPO</small>
           <div id="phrase-top-main" class="phrase-main">—</div>
           <div id="phrase-top-sub" class="phrase-sub">—</div>
         </div>
 
-        <div class="phrase-box bottom-box">
+        <div id="phrase-bottom-trigger" class="phrase-box bottom-box stealth-phrase-trigger" onclick="openTimerScreen()">
           <small id="phrase-bottom-info">FRASE CONTANDO PELA BOCA</small>
           <div id="phrase-bottom-main" class="phrase-main">—</div>
           <div id="phrase-bottom-sub" class="phrase-sub">—</div>
@@ -248,6 +249,6 @@
   </div>
 
   <audio id="alarm-audio" src="somalarme.mp3" preload="auto" playsinline></audio>
-  <script src="app.js?v=20261124_19"></script>
+  <script src="app.js?v=20261124_20"></script>
 </body>
 </html>
