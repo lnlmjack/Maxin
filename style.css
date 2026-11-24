@@ -56,9 +56,9 @@ body {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 5px 8px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  max-width: 135px;
+  max-width: 130px;
 }
 
 .header-actions {
@@ -86,6 +86,7 @@ button {
   font-weight: 600;
   padding: 10px 14px;
   width: 100%;
+  margin-top: 6px;
 }
 
 .btn-danger {
@@ -172,10 +173,6 @@ button {
   padding: 12px;
 }
 
-.hidden {
-  display: none !important;
-}
-
 .positions-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -243,16 +240,16 @@ button {
   color: var(--muted);
 }
 
-/* Modal Stacks */
+/* Modal Mnemônicas */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 12px;
-  z-index: 30;
+  z-index: 40;
 }
 
 .modal-content {
@@ -262,10 +259,11 @@ button {
   padding: 14px;
   width: 100%;
   max-width: 440px;
-  max-height: 88vh;
+  max-height: 90vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .modal-header {
@@ -276,70 +274,65 @@ button {
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 
-.tabs-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.tab-btn {
+.box-block {
   background: var(--surface-2);
-  padding: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-
-.tab-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.tab-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow: hidden;
 }
 
-.view-toolbar {
+.row-between {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.muted-label {
-  font-size: 0.82rem;
+.mini-label {
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--muted);
 }
 
+.full-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--green);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .order-list {
+  max-height: 180px;
   overflow-y: auto;
-  max-height: 56vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding-right: 4px;
+  gap: 5px;
+  padding-top: 4px;
 }
 
 .order-item {
-  background: var(--surface-2);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 0.84rem;
+  background: var(--surface);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   text-transform: capitalize;
 }
 
 .order-num {
   color: var(--accent);
   font-weight: 700;
-  min-width: 22px;
 }
 
 .order-item.red-suit {
@@ -348,31 +341,20 @@ button {
 
 input, textarea {
   width: 100%;
-  padding: 10px;
+  padding: 9px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-family: inherit;
-}
-
-.helper-text {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.helper-text code {
-  color: var(--green);
 }
 
 .error-msg {
   background: rgba(255, 92, 92, 0.15);
   border: 1px solid var(--red);
   color: #ff9c9c;
-  padding: 8px;
+  padding: 7px 9px;
   border-radius: 8px;
   font-size: 0.8rem;
 }
@@ -384,7 +366,7 @@ input, textarea {
   background: #050505;
   color: #777;
   padding: 24px;
-  z-index: 50;
+  z-index: 60;
 }
 
 .stealth-header {
@@ -405,4 +387,8 @@ input, textarea {
 .stealth-note {
   font-size: 0.95rem;
   line-height: 1.7;
+}
+
+.hidden {
+  display: none !important;
 }
