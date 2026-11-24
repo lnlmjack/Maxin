@@ -21,23 +21,33 @@
       </div>
     </header>
 
-    <!-- PEEK DA CARTA DA BOCA -->
+    <!-- 1. PEEK DA CARTA DA BOCA -->
     <section class="picker-box">
       <div class="box-header">
-        <span class="step-tag">PEEK DA CARTA DA BOCA (BASE)</span>
+        <span class="step-tag">1. PEEK DA BOCA (BASE)</span>
         <strong id="label-bottom" class="picked-name">—</strong>
       </div>
       <div id="bottom-values" class="grid-values"></div>
       <div id="bottom-suits" class="grid-suits"></div>
     </section>
 
-    <!-- CARTA DO TOPO APÓS O PEEK -->
+    <!-- TOPO ATUAL -->
     <section id="top-card-banner" class="top-banner hidden">
       <small>CARTA NO TOPO ATUAL</small>
       <strong id="top-card-name">—</strong>
     </section>
 
-    <!-- CONSULTA DE POSIÇÃO / SOLETRACAO -->
+    <!-- 2. CARTA DITA PELO ESPECTADOR (PULA DIRETO PARA A POSIÇÃO DELA) -->
+    <section id="target-section" class="picker-box hidden">
+      <div class="box-header">
+        <span class="step-tag">2. CARTA DITA (OPCIONAL)</span>
+        <strong id="label-target" class="picked-name">—</strong>
+      </div>
+      <div id="target-values" class="grid-values"></div>
+      <div id="target-suits" class="grid-suits"></div>
+    </section>
+
+    <!-- POSIÇÃO E FRASES PARA SOLETRAR -->
     <section id="pos-section" class="pos-section hidden">
       <div class="box-header">
         <span class="step-tag">POSIÇÃO PARA CONTAR / SOLETRAR</span>
@@ -49,7 +59,7 @@
       </div>
 
       <div class="card-at-pos">
-        <small>Carta nessa posição pelo topo:</small>
+        <small>Carta nessa posição:</small>
         <strong id="card-at-pos-name">—</strong>
         <span id="card-from-bottom-info">—</span>
       </div>
