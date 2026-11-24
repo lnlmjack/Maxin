@@ -13,12 +13,12 @@
     <header class="topbar">
       <div class="brand-row">
         <h1>MAXIN</h1>
-        <select id="stack-selector" class="stack-select" title="Escolher Mnemônica"></select>
+        <select id="stack-selector" class="stack-select" aria-label="Escolher mnemônica"></select>
       </div>
       <div class="header-actions">
-        <button id="btn-stacks" class="btn-ghost">Stacks</button>
-        <button id="btn-clear" class="btn-ghost">Limpar</button>
-        <button id="btn-stealth" class="btn-ghost">Stealth</button>
+        <button id="btn-stacks" type="button" class="btn-ghost">Stacks</button>
+        <button id="btn-clear" type="button" class="btn-ghost">Limpar</button>
+        <button id="btn-stealth" type="button" class="btn-ghost">Stealth</button>
       </div>
     </header>
 
@@ -65,38 +65,32 @@
     </section>
   </div>
 
-  <!-- MODAL: VER ORDEM DAS CARTAS E CRIAR MNEMÔNICAS -->
+  <!-- PAINEL DE MNEMÔNICAS (VER ORDEM E CADASTRAR NOVA) -->
   <div id="modal-stacks" class="modal hidden">
-    <div class="modal-content modal-large">
+    <div class="modal-content">
       <div class="modal-header">
-        <h2 id="modal-stack-title">Ordem das Cartas</h2>
-        <button id="btn-close-stacks" class="btn-ghost">Fechar</button>
+        <h2>Mnemônicas</h2>
+        <button id="btn-close-stacks" type="button" class="btn-ghost">Fechar</button>
       </div>
 
-      <div class="tabs-row">
-        <button id="tab-view" class="tab-btn active">Ver Ordem (1–52)</button>
-        <button id="tab-new" class="tab-btn">+ Nova Mnemônica</button>
-      </div>
-
-      <!-- ABA 1: VER ORDEM DA STACK ATIVA -->
-      <div id="panel-view-stack" class="tab-panel">
-        <div class="view-toolbar">
-          <span id="view-stack-name" class="muted-label">Tamariz</span>
-          <button id="btn-delete-stack" class="btn-danger hidden">Excluir esta stack</button>
+      <!-- ESCOLHER MNEMÔNICA E VER ORDEM -->
+      <div class="box-block">
+        <div class="row-between">
+          <label for="modal-stack-select" class="mini-label">Mnemônica ativa:</label>
+          <button id="btn-delete-stack" type="button" class="btn-danger hidden">Excluir mnemônica</button>
         </div>
+        <select id="modal-stack-select" class="full-select"></select>
+
         <div id="stack-order-list" class="order-list"></div>
       </div>
 
-      <!-- ABA 2: CRIAR NOVA MNEMÔNICA -->
-      <div id="panel-new-stack" class="tab-panel hidden">
-        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Ordem)" />
-        <p class="helper-text">
-          Cole as <strong>52 cartas</strong> (uma por linha, do topo #1 até a boca #52).<br>
-          Aceita por extenso (ex: <code>4 de paus</code>) ou símbolo (ex: <code>4♣</code>, <code>Q♥</code>, <code>A♠</code>, <code>10♦</code>).
-        </p>
-        <textarea id="new-stack-cards" rows="10" placeholder="4 de paus&#10;2 de copas&#10;7 de ouros&#10;..."></textarea>
+      <!-- COLOCAR NOME E AS 52 CARTAS DE UMA NOVA MNEMÔNICA -->
+      <div class="box-block">
+        <div class="mini-label">Adicionar nova mnemônica (52 cartas)</div>
+        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Stack)" />
+        <textarea id="new-stack-cards" rows="6" placeholder="Cole as 52 cartas uma por linha (ex: 4 de paus ou 4♣)"></textarea>
         <div id="new-stack-error" class="error-msg hidden"></div>
-        <button id="btn-save-stack" class="btn-primary">Salvar Mnemônica</button>
+        <button id="btn-save-stack" type="button" class="btn-primary">Salvar Mnemônica</button>
       </div>
     </div>
   </div>
@@ -105,7 +99,7 @@
   <div id="stealth-overlay" class="stealth-overlay hidden">
     <div class="stealth-header">
       <span>Notas</span>
-      <button id="btn-exit-stealth" class="btn-stealth-exit">Sair</button>
+      <button id="btn-exit-stealth" type="button" class="btn-stealth-exit">Sair</button>
     </div>
     <div id="stealth-output" class="stealth-note">
       Aguardando cartas...
