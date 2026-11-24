@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_14" />
+  <link rel="stylesheet" href="style.css?v=20261124_15" />
 </head>
 <body>
-  <!-- SIMULADOR DE TIMER IDÊNTICO AO PRINT -->
+  <!-- SIMULADOR DE TIMER -->
   <div id="timer-overlay" class="timer-overlay">
     <div class="timer-header-row">
       <h2 class="timer-screen-title">Timers</h2>
@@ -20,24 +20,27 @@
     </div>
 
     <div class="timer-center">
-      <!-- Seletor estilo roda do print -->
+      <!-- Seletor de roda em caixa fixa -->
       <div id="timer-picker" class="ios-wheel-picker">
         <div class="ios-wheel-highlight"></div>
+
         <div class="ios-wheel-col">
           <div id="picker-hours" class="ios-wheel-list"></div>
           <span class="ios-unit-inline">hora</span>
         </div>
+
         <div class="ios-wheel-col">
           <div id="picker-minutes" class="ios-wheel-list"></div>
           <span class="ios-unit-inline">min</span>
         </div>
+
         <div class="ios-wheel-col">
           <div id="picker-seconds" class="ios-wheel-list"></div>
           <span class="ios-unit-inline">s</span>
         </div>
       </div>
 
-      <!-- Mostrador em execução / disparo -->
+      <!-- Mostrador durante contagem ou disparo -->
       <div id="timer-countdown-box" class="timer-countdown-box hidden">
         <div id="timer-display" class="timer-display">00:05</div>
         <div id="timer-status" class="timer-status"></div>
@@ -63,7 +66,7 @@
       </div>
     </div>
 
-    <!-- Barra inferior estilo iOS (Relógio abre o sistema oculto) -->
+    <!-- Barra inferior (Relógio abre o sistema das cartas) -->
     <nav class="ios-tabbar" aria-label="Abas do relógio">
       <button type="button" class="ios-tab-item" onclick="openCalcFromTimer()">
         <span class="ios-tab-icon" aria-hidden="true">🌐</span>
@@ -227,6 +230,6 @@
   </div>
 
   <audio id="alarm-audio" src="somalarme.mp3" preload="auto"></audio>
-  <script src="app.js?v=20261124_14"></script>
+  <script src="app.js?v=20261124_15"></script>
 </body>
 </html>
