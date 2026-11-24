@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_17" />
+  <link rel="stylesheet" href="style.css?v=20261124_18" />
 </head>
 <body>
   <!-- SIMULADOR DE TIMER -->
@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <!-- Mostrador em execução / disparo NO TOPO (igual ao print) -->
+      <!-- Mostrador em execução / disparo NO TOPO -->
       <div id="timer-countdown-box" class="timer-running-panel hidden">
         <div class="timer-running-row">
           <div class="timer-running-meta">
@@ -75,13 +75,24 @@
       </div>
     </div>
 
-    <!-- Barra inferior (Relógio abre o sistema das cartas) -->
+    <!-- Barra inferior (Relógio abre o sistema; segurar Alarmes abre o Stealth) -->
     <nav class="ios-tabbar" aria-label="Abas do relógio">
       <button type="button" class="ios-tab-item" onclick="openCalcFromTimer()">
         <span class="ios-tab-icon" aria-hidden="true">🌐</span>
         <span>Relógio</span>
       </button>
-      <button type="button" class="ios-tab-item" onclick="cancelOrResetIphoneTimer()">
+      <button
+        id="btn-hold-alarm-stealth"
+        type="button"
+        class="ios-tab-item ios-hold-btn"
+        onpointerdown="holdStealthStart(event)"
+        onpointerup="holdStealthEnd(event)"
+        onpointercancel="holdStealthEnd(event)"
+        ontouchstart="holdStealthStart(event)"
+        ontouchend="holdStealthEnd(event)"
+        ontouchcancel="holdStealthEnd(event)"
+        oncontextmenu="return false;"
+      >
         <span class="ios-tab-icon" aria-hidden="true">⏰</span>
         <span>Alarmes</span>
       </button>
@@ -127,6 +138,7 @@
 
         <h3>2. Timers, Som e Acesso Oculto</h3>
         <p><strong>Acesso ao sistema:</strong> na tela de <strong>Timers</strong>, toque no ícone <strong>Relógio</strong> na barra inferior para abrir o sistema das cartas.</p>
+        <p><strong>Peek rápido segurando Alarmes:</strong> na tela de <strong>Timers</strong>, pressione e segure <strong>Alarmes</strong> na barra inferior para abrir o <strong>Stealth</strong>; ao soltar, ele volta automaticamente para a tela de <strong>Timers</strong>.</p>
         <p><strong>Ajustar e tocar som:</strong> role ou toque nos valores de <strong>horas</strong>, <strong>min</strong> e <strong>s</strong> e aperte <strong>▶</strong> (ou toque em <strong>+</strong> para 5 segundos) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar.</p>
 
         <h3>3. Barra Superior</h3>
@@ -239,6 +251,6 @@
   </div>
 
   <audio id="alarm-audio" src="somalarme.mp3" preload="auto" playsinline></audio>
-  <script src="app.js?v=20261124_17"></script>
+  <script src="app.js?v=20261124_18"></script>
 </body>
 </html>
