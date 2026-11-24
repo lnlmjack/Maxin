@@ -194,6 +194,9 @@ const PICKER_ITEM_HEIGHT = 36;
 let selectedHours = 0;
 let selectedMinutes = 0;
 let selectedSeconds = 37;
+let savedHours = null;
+let savedMinutes = null;
+let savedSeconds = null;
 let timerInitialTotal = 37;
 let timerRemaining = 37;
 let timerInterval = null;
@@ -320,6 +323,17 @@ function getPickerTotalSeconds() {
   return (selectedHours * 3600) + (selectedMinutes * 60) + selectedSeconds;
 }
 
+function restoreSavedPickerIfNeeded() {
+  if (savedHours !== null && savedMinutes !== null && savedSeconds !== null) {
+    selectedHours = savedHours;
+    selectedMinutes = savedMinutes;
+    selectedSeconds = savedSeconds;
+    savedHours = null;
+    savedMinutes = null;
+    savedSeconds = null;
+  }
+}
+
 function renderIphoneTimerState() {
   const pickerEl = document.getElementById("timer-picker");
   const setupControls = document.getElementById("timer-setup-controls");
@@ -425,6 +439,7 @@ function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
     if (timerRemaining <= 0) {
       timerRemaining = 0;
       stopTimerTick();
+      restoreSavedPickerIfNeeded();
       timerMode = "picker";
       renderIphoneTimerState();
       initIphonePicker();
@@ -459,6 +474,7 @@ function toggleIphoneTimer() {
 function cancelOrResetIphoneTimer() {
   stopIphoneAlarmSound();
   stopTimerTick();
+  restoreSavedPickerIfNeeded();
   timerMode = "picker";
   renderIphoneTimerState();
   initIphonePicker();
@@ -466,6 +482,12 @@ function cancelOrResetIphoneTimer() {
 
 function triggerFiveSecondAlarmTimer() {
   primeAlarmAudio();
+  syncPickerValuesFromScroll();
+  if (savedHours === null && savedMinutes === null && savedSeconds === null) {
+    savedHours = selectedHours;
+    savedMinutes = selectedMinutes;
+    savedSeconds = selectedSeconds;
+  }
   selectedHours = 0;
   selectedMinutes = 0;
   selectedSeconds = 5;
