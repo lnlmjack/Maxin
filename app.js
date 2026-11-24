@@ -1,4 +1,3 @@
-// Mnemônicas padrão (1 = Topo, 52 = Boca/Base)
 const BUILTIN_STACKS = [
   {
     id: "tamariz",
@@ -104,18 +103,16 @@ RAW_PHRASES.forEach(phrase => {
   }
 });
 
-function loadCustomStacks() {
-  try {
-    const raw = localStorage.getItem("maxin_custom_stacks");
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
-}
+let customStacks = [];
+try {
+  const saved = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+  if (Array.isArray(saved)) customStacks = saved;
+} catch (e) {}
 
-let customStacks = loadCustomStacks();
-let activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
+let activeStackId = "tamariz";
+try {
+  activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
+} catch (e) {}
 
 const state = {
   targetVal: null,
@@ -133,43 +130,33 @@ function getActiveStack() {
   return all.find(s => s.id === activeStackId) || all[0];
 }
 
-function setActiveStack(newId) {
-  activeStackId = newId;
-  try {
-    localStorage.setItem("maxin_active_stack", activeStackId);
-  } catch (e) {}
-  syncStackSelectors();
-  renderStackOrderList();
-  calculateImmediate();
-}
-
 function syncStackSelectors() {
   const all = getAllStacks();
-  const topSelect = document.getElementById("stack-selector");
-  const modalSelect = document.getElementById("modal-stack-select");
-
-  [topSelect, modalSelect].forEach(select => {
-    if (!select) return;
-    select.innerHTML = "";
+  ["stack-selector", "drawer-stack-select"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = "";
     all.forEach(s => {
       const opt = document.createElement("option");
       opt.value = s.id;
       opt.textContent = s.name;
       if (s.id === activeStackId) opt.selected = true;
-      select.appendChild(opt);
+      sel.appendChild(opt);
     });
   });
+
+  const delBtn = document.getElementById("btn-delete-stack");
+  if (delBtn) {
+    if (getActiveStack().builtin) delBtn.classList.add("hidden");
+    else delBtn.classList.remove("hidden");
+  }
 }
 
-function renderStackOrderList() {
-  const stack = getActiveStack();
-  const delBtn = document.getElementById("btn-delete-stack");
-  if (stack.builtin) delBtn.classList.add("hidden");
-  else delBtn.classList.remove("hidden");
-
+function renderOrderList() {
   const listEl = document.getElementById("stack-order-list");
+  if (!listEl) return;
   listEl.innerHTML = "";
-  stack.cards.forEach((card, idx) => {
+  getActiveStack().cards.forEach((card, idx) => {
     const isRed = card.includes("copas") || card.includes("ouros");
     const div = document.createElement("div");
     div.className = `order-item ${isRed ? "red-suit" : ""}`;
@@ -179,9 +166,7 @@ function renderStackOrderList() {
 }
 
 function parseCardLine(raw) {
-  let clean = raw.trim().toLowerCase()
-    .replace(/^\d+[\.\)\-\s]+/, "")
-    .trim();
+  let clean = raw.trim().toLowerCase().replace(/^\d+[\.\)\-\s]+/, "").trim();
   if (!clean) return null;
 
   const shortMatch = clean.match(/^(10|[a2-9jqk]|ás|as)\s*(?:de\s*)?([♣♥♠♦pceo]|paus|copas|espadas|ouros)$/);
@@ -215,10 +200,7 @@ function parseCardLine(raw) {
     .replace(/^nove(?=\s|$)/, "9")
     .replace(/^dez(?=\s|$)/, "10");
 
-  if (BUILTIN_STACKS[0].cards.includes(clean)) {
-    return clean;
-  }
-  return null;
+  return BUILTIN_STACKS[0].cards.includes(clean) ? clean : null;
 }
 
 function renderGrid(containerId, items, type, group) {
@@ -324,32 +306,44 @@ function resetAll() {
   document.getElementById("result-panel").classList.add("hidden");
 }
 
-function init() {
+function selectStack(newId) {
+  activeStackId = newId;
+  try {
+    localStorage.setItem("maxin_active_stack", activeStackId);
+  } catch (e) {}
   syncStackSelectors();
-  renderStackOrderList();
+  renderOrderList();
+  calculateImmediate();
+}
+
+function init() {
+  const drawer = document.getElementById("stacks-drawer");
+  const btnStacks = document.getElementById("btn-stacks");
+  const btnCloseStacks = document.getElementById("btn-close-stacks");
+
+  if (btnStacks && drawer) {
+    btnStacks.addEventListener("click", () => {
+      drawer.classList.toggle("hidden");
+      syncStackSelectors();
+      renderOrderList();
+    });
+  }
+
+  if (btnCloseStacks && drawer) {
+    btnCloseStacks.addEventListener("click", () => {
+      drawer.classList.add("hidden");
+    });
+  }
+
+  syncStackSelectors();
+  renderOrderList();
   renderGrid("target-values", VALUES, "val", "target");
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
-  document.getElementById("stack-selector").addEventListener("change", (e) => {
-    setActiveStack(e.target.value);
-  });
-
-  document.getElementById("modal-stack-select").addEventListener("change", (e) => {
-    setActiveStack(e.target.value);
-  });
-
-  const modalStacks = document.getElementById("modal-stacks");
-  document.getElementById("btn-stacks").addEventListener("click", () => {
-    syncStackSelectors();
-    renderStackOrderList();
-    modalStacks.classList.remove("hidden");
-  });
-
-  document.getElementById("btn-close-stacks").addEventListener("click", () => {
-    modalStacks.classList.add("hidden");
-  });
+  document.getElementById("stack-selector").addEventListener("change", (e) => selectStack(e.target.value));
+  document.getElementById("drawer-stack-select").addEventListener("change", (e) => selectStack(e.target.value));
 
   document.getElementById("btn-save-stack").addEventListener("click", () => {
     const nameInput = document.getElementById("new-stack-name");
@@ -361,7 +355,7 @@ function init() {
     const rawLines = cardsInput.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
     if (!name) {
-      errEl.textContent = "Coloque um nome para a mnemônica.";
+      errEl.textContent = "Digite um nome para a mnemônica.";
       errEl.classList.remove("hidden");
       return;
     }
@@ -396,7 +390,7 @@ function init() {
 
     nameInput.value = "";
     cardsInput.value = "";
-    setActiveStack(newId);
+    selectStack(newId);
   });
 
   document.getElementById("btn-delete-stack").addEventListener("click", () => {
@@ -406,7 +400,7 @@ function init() {
     try {
       localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
     } catch (e) {}
-    setActiveStack("tamariz");
+    selectStack("tamariz");
   });
 
   document.getElementById("btn-clear").addEventListener("click", resetAll);
