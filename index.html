@@ -16,32 +16,32 @@
         <select id="stack-selector" class="stack-select" aria-label="Escolher mnemônica"></select>
       </div>
       <div class="header-actions">
-        <button id="btn-stacks" type="button" class="btn-ghost">Stacks</button>
-        <button id="btn-clear" type="button" class="btn-ghost">Limpar</button>
-        <button id="btn-stealth" type="button" class="btn-ghost">Stealth</button>
+        <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksDrawer()">Stacks</button>
+        <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
+        <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
       </div>
     </header>
 
-    <!-- PAINEL DE STACKS (VER ORDEM E CADASTRAR NOVA) -->
+    <!-- PAINEL DE MNEMÔNICAS (VER ORDEM E CADASTRAR NOVOS BARALHOS) -->
     <section id="stacks-drawer" class="drawer hidden">
       <div class="drawer-head">
-        <strong>MNEMÔNICAS &amp; ORDEM DAS CARTAS</strong>
-        <button id="btn-close-stacks" type="button" class="btn-ghost">Fechar</button>
+        <strong>BARALHOS DE MEMÓRIA / MNEMÔNICAS</strong>
+        <button type="button" class="btn-ghost" onclick="toggleStacksDrawer(false)">Fechar</button>
       </div>
 
       <div class="row-between">
-        <select id="drawer-stack-select" class="full-select"></select>
-        <button id="btn-delete-stack" type="button" class="btn-danger hidden">Excluir</button>
+        <select id="drawer-stack-select" class="full-select" onchange="selectStack(this.value)"></select>
+        <button id="btn-delete-stack" type="button" class="btn-danger hidden" onclick="deleteCurrentCustomStack()">Excluir</button>
       </div>
 
       <div id="stack-order-list" class="order-list"></div>
 
       <div class="new-stack-box">
-        <div class="mini-label">Nova mnemônica (nome + 52 cartas, uma por linha)</div>
-        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Ordem)" />
-        <textarea id="new-stack-cards" rows="5" placeholder="Cole as 52 cartas (ex: 4 de paus ou 4♣)"></textarea>
+        <div class="mini-label">Cadastrar novo baralho de memória (nome + 52 cartas, uma por linha)</div>
+        <input type="text" id="new-stack-name" placeholder="Nome do baralho (ex: Si Stebbins, Mnemonica 2)" />
+        <textarea id="new-stack-cards" rows="5" placeholder="Cole as 52 cartas uma por linha (ex: 4 de paus ou 4♣)"></textarea>
         <div id="new-stack-error" class="error-msg hidden"></div>
-        <button id="btn-save-stack" type="button" class="btn-primary">Salvar Mnemônica</button>
+        <button type="button" class="btn-primary" onclick="saveNewStack()">Salvar Baralho de Memória</button>
       </div>
     </section>
 
@@ -65,7 +65,7 @@
       <div id="bottom-suits" class="grid-suits"></div>
     </section>
 
-    <!-- RESULTADO: POSIÇÕES E FRASE -->
+    <!-- RESULTADO: TOPO, BOCA E FRASES PARA SOLETRAR -->
     <section id="result-panel" class="result-panel hidden">
       <div class="positions-row">
         <div class="pos-card primary">
@@ -80,10 +80,18 @@
         </div>
       </div>
 
-      <div class="phrase-box">
-        <small id="phrase-info">FRASE PARA SOLETRAR</small>
-        <div id="phrase-main" class="phrase-main">—</div>
-        <div id="phrase-sub" class="phrase-sub">—</div>
+      <div class="phrases-stack">
+        <div class="phrase-box top-box">
+          <small id="phrase-top-info">FRASE CONTANDO PELO TOPO</small>
+          <div id="phrase-top-main" class="phrase-main">—</div>
+          <div id="phrase-top-sub" class="phrase-sub">—</div>
+        </div>
+
+        <div class="phrase-box bottom-box">
+          <small id="phrase-bottom-info">FRASE CONTANDO PELA BOCA</small>
+          <div id="phrase-bottom-main" class="phrase-main">—</div>
+          <div id="phrase-bottom-sub" class="phrase-sub">—</div>
+        </div>
       </div>
     </section>
   </div>
@@ -92,7 +100,7 @@
   <div id="stealth-overlay" class="stealth-overlay hidden">
     <div class="stealth-header">
       <span>Notas</span>
-      <button id="btn-exit-stealth" type="button" class="btn-stealth-exit">Sair</button>
+      <button type="button" class="btn-stealth-exit" onclick="closeStealth()">Sair</button>
     </div>
     <div id="stealth-output" class="stealth-note">
       Aguardando cartas...
