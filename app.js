@@ -302,6 +302,7 @@ function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = "";
+  let activeBtn = null;
   for (let v = 0; v <= maxVal; v++) {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -315,10 +316,12 @@ function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
     };
     el.appendChild(btn);
     if (v === currentVal) {
-      setTimeout(() => {
-        btn.scrollIntoView({ block: "center", behavior: "auto" });
-      }, 0);
+      activeBtn = btn;
     }
+  }
+  if (activeBtn) {
+    const itemHeight = 36;
+    el.scrollTop = Math.max(0, activeBtn.offsetTop - 60);
   }
 }
 
