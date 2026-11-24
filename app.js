@@ -256,13 +256,31 @@ function renderOrderList() {
   });
 }
 
+function toggleManualPanel(forceOpen) {
+  const manualPanel = document.getElementById("manual-panel");
+  const stacksPanel = document.getElementById("stacks-panel");
+  if (!manualPanel) return;
+  if (typeof forceOpen === "boolean") {
+    manualPanel.classList.toggle("hidden", !forceOpen);
+  } else {
+    manualPanel.classList.toggle("hidden");
+  }
+  if (!manualPanel.classList.contains("hidden") && stacksPanel) {
+    stacksPanel.classList.add("hidden");
+  }
+}
+
 function toggleStacksPanel(forceOpen) {
   const panel = document.getElementById("stacks-panel");
+  const manualPanel = document.getElementById("manual-panel");
   if (!panel) return;
   if (typeof forceOpen === "boolean") {
     panel.classList.toggle("hidden", !forceOpen);
   } else {
     panel.classList.toggle("hidden");
+  }
+  if (!panel.classList.contains("hidden") && manualPanel) {
+    manualPanel.classList.add("hidden");
   }
   syncSelectors();
   renderOrderList();
