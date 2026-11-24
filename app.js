@@ -143,60 +143,44 @@ function renderGrid(containerId, items, type, group) {
         if (type === "val") state.bottomVal = item.label;
         else state.bottomSuit = item.name;
       }
-      calculate();
+      calculateImmediate();
     };
     el.appendChild(btn);
   });
 }
 
-function buildPhrases(posTop, posBottom) {
-  const list = [];
-
-  (PHRASES_BY_LENGTH[posTop] || []).forEach(p => {
-    const len = countLetters(p);
-    list.push({
-      text: p,
-      letters: len,
-      note: `${len} letras — cai EXATO na última letra (${posTop}ª carta pelo topo)`
-    });
-  });
+function getPhraseForPos(posTop) {
+  const exactList = PHRASES_BY_LENGTH[posTop];
+  if (exactList && exactList.length > 0) {
+    const text = exactList[0];
+    return {
+      text,
+      letters: countLetters(text),
+      sub: `${countLetters(text)} letras — cai EXATO na última letra (${posTop}ª carta pelo topo)`
+    };
+  }
 
   if (posTop > 1 && PHRASES_BY_LENGTH[posTop - 1]) {
-    const p = PHRASES_BY_LENGTH[posTop - 1][0];
-    const len = countLetters(p);
-    list.push({
-      text: p,
-      letters: len,
-      note: `${len} letras — soletra e vira a PRÓXIMA carta (${posTop}ª pelo topo)`
-    });
+    const text = PHRASES_BY_LENGTH[posTop - 1][0];
+    return {
+      text,
+      letters: countLetters(text),
+      sub: `${countLetters(text)} letras — soletra e vira a PRÓXIMA carta (${posTop}ª pelo topo)`
+    };
   }
 
-  if (posBottom < posTop && PHRASES_BY_LENGTH[posBottom]) {
-    const p = PHRASES_BY_LENGTH[posBottom][0];
-    const len = countLetters(p);
-    list.push({
-      text: p,
-      letters: len,
-      note: `PELA BOCA (${len} letras) — soletra virando o baralho de face para cima (${posBottom}ª pela boca)`
-    });
-  }
-
-  if (list.length === 0) {
-    const base = "A CARTA QUE VOCÊ PENSOU FOI";
-    const len = countLetters(base);
-    list.push({
-      text: base,
-      letters: len,
-      note: posTop > len
-        ? `${len} letras + passe mais ${posTop - len} carta(s) para chegar na ${posTop}ª`
-        : `${len} letras — conte ${posTop} carta(s) do topo`
-    });
-  }
-
-  return list;
+  const fallback = "A CARTA QUE VOCÊ PENSOU FOI";
+  const len = countLetters(fallback);
+  return {
+    text: fallback,
+    letters: len,
+    sub: posTop > len
+      ? `${len} letras + passe mais ${posTop - len} carta(s) (${posTop}ª pelo topo)`
+      : `${len} letras — conte ${posTop} carta(s) do topo`
+  };
 }
 
-function calculate() {
+function calculateImmediate() {
   const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
   const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
 
@@ -213,30 +197,19 @@ function calculate() {
   const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
   const posBottom = 53 - posTop;
 
+  const phraseObj = getPhraseForPos(posTop);
+
   document.getElementById("result-panel").classList.remove("hidden");
   document.getElementById("pos-top").textContent = posTop;
   document.getElementById("pos-bottom").textContent = posBottom;
-
-  const phrases = buildPhrases(posTop, posBottom);
-  document.getElementById("spell-summary").textContent = `${phrases[0].letters} letras`;
-
-  const listEl = document.getElementById("phrases-list");
-  listEl.innerHTML = "";
-  phrases.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "phrase-item";
-    div.innerHTML = `
-      <div class="phrase-text">"${item.text}"</div>
-      <div class="phrase-meta">${item.note}</div>
-    `;
-    listEl.appendChild(div);
-  });
+  document.getElementById("phrase-info").textContent = `FRASE PARA SOLETRAR (${phraseObj.letters} LETRAS)`;
+  document.getElementById("phrase-main").textContent = `"${phraseObj.text}"`;
+  document.getElementById("phrase-sub").textContent = phraseObj.sub;
 
   document.getElementById("stealth-output").innerHTML = `
-    - Carta: <strong>${targetCard}</strong><br>
     - Topo: <strong>${posTop}ª</strong> | Boca: <strong>${posBottom}ª</strong><br>
-    - Frase (${phrases[0].letters} letras): "${phrases[0].text}"<br>
-    - ${phrases[0].note}
+    - Frase: "${phraseObj.text}"<br>
+    - ${phraseObj.sub}
   `;
 }
 
