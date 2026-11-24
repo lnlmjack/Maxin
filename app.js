@@ -1,17 +1,45 @@
-// Mnemônica de Tamariz (1 = Topo, 52 = Boca/Base)
-const TAMARIZ = [
-  "4 de paus", "2 de copas", "7 de ouros", "3 de paus", "4 de copas",
-  "6 de ouros", "ás de espadas", "5 de copas", "9 de espadas", "2 de espadas",
-  "dama de copas", "3 de ouros", "dama de paus", "8 de copas", "6 de espadas",
-  "5 de espadas", "9 de copas", "rei de paus", "2 de ouros", "valete de copas",
-  "3 de espadas", "8 de espadas", "6 de copas", "10 de paus", "5 de ouros",
-  "rei de ouros", "2 de paus", "3 de copas", "8 de ouros", "5 de paus",
-  "rei de espadas", "valete de ouros", "8 de paus", "10 de espadas", "rei de copas",
-  "valete de paus", "7 de espadas", "10 de copas", "ás de ouros", "4 de espadas",
-  "7 de copas", "4 de ouros", "ás de paus", "9 de paus", "valete de espadas",
-  "dama de ouros", "7 de paus", "dama de espadas", "10 de ouros", "6 de paus",
-  "ás de copas", "9 de ouros"
+// Stacks padrão embutidas (1 = Topo, 52 = Boca/Base)
+const BUILTIN_STACKS = [
+  {
+    id: "tamariz",
+    name: "Tamariz",
+    builtin: true,
+    cards: [
+      "4 de paus", "2 de copas", "7 de ouros", "3 de paus", "4 de copas",
+      "6 de ouros", "ás de espadas", "5 de copas", "9 de espadas", "2 de espadas",
+      "dama de copas", "3 de ouros", "dama de paus", "8 de copas", "6 de espadas",
+      "5 de espadas", "9 de copas", "rei de paus", "2 de ouros", "valete de copas",
+      "3 de espadas", "8 de espadas", "6 de copas", "10 de paus", "5 de ouros",
+      "rei de ouros", "2 de paus", "3 de copas", "8 de ouros", "5 de paus",
+      "rei de espadas", "valete de ouros", "8 de paus", "10 de espadas", "rei de copas",
+      "valete de paus", "7 de espadas", "10 de copas", "ás de ouros", "4 de espadas",
+      "7 de copas", "4 de ouros", "ás de paus", "9 de paus", "valete de espadas",
+      "dama de ouros", "7 de paus", "dama de espadas", "10 de ouros", "6 de paus",
+      "ás de copas", "9 de ouros"
+    ]
+  },
+  {
+    id: "aronson",
+    name: "Aronson",
+    builtin: true,
+    cards: [
+      "valete de espadas", "rei de copas", "5 de paus", "2 de copas", "9 de espadas",
+      "ás de espadas", "3 de copas", "6 de paus", "8 de ouros", "ás de paus",
+      "10 de espadas", "5 de copas", "2 de ouros", "rei de ouros", "7 de ouros",
+      "8 de paus", "3 de espadas", "ás de ouros", "7 de espadas", "5 de espadas",
+      "dama de ouros", "ás de copas", "8 de espadas", "3 de ouros", "7 de copas",
+      "dama de espadas", "5 de ouros", "7 de paus", "4 de ouros", "rei de paus",
+      "4 de ouros", "10 de ouros", "valete de copas", "dama de copas", "10 de paus",
+      "dama de paus", "4 de copas", "rei de espadas", "4 de espadas", "10 de copas",
+      "valete de paus", "3 de paus", "valete de ouros", "6 de ouros", "9 de paus",
+      "2 de espadas", "9 de copas", "8 de copas", "6 de copas", "6 de espadas",
+      "2 de paus", "9 de ouros"
+    ]
+  }
 ];
+
+// Correção da posição 31 da Aronson (3 de paus -> 4 de ouros já estava na 29, na Aronson #31 é 4 de paus)
+BUILTIN_STACKS[1].cards[30] = "4 de paus";
 
 const VALUES = [
   { code: "A", label: "ás" },
@@ -118,12 +146,102 @@ RAW_PHRASES.forEach(phrase => {
   }
 });
 
+// Carrega stacks customizadas do localStorage
+let customStacks = JSON.parse(localStorage.getItem("maxin_custom_stacks") || "[]");
+let activeStackId = localStorage.getItem("maxin_active_stack") || "tamariz";
+
 const state = {
   targetVal: null,
   targetSuit: null,
   bottomVal: null,
   bottomSuit: null
 };
+
+function getAllStacks() {
+  return [...BUILTIN_STACKS, ...customStacks];
+}
+
+function getActiveStack() {
+  const all = getAllStacks();
+  return all.find(s => s.id === activeStackId) || all[0];
+}
+
+function renderStackSelector() {
+  const select = document.getElementById("stack-selector");
+  select.innerHTML = "";
+  getAllStacks().forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    if (s.id === activeStackId) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function renderStackOrderList() {
+  const stack = getActiveStack();
+  document.getElementById("view-stack-name").textContent = `${stack.name} (52 cartas)`;
+
+  const delBtn = document.getElementById("btn-delete-stack");
+  if (stack.builtin) delBtn.classList.add("hidden");
+  else delBtn.classList.remove("hidden");
+
+  const listEl = document.getElementById("stack-order-list");
+  listEl.innerHTML = "";
+  stack.cards.forEach((card, idx) => {
+    const isRed = card.includes("copas") || card.includes("ouros");
+    const div = document.createElement("div");
+    div.className = `order-item ${isRed ? "red-suit" : ""}`;
+    div.innerHTML = `<span class="order-num">#${idx + 1}</span><span>${card}</span>`;
+    listEl.appendChild(div);
+  });
+}
+
+// Normaliza entradas escritas ou abreviadas (ex: "4♣", "4 de paus", "as de espadas", "Q♥")
+function parseCardLine(raw) {
+  let clean = raw.trim().toLowerCase()
+    .replace(/^\d+[\.\)\-\s]+/, "") // remove numeração inicial tipo "1. " ou "12 - "
+    .trim();
+  if (!clean) return null;
+
+  // Formato curto com símbolo ou letra (ex: "4♣", "10c", "q♥", "as")
+  const shortMatch = clean.match(/^(10|[a2-9jqk]|ás)\s*(?:de\s*)?([♣♥♠♦pceo]|paus|copas|espadas|ouros)$/);
+  if (shortMatch) {
+    const vMap = {
+      "a": "ás", "ás": "ás", "as": "ás",
+      "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "10": "10",
+      "j": "valete", "q": "dama", "k": "rei"
+    };
+    const sMap = {
+      "♣": "paus", "p": "paus", "paus": "paus",
+      "♥": "copas", "c": "copas", "copas": "copas",
+      "♠": "espadas", "e": "espadas", "espadas": "espadas",
+      "♦": "ouros", "o": "ouros", "ouros": "ouros"
+    };
+    const v = vMap[shortMatch[1]];
+    const s = sMap[shortMatch[2]];
+    if (v && s) return `${v} de ${s}`;
+  }
+
+  // Formato por extenso ("quatro de paus", "ás de espadas", "valete de copas")
+  clean = clean
+    .replace(/^as\b/, "ás")
+    .replace(/^um\b/, "ás")
+    .replace(/^dois\b/, "2")
+    .replace(/^três\b|^tres\b/, "3")
+    .replace(/^quatro\b/, "4")
+    .replace(/^cinco\b/, "5")
+    .replace(/^seis\b/, "6")
+    .replace(/^sete\b/, "7")
+    .replace(/^oito\b/, "8")
+    .replace(/^nove\b/, "9")
+    .replace(/^dez\b/, "10");
+
+  if (BUILTIN_STACKS[0].cards.includes(clean)) {
+    return clean;
+  }
+  return null;
+}
 
 function renderGrid(containerId, items, type, group) {
   const el = document.getElementById(containerId);
@@ -191,8 +309,9 @@ function calculateImmediate() {
 
   if (!targetCard || !bottomCard) return;
 
-  const targetIdx = TAMARIZ.indexOf(targetCard);
-  const bottomIdx = TAMARIZ.indexOf(bottomCard);
+  const stack = getActiveStack().cards;
+  const targetIdx = stack.indexOf(targetCard);
+  const bottomIdx = stack.indexOf(bottomCard);
   if (targetIdx === -1 || bottomIdx === -1) return;
 
   const topIdx = (bottomIdx + 1) % 52;
@@ -201,8 +320,7 @@ function calculateImmediate() {
 
   const phraseObj = getPhraseForPos(posTop);
 
-  const panel = document.getElementById("result-panel");
-  panel.classList.remove("hidden");
+  document.getElementById("result-panel").classList.remove("hidden");
   document.getElementById("pos-top").textContent = posTop;
   document.getElementById("pos-bottom").textContent = posBottom;
   document.getElementById("phrase-info").textContent = `FRASE PARA SOLETRAR (${phraseObj.letters} LETRAS)`;
@@ -210,6 +328,7 @@ function calculateImmediate() {
   document.getElementById("phrase-sub").textContent = phraseObj.sub;
 
   document.getElementById("stealth-output").innerHTML = `
+    - Stack: <strong>${getActiveStack().name}</strong><br>
     - Topo: <strong>${posTop}ª</strong> | Boca: <strong>${posBottom}ª</strong><br>
     - Frase: "${phraseObj.text}"<br>
     - ${phraseObj.sub}
@@ -228,10 +347,112 @@ function resetAll() {
 }
 
 function init() {
+  renderStackSelector();
   renderGrid("target-values", VALUES, "val", "target");
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
+
+  // Trocar stack ativa no seletor do topo
+  document.getElementById("stack-selector").onchange = (e) => {
+    activeStackId = e.target.value;
+    localStorage.setItem("maxin_active_stack", activeStackId);
+    renderStackOrderList();
+    calculateImmediate();
+  };
+
+  // Abrir/fechar modal de Stacks
+  const modalStacks = document.getElementById("modal-stacks");
+  document.getElementById("btn-stacks").onclick = () => {
+    renderStackOrderList();
+    modalStacks.classList.remove("hidden");
+  };
+  document.getElementById("btn-close-stacks").onclick = () => {
+    modalStacks.classList.add("hidden");
+  };
+
+  // Alternar abas dentro do modal
+  const tabView = document.getElementById("tab-view");
+  const tabNew = document.getElementById("tab-new");
+  const panelView = document.getElementById("panel-view-stack");
+  const panelNew = document.getElementById("panel-new-stack");
+
+  tabView.onclick = () => {
+    tabView.classList.add("active");
+    tabNew.classList.remove("active");
+    panelView.classList.remove("hidden");
+    panelNew.classList.add("hidden");
+    renderStackOrderList();
+  };
+
+  tabNew.onclick = () => {
+    tabNew.classList.add("active");
+    tabView.classList.remove("active");
+    panelNew.classList.remove("hidden");
+    panelView.classList.add("hidden");
+  };
+
+  // Salvar nova mnemônica
+  document.getElementById("btn-save-stack").onclick = () => {
+    const name = document.getElementById("new-stack-name").value.trim();
+    const rawLines = document.getElementById("new-stack-cards").value.split(/\r?\n/).filter(l => l.trim() !== "");
+    const errEl = document.getElementById("new-stack-error");
+    errEl.classList.add("hidden");
+
+    if (!name) {
+      errEl.textContent = "Digite um nome para a mnemônica.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    if (rawLines.length !== 52) {
+      errEl.textContent = `A lista precisa ter exatamente 52 cartas (você colocou ${rawLines.length}).`;
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    const parsed = [];
+    for (let i = 0; i < rawLines.length; i++) {
+      const card = parseCardLine(rawLines[i]);
+      if (!card) {
+        errEl.textContent = `Não reconheci a carta da linha ${i + 1}: "${rawLines[i]}".`;
+        errEl.classList.remove("hidden");
+        return;
+      }
+      if (parsed.includes(card)) {
+        errEl.textContent = `Carta repetida na linha ${i + 1}: "${card}".`;
+        errEl.classList.remove("hidden");
+        return;
+      }
+      parsed.push(card);
+    }
+
+    const newId = "custom_" + Date.now();
+    customStacks.push({ id: newId, name, builtin: false, cards: parsed });
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+
+    activeStackId = newId;
+    localStorage.setItem("maxin_active_stack", activeStackId);
+
+    document.getElementById("new-stack-name").value = "";
+    document.getElementById("new-stack-cards").value = "";
+    renderStackSelector();
+    tabView.click();
+    calculateImmediate();
+  };
+
+  // Excluir stack customizada
+  document.getElementById("btn-delete-stack").onclick = () => {
+    const current = getActiveStack();
+    if (current.builtin) return;
+    customStacks = customStacks.filter(s => s.id !== current.id);
+    localStorage.setItem("maxin_custom_stacks", JSON.stringify(customStacks));
+    activeStackId = "tamariz";
+    localStorage.setItem("maxin_active_stack", activeStackId);
+    renderStackSelector();
+    renderStackOrderList();
+    calculateImmediate();
+  };
 
   document.getElementById("btn-clear").onclick = resetAll;
   document.getElementById("btn-stealth").onclick = () => {
