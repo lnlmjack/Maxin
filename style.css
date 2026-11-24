@@ -163,60 +163,73 @@ button {
   text-transform: capitalize;
 }
 
-.pos-section {
+.result-panel {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent);
   border-radius: 12px;
   padding: 12px;
 }
 
-.pos-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.hidden {
+  display: none !important;
 }
 
-.btn-step {
+.positions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pos-card {
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.pos-card.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.pos-card.secondary {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  width: 32px;
-  height: 32px;
-  font-size: 1.15rem;
-  font-weight: 700;
 }
 
-.pos-num {
-  font-size: 1.25rem;
-  font-weight: 700;
-  min-width: 28px;
-  text-align: center;
-  color: var(--accent);
+.pos-card small {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.6px;
+  opacity: 0.85;
 }
 
-.card-at-pos {
-  background: var(--surface-2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+.pos-card strong {
+  font-size: 1.7rem;
+  line-height: 1.2;
+}
+
+.pos-card span {
+  font-size: 0.85rem;
+}
+
+.phrases-header {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.card-at-pos small {
-  font-size: 0.74rem;
+.phrases-header span {
+  font-size: 0.72rem;
   color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.card-at-pos strong {
-  font-size: 1.05rem;
-  text-transform: capitalize;
+.phrases-header small {
+  font-size: 0.72rem;
   color: var(--green);
-}
-
-.card-at-pos span {
-  font-size: 0.78rem;
-  color: var(--muted);
 }
 
 .phrases-list {
@@ -242,10 +255,6 @@ button {
 .phrase-meta {
   font-size: 0.78rem;
   color: var(--muted);
-}
-
-.hidden {
-  display: none !important;
 }
 
 .stealth-overlay {
