@@ -127,8 +127,10 @@ const state = {
 
 function renderGrid(containerId, items, type, group) {
   const el = document.getElementById(containerId);
+  if (!el) return;
   items.forEach(item => {
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.className = type === "val" ? "val-btn" : `suit-btn ${item.red ? "red" : ""}`;
     btn.textContent = type === "val" ? item.code : item.symbol;
 
@@ -199,7 +201,8 @@ function calculateImmediate() {
 
   const phraseObj = getPhraseForPos(posTop);
 
-  document.getElementById("result-panel").classList.remove("hidden");
+  const panel = document.getElementById("result-panel");
+  panel.classList.remove("hidden");
   document.getElementById("pos-top").textContent = posTop;
   document.getElementById("pos-bottom").textContent = posBottom;
   document.getElementById("phrase-info").textContent = `FRASE PARA SOLETRAR (${phraseObj.letters} LETRAS)`;
