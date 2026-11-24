@@ -6,17 +6,31 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_16" />
+  <link rel="stylesheet" href="style.css?v=20261124_17" />
 </head>
 <body>
   <!-- SIMULADOR DE TIMER -->
   <div id="timer-overlay" class="timer-overlay">
-    <div class="timer-header-row">
-      <h2 class="timer-screen-title">Timers</h2>
-      <div class="timer-top-actions">
-        <button id="btn-timer-edit" type="button" class="timer-header-pill" onclick="cancelOrResetIphoneTimer()">Editar</button>
-        <button id="btn-timer-5s" type="button" class="timer-header-circle" aria-label="Timer de 5 segundos" onclick="triggerFiveSecondAlarmTimer()">+</button>
-        <button id="btn-timer-stop-sound" type="button" class="timer-header-pill timer-stop-chip hidden" onclick="stopIphoneAlarmSound()">Parar</button>
+    <div class="timer-top-section">
+      <div class="timer-header-row">
+        <h2 class="timer-screen-title">Timers</h2>
+        <div class="timer-top-actions">
+          <button id="btn-timer-edit" type="button" class="timer-header-pill" onclick="cancelOrResetIphoneTimer()">Editar</button>
+          <button id="btn-timer-5s" type="button" class="timer-header-circle" aria-label="Timer de 5 segundos" onclick="triggerFiveSecondAlarmTimer()">+</button>
+          <button id="btn-timer-stop-sound" type="button" class="timer-header-pill timer-stop-chip hidden" onclick="stopIphoneAlarmSound()">Parar</button>
+        </div>
+      </div>
+
+      <!-- Mostrador em execução / disparo NO TOPO (igual ao print) -->
+      <div id="timer-countdown-box" class="timer-running-panel hidden">
+        <div class="timer-running-row">
+          <div class="timer-running-meta">
+            <div id="timer-display" class="timer-display">00:05</div>
+            <div id="timer-sublabel" class="timer-sublabel">5 seg</div>
+          </div>
+          <button id="btn-timer-running-toggle" type="button" class="ios-running-pause-btn" aria-label="Pausar ou retomar" onclick="toggleIphoneTimer()">❚❚</button>
+        </div>
+        <div id="timer-status" class="timer-status"></div>
       </div>
     </div>
 
@@ -39,18 +53,6 @@
           <div id="picker-seconds" class="ios-wheel-list"></div>
           <span class="ios-unit-inline">s</span>
         </div>
-      </div>
-
-      <!-- Mostrador em execução / disparo (idêntico ao print) -->
-      <div id="timer-countdown-box" class="timer-running-panel hidden">
-        <div class="timer-running-row">
-          <div class="timer-running-meta">
-            <div id="timer-display" class="timer-display">00:37</div>
-            <div id="timer-sublabel" class="timer-sublabel">37 seg</div>
-          </div>
-          <button id="btn-timer-running-toggle" type="button" class="ios-running-pause-btn" aria-label="Pausar ou retomar" onclick="toggleIphoneTimer()">❚❚</button>
-        </div>
-        <div id="timer-status" class="timer-status"></div>
       </div>
 
       <!-- Botões circulares X e Play na tela de ajuste -->
@@ -236,7 +238,7 @@
     </div>
   </div>
 
-  <audio id="alarm-audio" src="somalarme.mp3" preload="auto"></audio>
-  <script src="app.js?v=20261124_16"></script>
+  <audio id="alarm-audio" src="somalarme.mp3" preload="auto" playsinline></audio>
+  <script src="app.js?v=20261124_17"></script>
 </body>
 </html>
