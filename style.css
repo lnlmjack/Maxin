@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 18px 16px 12px;
+  padding: 18px 16px 10px;
 }
 
 .timer-header-row {
@@ -48,23 +48,39 @@ body {
 .timer-top-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.timer-5s-chip {
+.timer-header-pill {
   background: #1c1c1e;
-  color: #8e8e93;
-  border: 1px solid #2c2c2e;
+  color: #ffffff;
+  border: none;
   border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.timer-header-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1c1c1e;
+  color: #ffffff;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
 .timer-stop-chip {
+  background: #3a1715;
   color: #ff453a;
-  border-color: #5c1c18;
+  font-weight: 700;
 }
 
 .timer-center {
@@ -74,18 +90,18 @@ body {
   width: 100%;
   max-width: 390px;
   margin: 0 auto;
-  gap: 26px;
+  gap: 24px;
 }
 
 .ios-wheel-picker {
   position: relative;
   width: 100%;
-  height: 156px;
+  height: 180px;
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  padding: 0 6px;
+  padding: 0 4px;
 }
 
 .ios-wheel-highlight {
@@ -104,7 +120,7 @@ body {
 .ios-wheel-col {
   position: relative;
   z-index: 1;
-  height: 156px;
+  height: 180px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -112,15 +128,15 @@ body {
 }
 
 .ios-wheel-list {
-  width: 72px;
-  height: 156px;
+  width: 64px;
+  height: 180px;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 60px 0;
+  padding: 72px 0;
 }
 
 .ios-wheel-list::-webkit-scrollbar {
@@ -149,34 +165,80 @@ body {
 }
 
 .ios-unit-inline {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 600;
   color: #ffffff;
   margin-left: 2px;
   pointer-events: none;
 }
 
-.timer-countdown-box {
-  height: 156px;
+/* Tela de contagem em execução no estilo do print */
+.timer-running-panel {
+  width: 100%;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
+.timer-running-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #1c1c1e;
+}
+
+.timer-running-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
 .timer-display {
-  font-size: 3.3rem;
+  font-size: 3.5rem;
   font-weight: 300;
   font-variant-numeric: tabular-nums;
-  line-height: 1.05;
+  line-height: 1;
   color: #ffffff;
 }
 
-.timer-status {
+.timer-sublabel {
   font-size: 0.9rem;
+  color: #8e8e93;
+  font-variant-numeric: tabular-nums;
+}
+
+.ios-running-pause-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #2b1804;
+  border: 2px solid #ff9f0a;
   color: #ff9f0a;
-  min-height: 1.2em;
+  font-size: 1.15rem;
+  letter-spacing: -1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ios-running-pause-btn.paused {
+  background: #102a16;
+  border-color: #30d158;
+  color: #30d158;
+}
+
+.timer-status {
+  font-size: 0.85rem;
+  color: #ff9f0a;
+  min-height: 1.1em;
 }
 
 .timer-status.ringing {
@@ -212,11 +274,6 @@ body {
 .ios-btn-play {
   background: #14361d;
   color: #30d158;
-}
-
-.ios-btn-play.running {
-  background: #3a1715;
-  color: #ff453a;
 }
 
 .ios-card-group {
