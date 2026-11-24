@@ -188,11 +188,15 @@ const state = {
   bottomSuit: null
 };
 
-/* TIMER ESTILO PRINT + SOMALARME.MP3 */
-let selectedHours = 1;
+/* TIMER + SOMALARME.MP3 */
+const PICKER_ITEM_HEIGHT = 36;
+const PICKER_PAD_TOP = 72;
+
+let selectedHours = 0;
 let selectedMinutes = 0;
-let selectedSeconds = 0;
-let timerRemaining = 3600;
+let selectedSeconds = 37;
+let timerInitialTotal = 37;
+let timerRemaining = 37;
 let timerInterval = null;
 let timerRunning = false;
 let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
@@ -206,6 +210,16 @@ function formatIphoneClock(totalSec) {
     return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function formatDurationSublabel(totalSec) {
+  const safe = Math.max(0, Math.floor(totalSec));
+  const hrs = Math.floor(safe / 3600);
+  const mins = Math.floor((safe % 3600) / 60);
+  const secs = safe % 60;
+  if (hrs > 0) return `${hrs} h ${mins} min ${secs} seg`;
+  if (mins > 0) return `${mins} min ${secs} seg`;
+  return `${secs} seg`;
 }
 
 function playSomAlarmeMp3() {
@@ -245,24 +259,56 @@ function stopTimerTick() {
   timerRunning = false;
 }
 
+function syncPickerValuesFromScroll() {
+  const hList = document.getElementById("picker-hours");
+  const mList = document.getElementById("picker-minutes");
+  const sList = document.getElementById("picker-seconds");
+
+  if (hList) {
+    const idx = Math.round(hList.scrollTop / PICKER_ITEM_HEIGHT);
+    selectedHours = Math.max(0, Math.min(23, idx));
+  }
+  if (mList) {
+    const idx = Math.round(mList.scrollTop / PICKER_ITEM_HEIGHT);
+    selectedMinutes = Math.max(0, Math.min(59, idx));
+  }
+  if (sList) {
+    const idx = Math.round(sList.scrollTop / PICKER_ITEM_HEIGHT);
+    selectedSeconds = Math.max(0, Math.min(59, idx));
+  }
+
+  const unitH = document.getElementById("label-unit-hours");
+  if (unitH) unitH.textContent = selectedHours === 1 ? "hora" : "horas";
+}
+
 function getPickerTotalSeconds() {
+  syncPickerValuesFromScroll();
   return (selectedHours * 3600) + (selectedMinutes * 60) + selectedSeconds;
 }
 
 function renderIphoneTimerState() {
   const pickerEl = document.getElementById("timer-picker");
+  const setupControls = document.getElementById("timer-setup-controls");
   const countdownBox = document.getElementById("timer-countdown-box");
   const disp = document.getElementById("timer-display");
+  const sublabel = document.getElementById("timer-sublabel");
   const statusEl = document.getElementById("timer-status");
-  const startBtn = document.getElementById("btn-timer-start");
+  const runningPauseBtn = document.getElementById("btn-timer-running-toggle");
   const stopSoundBtn = document.getElementById("btn-timer-stop-sound");
 
   const showWheel = timerMode === "picker";
   if (pickerEl) pickerEl.classList.toggle("hidden", !showWheel);
+  if (setupControls) setupControls.classList.toggle("hidden", !showWheel);
   if (countdownBox) countdownBox.classList.toggle("hidden", showWheel);
 
   if (!showWheel) {
     if (disp) disp.textContent = formatIphoneClock(timerRemaining);
+    if (sublabel) sublabel.textContent = formatDurationSublabel(timerInitialTotal);
+    if (runningPauseBtn) {
+      const isPaused = timerMode === "paused";
+      runningPauseBtn.textContent = isPaused ? "▶" : "❚❚";
+      runningPauseBtn.classList.toggle("paused", isPaused);
+    }
     if (statusEl) {
       if (timerMode === "ringing") {
         statusEl.textContent = "Timer concluído";
@@ -277,32 +323,27 @@ function renderIphoneTimerState() {
     }
   }
 
-  if (startBtn) {
-    if (timerMode === "running") {
-      startBtn.textContent = "❚❚";
-      startBtn.className = "ios-circle-btn ios-btn-play running";
-    } else if (timerMode === "paused") {
-      startBtn.textContent = "▶";
-      startBtn.className = "ios-circle-btn ios-btn-play";
-    } else if (timerMode === "ringing") {
-      startBtn.textContent = "■";
-      startBtn.className = "ios-circle-btn ios-btn-play running";
-    } else {
-      startBtn.textContent = "▶";
-      startBtn.className = "ios-circle-btn ios-btn-play";
-    }
-  }
-
   if (stopSoundBtn) {
     stopSoundBtn.classList.toggle("hidden", timerMode !== "ringing");
   }
+}
+
+function highlightColumnItem(listEl, activeValue) {
+  if (!listEl) return;
+  const buttons = listEl.querySelectorAll(".picker-item");
+  buttons.forEach((b, idx) => {
+    b.classList.toggle("selected", idx === activeValue);
+  });
+  const unitH = document.getElementById("label-unit-hours");
+  if (unitH) unitH.textContent = selectedHours === 1 ? "hora" : "horas";
 }
 
 function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = "";
-  let activeBtn = null;
+  let scrollTimer = null;
+
   for (let v = 0; v <= maxVal; v++) {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -310,19 +351,23 @@ function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
     btn.textContent = String(v);
     btn.onclick = () => {
       onSelect(v);
-      buildPickerColumn("picker-hours", 23, selectedHours, val => { selectedHours = val; });
-      buildPickerColumn("picker-minutes", 59, selectedMinutes, val => { selectedMinutes = val; });
-      buildPickerColumn("picker-seconds", 59, selectedSeconds, val => { selectedSeconds = val; });
+      el.scrollTop = v * PICKER_ITEM_HEIGHT;
+      highlightColumnItem(el, v);
     };
     el.appendChild(btn);
-    if (v === currentVal) {
-      activeBtn = btn;
-    }
   }
-  if (activeBtn) {
-    const itemHeight = 36;
-    el.scrollTop = Math.max(0, activeBtn.offsetTop - 60);
-  }
+
+  el.scrollTop = currentVal * PICKER_ITEM_HEIGHT;
+
+  el.onscroll = () => {
+    const idx = Math.max(0, Math.min(maxVal, Math.round(el.scrollTop / PICKER_ITEM_HEIGHT)));
+    onSelect(idx);
+    highlightColumnItem(el, idx);
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      el.scrollTop = idx * PICKER_ITEM_HEIGHT;
+    }, 90);
+  };
 }
 
 function initIphonePicker() {
@@ -331,10 +376,13 @@ function initIphonePicker() {
   buildPickerColumn("picker-seconds", 59, selectedSeconds, val => { selectedSeconds = val; });
 }
 
-function startCountdownWithSeconds(seconds) {
+function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
   stopIphoneAlarmSound();
   stopTimerTick();
   const total = Math.max(1, Math.floor(seconds));
+  if (!preserveInitialTotal) {
+    timerInitialTotal = total;
+  }
   timerRemaining = total;
   timerRunning = true;
   timerMode = "running";
@@ -366,11 +414,11 @@ function toggleIphoneTimer() {
     return;
   }
   if (timerMode === "paused") {
-    startCountdownWithSeconds(timerRemaining > 0 ? timerRemaining : 1);
+    startCountdownWithSeconds(timerRemaining > 0 ? timerRemaining : 1, true);
     return;
   }
   const total = getPickerTotalSeconds();
-  startCountdownWithSeconds(total > 0 ? total : 5);
+  startCountdownWithSeconds(total > 0 ? total : 5, false);
 }
 
 function cancelOrResetIphoneTimer() {
@@ -386,7 +434,7 @@ function triggerFiveSecondAlarmTimer() {
   selectedMinutes = 0;
   selectedSeconds = 5;
   openTimerScreen();
-  startCountdownWithSeconds(5);
+  startCountdownWithSeconds(5, false);
 }
 
 function openTimerScreen() {
