@@ -22,7 +22,7 @@
       </div>
     </header>
 
-    <!-- PAINEL DE STACKS (VER ORDEM E CADASTRAR NOVOS) -->
+    <!-- PAINEL DE STACKS -->
     <section id="stacks-panel" class="stacks-panel hidden">
       <div class="panel-top">
         <strong>STACKS / MNEMÔNICAS</strong>
@@ -38,10 +38,10 @@
 
       <div class="create-stack-box">
         <label class="field-label" for="new-stack-name">Novo stack — nome</label>
-        <input id="new-stack-name" type="text" placeholder="Ex: Mnemonica 2" />
+        <input id="new-stack-name" type="text" placeholder="Ex: Si Stebbins ECOP" />
 
-        <label class="field-label" for="new-stack-cards">Novo stack — 52 cartas (uma por linha)</label>
-        <textarea id="new-stack-cards" rows="6" placeholder="4 de paus&#10;2 de copas&#10;7 de ouros&#10;..."></textarea>
+        <label class="field-label" for="new-stack-cards">Novo stack — 52 cartas (uma por linha ou separadas por vírgula)</label>
+        <textarea id="new-stack-cards" rows="6" placeholder="ás de copas&#10;2 de ouros&#10;8 de espadas"></textarea>
 
         <div id="new-stack-feedback" class="feedback hidden"></div>
         <button id="btn-save-stack" type="button" class="btn-primary" onclick="saveCustomStack()">Salvar Novo Stack</button>
@@ -110,6 +110,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20261124"></script>
 </body>
 </html>
