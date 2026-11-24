@@ -13,35 +13,38 @@
     <header class="topbar">
       <div class="brand-row">
         <h1>MAXIN</h1>
-        <select id="stack-selector" class="stack-select" aria-label="Escolher mnemônica"></select>
+        <select id="stack-selector" class="stack-select" aria-label="Escolher stack"></select>
       </div>
       <div class="header-actions">
-        <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksDrawer()">Stacks</button>
-        <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
-        <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
+        <button id="btn-stacks" type="button" class="btn-ghost">Stacks</button>
+        <button id="btn-clear" type="button" class="btn-ghost">Limpar</button>
+        <button id="btn-stealth" type="button" class="btn-ghost">Stealth</button>
       </div>
     </header>
 
-    <!-- PAINEL DE MNEMÔNICAS (VER ORDEM E CADASTRAR NOVOS BARALHOS) -->
-    <section id="stacks-drawer" class="drawer hidden">
-      <div class="drawer-head">
-        <strong>BARALHOS DE MEMÓRIA / MNEMÔNICAS</strong>
-        <button type="button" class="btn-ghost" onclick="toggleStacksDrawer(false)">Fechar</button>
+    <!-- GERENCIADOR DE STACKS (VER ORDEM E CADASTRAR NOVOS) -->
+    <section id="stacks-panel" class="stacks-panel hidden">
+      <div class="panel-top">
+        <strong>STACKS / MNEMÔNICAS</strong>
+        <button id="btn-close-stacks" type="button" class="btn-ghost">Fechar</button>
       </div>
 
-      <div class="row-between">
-        <select id="drawer-stack-select" class="full-select" onchange="selectStack(this.value)"></select>
-        <button id="btn-delete-stack" type="button" class="btn-danger hidden" onclick="deleteCurrentCustomStack()">Excluir</button>
+      <div class="row-gap">
+        <select id="panel-stack-select" class="full-select"></select>
+        <button id="btn-delete-stack" type="button" class="btn-danger hidden">Excluir</button>
       </div>
 
       <div id="stack-order-list" class="order-list"></div>
 
-      <div class="new-stack-box">
-        <div class="mini-label">Cadastrar novo baralho de memória (nome + 52 cartas, uma por linha)</div>
-        <input type="text" id="new-stack-name" placeholder="Nome do baralho (ex: Si Stebbins, Mnemonica 2)" />
-        <textarea id="new-stack-cards" rows="5" placeholder="Cole as 52 cartas uma por linha (ex: 4 de paus ou 4♣)"></textarea>
-        <div id="new-stack-error" class="error-msg hidden"></div>
-        <button type="button" class="btn-primary" onclick="saveNewStack()">Salvar Baralho de Memória</button>
+      <div class="create-stack-box">
+        <label class="field-label" for="new-stack-name">Novo stack — nome</label>
+        <input id="new-stack-name" type="text" placeholder="Ex: Si Stebbins, Mnemonica 2" />
+
+        <label class="field-label" for="new-stack-cards">Novo stack — 52 cartas (uma por linha)</label>
+        <textarea id="new-stack-cards" rows="6" placeholder="4 de paus&#10;2 de copas&#10;7 de ouros&#10;..."></textarea>
+
+        <div id="new-stack-feedback" class="feedback hidden"></div>
+        <button id="btn-save-stack" type="button" class="btn-primary">Salvar Novo Stack</button>
       </div>
     </section>
 
@@ -65,7 +68,7 @@
       <div id="bottom-suits" class="grid-suits"></div>
     </section>
 
-    <!-- RESULTADO: TOPO, BOCA E FRASES PARA SOLETRAR -->
+    <!-- RESULTADO: TOPO, BOCA E FRASES -->
     <section id="result-panel" class="result-panel hidden">
       <div class="positions-row">
         <div class="pos-card primary">
@@ -100,7 +103,7 @@
   <div id="stealth-overlay" class="stealth-overlay hidden">
     <div class="stealth-header">
       <span>Notas</span>
-      <button type="button" class="btn-stealth-exit" onclick="closeStealth()">Sair</button>
+      <button id="btn-exit-stealth" type="button" class="btn-stealth-exit">Sair</button>
     </div>
     <div id="stealth-output" class="stealth-note">
       Aguardando cartas...
