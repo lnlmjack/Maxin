@@ -21,46 +21,46 @@
       </div>
     </header>
 
-    <!-- 1. CARTA DITA PELA PESSOA -->
+    <!-- CARTA ESCOLHIDA PELO ESPECTADOR -->
     <section class="picker-box">
       <div class="box-header">
-        <span class="step-tag">1. CARTA DITA PELA PESSOA</span>
+        <span class="step-tag">CARTA ESCOLHIDA</span>
         <strong id="label-target" class="picked-name">—</strong>
       </div>
       <div id="target-values" class="grid-values"></div>
       <div id="target-suits" class="grid-suits"></div>
     </section>
 
-    <!-- 2. PEEK DA ÚLTIMA CARTA (BOCA) -->
+    <!-- PEEK DA CARTA DE BAIXO DO BARALHO (BOCA) -->
     <section class="picker-box">
       <div class="box-header">
-        <span class="step-tag">2. PEEK DA ÚLTIMA CARTA (BOCA)</span>
+        <span class="step-tag">PEEK DA CARTA DE BAIXO (BOCA)</span>
         <strong id="label-bottom" class="picked-name">—</strong>
       </div>
       <div id="bottom-values" class="grid-values"></div>
       <div id="bottom-suits" class="grid-suits"></div>
     </section>
 
-    <!-- POSIÇÕES + FRASE PARA SOLETRAR -->
+    <!-- RESULTADO IMEDIATO: TOPO, BOCA E FRASE -->
     <section id="result-panel" class="result-panel hidden">
       <div class="positions-row">
         <div class="pos-card primary">
-          <small>POSIÇÃO PELO TOPO</small>
+          <small>PELO TOPO</small>
           <strong id="pos-top">—</strong>
           <span>ª carta</span>
         </div>
         <div class="pos-card secondary">
-          <small>POSIÇÃO PELA BOCA</small>
+          <small>PELA BOCA</small>
           <strong id="pos-bottom">—</strong>
           <span>ª carta</span>
         </div>
       </div>
 
-      <div class="phrases-header">
-        <span>FRASE PARA SOLETRAR</span>
-        <small id="spell-summary">—</small>
+      <div class="phrase-box">
+        <small id="phrase-info">FRASE PARA SOLETRAR</small>
+        <div id="phrase-main" class="phrase-main">—</div>
+        <div id="phrase-sub" class="phrase-sub">—</div>
       </div>
-      <div id="phrases-list" class="phrases-list"></div>
     </section>
   </div>
 
