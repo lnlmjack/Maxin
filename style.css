@@ -25,10 +25,10 @@ body {
 .app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .topbar {
@@ -39,7 +39,7 @@ body {
 
 .topbar h1 {
   margin: 0 8px 0 0;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   letter-spacing: 2px;
   display: inline-block;
 }
@@ -67,22 +67,22 @@ button {
 .btn-ghost {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 6px 10px;
-  font-size: 0.82rem;
+  padding: 7px 11px;
+  font-size: 0.85rem;
 }
 
 .picker-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .box-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .step-tag {
@@ -93,7 +93,7 @@ button {
 }
 
 .picked-name {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--green);
   text-transform: capitalize;
 }
@@ -101,15 +101,15 @@ button {
 .grid-values {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .val-btn {
   background: var(--surface-2);
-  padding: 9px 0;
+  padding: 10px 0;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   border: 1px solid transparent;
 }
 
@@ -121,13 +121,13 @@ button {
 .grid-suits {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
 .suit-btn {
   background: var(--surface-2);
-  padding: 8px 0;
-  font-size: 1.25rem;
+  padding: 10px 0;
+  font-size: 1.3rem;
   border: 1px solid transparent;
 }
 
@@ -140,73 +140,83 @@ button {
   background: rgba(79, 140, 255, 0.25);
 }
 
-.result-panel {
+.top-banner {
   background: var(--surface);
   border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-banner small {
+  font-size: 0.72rem;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.top-banner strong {
+  font-size: 1.15rem;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.pos-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px;
 }
 
-.hidden {
-  display: none !important;
+.pos-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.positions-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.pos-card {
-  border-radius: 10px;
-  padding: 10px;
-  text-align: center;
-}
-
-.pos-card.primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.pos-card.secondary {
+.btn-step {
   background: var(--surface-2);
   border: 1px solid var(--border);
+  width: 34px;
+  height: 34px;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
-.pos-card small {
-  display: block;
-  font-size: 0.68rem;
-  letter-spacing: 0.6px;
-  opacity: 0.85;
+.pos-num {
+  font-size: 1.3rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+  color: var(--accent);
 }
 
-.pos-card strong {
-  font-size: 1.7rem;
-  line-height: 1.2;
-}
-
-.pos-card span {
-  font-size: 0.85rem;
-}
-
-.phrases-header {
+.card-at-pos {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.phrases-header span {
-  font-size: 0.72rem;
+.card-at-pos small {
+  font-size: 0.75rem;
   color: var(--muted);
-  font-weight: 600;
-  letter-spacing: 0.5px;
 }
 
-.phrases-header small {
-  font-size: 0.72rem;
+.card-at-pos strong {
+  font-size: 1.05rem;
+  text-transform: capitalize;
   color: var(--green);
+}
+
+.card-at-pos span {
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 .phrases-list {
@@ -234,7 +244,10 @@ button {
   color: var(--muted);
 }
 
-/* Stealth */
+.hidden {
+  display: none !important;
+}
+
 .stealth-overlay {
   position: fixed;
   inset: 0;
