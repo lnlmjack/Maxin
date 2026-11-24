@@ -198,7 +198,8 @@ let timerInitialTotal = 37;
 let timerRemaining = 37;
 let timerInterval = null;
 let timerRunning = false;
-let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
+let timerMode = "picker"; // "picker" | "running" | "paused"
+let alarmPlaying = false;
 let holdingAlarmStealth = false;
 
 function formatIphoneClock(totalSec) {
@@ -249,6 +250,7 @@ function primeAlarmAudio() {
 
 function playSomAlarmeMp3() {
   try {
+    alarmPlaying = true;
     const audioEl = document.getElementById("alarm-audio");
     if (!audioEl) return;
     if (!audioEl.getAttribute("src")) {
@@ -271,6 +273,7 @@ function playSomAlarmeMp3() {
 }
 
 function stopIphoneAlarmSound() {
+  alarmPlaying = false;
   try {
     const audioEl = document.getElementById("alarm-audio");
     if (audioEl) {
@@ -279,11 +282,7 @@ function stopIphoneAlarmSound() {
       audioEl.loop = false;
     }
   } catch (e) {}
-  if (timerMode === "ringing") {
-    timerMode = "picker";
-    renderIphoneTimerState();
-    initIphonePicker();
-  }
+  renderIphoneTimerState();
 }
 
 function stopTimerTick() {
@@ -345,10 +344,7 @@ function renderIphoneTimerState() {
       runningPauseBtn.classList.toggle("paused", isPaused);
     }
     if (statusEl) {
-      if (timerMode === "ringing") {
-        statusEl.textContent = "Timer concluído";
-        statusEl.className = "timer-status ringing";
-      } else if (timerMode === "paused") {
+      if (timerMode === "paused") {
         statusEl.textContent = "Pausado";
         statusEl.className = "timer-status";
       } else {
@@ -359,7 +355,7 @@ function renderIphoneTimerState() {
   }
 
   if (stopSoundBtn) {
-    stopSoundBtn.classList.toggle("hidden", timerMode !== "ringing");
+    stopSoundBtn.classList.toggle("hidden", !alarmPlaying);
   }
 }
 
@@ -429,9 +425,11 @@ function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
     if (timerRemaining <= 0) {
       timerRemaining = 0;
       stopTimerTick();
-      timerMode = "ringing";
+      timerMode = "picker";
       renderIphoneTimerState();
+      initIphonePicker();
       playSomAlarmeMp3();
+      renderIphoneTimerState();
       return;
     }
     renderIphoneTimerState();
@@ -440,7 +438,7 @@ function startCountdownWithSeconds(seconds, preserveInitialTotal = false) {
 
 function toggleIphoneTimer() {
   primeAlarmAudio();
-  if (timerMode === "ringing") {
+  if (alarmPlaying && timerMode === "picker") {
     stopIphoneAlarmSound();
     return;
   }
@@ -504,13 +502,18 @@ function holdStealthStart(ev) {
   openStealth();
 }
 
-function holdStealthEnd(ev) {
-  if (ev && ev.cancelable) ev.preventDefault();
+function holdStealthEnd() {
   if (!holdingAlarmStealth) return;
   holdingAlarmStealth = false;
   closeStealth();
   openTimerScreen();
 }
+
+window.addEventListener("pointerup", holdStealthEnd, { passive: true });
+window.addEventListener("pointercancel", holdStealthEnd, { passive: true });
+window.addEventListener("touchend", holdStealthEnd, { passive: true });
+window.addEventListener("touchcancel", holdStealthEnd, { passive: true });
+window.addEventListener("mouseup", holdStealthEnd, { passive: true });
 
 function getActiveStack() {
   if (stacks.length === 0) {
