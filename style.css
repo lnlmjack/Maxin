@@ -25,10 +25,10 @@ body {
 .app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .topbar {
@@ -39,7 +39,7 @@ body {
 
 .topbar h1 {
   margin: 0 8px 0 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   letter-spacing: 2px;
   display: inline-block;
 }
@@ -67,33 +67,33 @@ button {
 .btn-ghost {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 7px 11px;
-  font-size: 0.85rem;
+  padding: 6px 10px;
+  font-size: 0.82rem;
 }
 
 .picker-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px;
 }
 
 .box-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .step-tag {
   font-size: 0.72rem;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
   color: var(--muted);
   font-weight: 600;
 }
 
 .picked-name {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--green);
   text-transform: capitalize;
 }
@@ -101,15 +101,15 @@ button {
 .grid-values {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 
 .val-btn {
   background: var(--surface-2);
-  padding: 10px 0;
+  padding: 8px 0;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border: 1px solid transparent;
 }
 
@@ -121,13 +121,13 @@ button {
 .grid-suits {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .suit-btn {
   background: var(--surface-2);
-  padding: 10px 0;
-  font-size: 1.3rem;
+  padding: 8px 0;
+  font-size: 1.2rem;
   border: 1px solid transparent;
 }
 
@@ -144,7 +144,7 @@ button {
   background: var(--surface);
   border: 1px solid var(--accent);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 10px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -152,13 +152,13 @@ button {
 
 .top-banner small {
   font-size: 0.72rem;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
   color: var(--muted);
   font-weight: 600;
 }
 
 .top-banner strong {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: #fff;
   text-transform: capitalize;
 }
@@ -179,14 +179,14 @@ button {
 .btn-step {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  width: 34px;
-  height: 34px;
-  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
 .pos-num {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   min-width: 28px;
   text-align: center;
@@ -204,7 +204,7 @@ button {
 }
 
 .card-at-pos small {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: var(--muted);
 }
 
@@ -233,7 +233,7 @@ button {
 }
 
 .phrase-text {
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
   color: #fff;
   margin-bottom: 3px;
