@@ -140,29 +140,6 @@ button {
   background: rgba(79, 140, 255, 0.25);
 }
 
-.top-banner {
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  border-radius: 12px;
-  padding: 10px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.top-banner small {
-  font-size: 0.72rem;
-  letter-spacing: 0.7px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.top-banner strong {
-  font-size: 1.05rem;
-  color: #fff;
-  text-transform: capitalize;
-}
-
 .result-panel {
   background: var(--surface);
   border: 1px solid var(--accent);
