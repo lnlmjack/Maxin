@@ -34,8 +34,43 @@ const BUILTIN_STACKS = [
       "2 de espadas", "9 de copas", "8 de copas", "6 de copas", "6 de espadas",
       "2 de paus", "9 de ouros"
     ]
+  },
+  {
+    id: "si_stebbins",
+    name: "Si Stebbins",
+    builtin: true,
+    cards: [
+      "ás de paus", "4 de copas", "7 de espadas", "10 de ouros",
+      "rei de paus", "3 de copas", "6 de espadas", "9 de ouros",
+      "dama de paus", "2 de copas", "5 de espadas", "8 de ouros",
+      "valete de paus", "ás de copas", "4 de espadas", "7 de ouros",
+      "10 de paus", "rei de copas", "3 de espadas", "6 de ouros",
+      "9 de paus", "dama de copas", "2 de espadas", "5 de ouros",
+      "8 de paus", "valete de copas", "ás de espadas", "4 de ouros",
+      "7 de paus", "10 de copas", "rei de espadas", "3 de ouros",
+      "6 de paus", "9 de copas", "dama de espadas", "2 de ouros",
+      "5 de paus", "8 de copas", "valete de espadas", "ás de ouros",
+      "4 de paus", "7 de copas", "10 de espadas", "rei de ouros",
+      "3 de paus", "6 de copas", "9 de espadas", "dama de ouros",
+      "2 de paus", "5 de copas", "8 de espadas", "valete de ouros"
+    ]
   }
 ];
+
+// Ajuste exato das 52 cartas do ciclo +3 (1..13) com naipes paus, copas, espadas, ouros
+BUILTIN_STACKS[2].cards = (() => {
+  const ranks = ["ás", "2", "3", "4", "5", "6", "7", "8", "9", "10", "valete", "dama", "rei"];
+  const suits = ["paus", "copas", "espadas", "ouros"];
+  const list = [];
+  let rIdx = 0; // Ás
+  let sIdx = 0; // Paus
+  for (let i = 0; i < 52; i++) {
+    list.push(`${ranks[rIdx]} de ${suits[sIdx]}`);
+    rIdx = (rIdx + 3) % 13;
+    sIdx = (sIdx + 1) % 4;
+  }
+  return list;
+})();
 
 const VALUES = [
   { code: "A", label: "ás" },
@@ -101,7 +136,6 @@ BASE_PHRASES.forEach(p => {
 });
 
 function getPhraseForPos(pos, sideLabel) {
-  // 1. Frase exata com exatamente `pos` letras
   if (PHRASES_BY_LEN[pos]) {
     const text = PHRASES_BY_LEN[pos];
     return {
@@ -111,7 +145,6 @@ function getPhraseForPos(pos, sideLabel) {
     };
   }
 
-  // 2. Frase com `pos - 1` letras -> soletra e vira a PRÓXIMA carta
   if (pos > 1 && PHRASES_BY_LEN[pos - 1]) {
     const text = PHRASES_BY_LEN[pos - 1];
     return {
@@ -121,7 +154,6 @@ function getPhraseForPos(pos, sideLabel) {
     };
   }
 
-  // 3. Fallback garantido: usa uma frase conhecida e indica quantas cartas extras passar
   const fallback = "A CARTA QUE VOCÊ PENSOU FOI";
   const len = countLetters(fallback);
   if (pos > len) {
