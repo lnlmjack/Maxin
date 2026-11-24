@@ -188,56 +188,88 @@ const state = {
   bottomSuit: null
 };
 
-/* ESTADO E CONTROLE DO TIMER */
-let timerDuration = 5;
+/* TIMER ESTILO IPHONE + SOM RADAR */
+let selectedHours = 0;
+let selectedMinutes = 0;
+let selectedSeconds = 5;
 let timerRemaining = 5;
 let timerInterval = null;
 let timerRunning = false;
+let timerMode = "picker"; // "picker" | "running" | "paused" | "ringing"
+let alarmLoopInterval = null;
+let alarmAudioCtx = null;
 
-function formatTimerSec(sec) {
-  const safe = Math.max(0, Math.floor(sec));
-  const mins = Math.floor(safe / 60);
-  const rem = safe % 60;
-  return `${String(mins).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
+function formatIphoneClock(totalSec) {
+  const safe = Math.max(0, Math.floor(totalSec));
+  const hrs = Math.floor(safe / 3600);
+  const mins = Math.floor((safe % 3600) / 60);
+  const secs = safe % 60;
+  if (hrs > 0) {
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-function playTimerBeep() {
+function formatEndTimePreview(secondsFromNow) {
+  const endDate = new Date(Date.now() + Math.max(0, secondsFromNow) * 1000);
+  const hh = String(endDate.getHours()).padStart(2, "0");
+  const mm = String(endDate.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+function playSingleRadarPulse() {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.35);
-    setTimeout(() => {
-      if (ctx && typeof ctx.close === "function") ctx.close();
-    }, 500);
+    if (!alarmAudioCtx || alarmAudioCtx.state === "closed") {
+      alarmAudioCtx = new AudioCtx();
+    }
+    if (alarmAudioCtx.state === "suspended") {
+      alarmAudioCtx.resume();
+    }
+
+    const now = alarmAudioCtx.currentTime;
+    const notes = [1046.5, 1318.5, 1567.98, 2093.0]; // estilo arpejo Radar do iPhone
+    notes.forEach((freq, idx) => {
+      const osc = alarmAudioCtx.createOscillator();
+      const gain = alarmAudioCtx.createGain();
+      osc.type = "triangle";
+      const t0 = now + idx * 0.085;
+      osc.frequency.setValueAtTime(freq, t0);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.04, t0 + 0.075);
+      gain.gain.setValueAtTime(0.001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.22, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.08);
+      osc.connect(gain);
+      gain.connect(alarmAudioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.085);
+    });
   } catch (e) {}
 }
 
-function updateTimerUI(statusText, ringing = false) {
-  const disp = document.getElementById("timer-display");
-  const statusEl = document.getElementById("timer-status");
-  const toggleBtn = document.getElementById("btn-timer-toggle");
+function startIphoneAlarmSound() {
+  stopIphoneAlarmSound();
+  playSingleRadarPulse();
+  alarmLoopInterval = setInterval(() => {
+    playSingleRadarPulse();
+  }, 950);
+}
 
-  if (disp) disp.textContent = formatTimerSec(timerRemaining);
-  if (statusEl) {
-    if (statusText) statusEl.textContent = statusText;
-    statusEl.classList.toggle("ringing", ringing);
+function stopIphoneAlarmSound() {
+  if (alarmLoopInterval) {
+    clearInterval(alarmLoopInterval);
+    alarmLoopInterval = null;
   }
-  if (toggleBtn) {
-    toggleBtn.textContent = timerRunning ? "Pausar" : "Iniciar";
-    toggleBtn.classList.toggle("running", timerRunning);
+  const stopBtn = document.getElementById("btn-timer-stop-sound");
+  if (stopBtn) stopBtn.classList.add("hidden");
+  if (timerMode === "ringing") {
+    timerMode = "picker";
+    renderIphoneTimerState();
   }
 }
 
-function stopTimerInterval() {
+function stopTimerTick() {
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
@@ -245,45 +277,150 @@ function stopTimerInterval() {
   timerRunning = false;
 }
 
-function startTimerCountdown(seconds) {
-  stopTimerInterval();
-  timerDuration = seconds;
-  timerRemaining = seconds;
+function getPickerTotalSeconds() {
+  return (selectedHours * 3600) + (selectedMinutes * 60) + selectedSeconds;
+}
+
+function renderIphoneTimerState() {
+  const pickerEl = document.getElementById("timer-picker");
+  const countdownBox = document.getElementById("timer-countdown-box");
+  const disp = document.getElementById("timer-display");
+  const endPreview = document.getElementById("timer-end-preview");
+  const statusEl = document.getElementById("timer-status");
+  const startBtn = document.getElementById("btn-timer-start");
+  const ringEl = document.querySelector(".timer-ring");
+  const stopSoundBtn = document.getElementById("btn-timer-stop-sound");
+
+  const showWheel = timerMode === "picker";
+  if (pickerEl) pickerEl.classList.toggle("hidden", !showWheel);
+  if (countdownBox) countdownBox.classList.toggle("hidden", showWheel);
+
+  if (!showWheel) {
+    if (disp) disp.textContent = formatIphoneClock(timerRemaining);
+    if (ringEl) ringEl.classList.toggle("ringing", timerMode === "ringing");
+    if (endPreview) {
+      endPreview.textContent = timerMode === "ringing" ? "Timer" : formatEndTimePreview(timerRemaining);
+    }
+    if (statusEl) {
+      if (timerMode === "ringing") {
+        statusEl.textContent = "Tempo esgotado";
+        statusEl.className = "timer-status ringing";
+      } else if (timerMode === "paused") {
+        statusEl.textContent = "Pausado";
+        statusEl.className = "timer-status";
+      } else {
+        statusEl.textContent = "";
+        statusEl.className = "timer-status";
+      }
+    }
+  }
+
+  if (startBtn) {
+    if (timerMode === "running") {
+      startBtn.textContent = "Pausar";
+      startBtn.className = "timer-btn-start running";
+    } else if (timerMode === "paused") {
+      startBtn.textContent = "Retomar";
+      startBtn.className = "timer-btn-start";
+    } else {
+      startBtn.textContent = "Iniciar";
+      startBtn.className = "timer-btn-start";
+    }
+  }
+
+  if (stopSoundBtn) {
+    stopSoundBtn.classList.toggle("hidden", timerMode !== "ringing");
+  }
+}
+
+function buildPickerColumn(containerId, maxVal, currentVal, onSelect) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = "";
+  for (let v = 0; v <= maxVal; v++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `picker-item ${v === currentVal ? "selected" : ""}`;
+    btn.textContent = String(v).padStart(2, "0");
+    btn.onclick = () => {
+      onSelect(v);
+      buildPickerColumn("picker-hours", 23, selectedHours, val => { selectedHours = val; });
+      buildPickerColumn("picker-minutes", 59, selectedMinutes, val => { selectedMinutes = val; });
+      buildPickerColumn("picker-seconds", 59, selectedSeconds, val => { selectedSeconds = val; });
+    };
+    el.appendChild(btn);
+    if (v === currentVal) {
+      setTimeout(() => {
+        btn.scrollIntoView({ block: "center", behavior: "auto" });
+      }, 0);
+    }
+  }
+}
+
+function initIphonePicker() {
+  buildPickerColumn("picker-hours", 23, selectedHours, val => { selectedHours = val; });
+  buildPickerColumn("picker-minutes", 59, selectedMinutes, val => { selectedMinutes = val; });
+  buildPickerColumn("picker-seconds", 59, selectedSeconds, val => { selectedSeconds = val; });
+}
+
+function startCountdownWithSeconds(seconds) {
+  stopIphoneAlarmSound();
+  stopTimerTick();
+  const total = Math.max(1, Math.floor(seconds));
+  timerRemaining = total;
   timerRunning = true;
-  updateTimerUI(`Contando ${seconds}s...`, false);
+  timerMode = "running";
+  renderIphoneTimerState();
 
   timerInterval = setInterval(() => {
     timerRemaining -= 1;
     if (timerRemaining <= 0) {
       timerRemaining = 0;
-      stopTimerInterval();
-      updateTimerUI("Tempo esgotado!", true);
-      playTimerBeep();
+      stopTimerTick();
+      timerMode = "ringing";
+      renderIphoneTimerState();
+      startIphoneAlarmSound();
       return;
     }
-    updateTimerUI(`Contando ${timerDuration}s...`, false);
+    renderIphoneTimerState();
   }, 1000);
 }
 
-function toggleTimerStartPause() {
-  if (timerRunning) {
-    stopTimerInterval();
-    updateTimerUI("Pausado", false);
+function toggleIphoneTimer() {
+  if (timerMode === "ringing") {
+    stopIphoneAlarmSound();
+    timerMode = "picker";
+    renderIphoneTimerState();
     return;
   }
-  const startFrom = timerRemaining > 0 ? timerRemaining : timerDuration;
-  startTimerCountdown(startFrom);
+  if (timerMode === "running") {
+    stopTimerTick();
+    timerMode = "paused";
+    renderIphoneTimerState();
+    return;
+  }
+  if (timerMode === "paused") {
+    startCountdownWithSeconds(timerRemaining > 0 ? timerRemaining : 1);
+    return;
+  }
+  const total = getPickerTotalSeconds();
+  startCountdownWithSeconds(total > 0 ? total : 5);
 }
 
-function resetTimer() {
-  stopTimerInterval();
-  timerRemaining = timerDuration;
-  updateTimerUI("Pronto para iniciar", false);
+function cancelOrResetIphoneTimer() {
+  stopIphoneAlarmSound();
+  stopTimerTick();
+  timerMode = "picker";
+  renderIphoneTimerState();
+  initIphonePicker();
 }
 
-function startQuickTimer(seconds) {
+function triggerFiveSecondAlarmTimer() {
+  selectedHours = 0;
+  selectedMinutes = 0;
+  selectedSeconds = 5;
   openTimerScreen();
-  startTimerCountdown(seconds);
+  startCountdownWithSeconds(5);
 }
 
 function openTimerScreen() {
@@ -291,7 +428,8 @@ function openTimerScreen() {
   const mainEl = document.getElementById("main-app");
   if (timerEl) timerEl.classList.remove("hidden");
   if (mainEl) mainEl.classList.add("hidden");
-  updateTimerUI();
+  if (timerMode === "picker") initIphonePicker();
+  renderIphoneTimerState();
 }
 
 function openCalcFromTimer() {
@@ -704,7 +842,6 @@ function init() {
   renderGrid("target-suits", SUITS, "suit", "target");
   renderGrid("bottom-values", VALUES, "val", "bottom");
   renderGrid("bottom-suits", SUITS, "suit", "bottom");
-  updateTimerUI("Pronto para iniciar", false);
 }
 
 if (document.readyState === "loading") {
