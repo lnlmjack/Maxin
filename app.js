@@ -542,8 +542,8 @@ function calculateImmediate() {
   const bottomPhrase = getPhraseForPos(posBottom, "pela boca");
 
   document.getElementById("result-panel").classList.remove("hidden");
-  document.getElementById("pos-top").textContent = posTop;
-  document.getElementById("pos-bottom").textContent = posBottom;
+  document.getElementById("pos-top").textContent = `${posTop}ª`;
+  document.getElementById("pos-bottom").textContent = `${posBottom}ª`;
 
   document.getElementById("phrase-top-info").textContent = `FRASE CONTANDO PELO TOPO (${topPhrase.letters} LETRAS)`;
   document.getElementById("phrase-top-main").textContent = `"${topPhrase.text}"`;
