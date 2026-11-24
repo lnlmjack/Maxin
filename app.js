@@ -119,10 +119,10 @@ RAW_PHRASES.forEach(phrase => {
 });
 
 const state = {
-  bottomVal: null,
-  bottomSuit: null,
   targetVal: null,
-  targetSuit: null
+  targetSuit: null,
+  bottomVal: null,
+  bottomSuit: null
 };
 
 function renderGrid(containerId, items, type, group) {
@@ -136,12 +136,12 @@ function renderGrid(containerId, items, type, group) {
       el.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      if (group === "bottom") {
-        if (type === "val") state.bottomVal = item.label;
-        else state.bottomSuit = item.name;
-      } else {
+      if (group === "target") {
         if (type === "val") state.targetVal = item.label;
         else state.targetSuit = item.name;
+      } else {
+        if (type === "val") state.bottomVal = item.label;
+        else state.bottomSuit = item.name;
       }
       calculate();
     };
@@ -153,25 +153,31 @@ function buildPhrases(posTop, posBottom) {
   const list = [];
 
   (PHRASES_BY_LENGTH[posTop] || []).forEach(p => {
+    const len = countLetters(p);
     list.push({
       text: p,
-      note: `${countLetters(p)} letras — cai EXATO na última letra (${posTop}ª pelo topo)`
+      letters: len,
+      note: `${len} letras — cai EXATO na última letra (${posTop}ª carta pelo topo)`
     });
   });
 
   if (posTop > 1 && PHRASES_BY_LENGTH[posTop - 1]) {
     const p = PHRASES_BY_LENGTH[posTop - 1][0];
+    const len = countLetters(p);
     list.push({
       text: p,
-      note: `${countLetters(p)} letras — soletra e vira a PRÓXIMA carta (${posTop}ª do topo)`
+      letters: len,
+      note: `${len} letras — soletra e vira a PRÓXIMA carta (${posTop}ª pelo topo)`
     });
   }
 
   if (posBottom < posTop && PHRASES_BY_LENGTH[posBottom]) {
     const p = PHRASES_BY_LENGTH[posBottom][0];
+    const len = countLetters(p);
     list.push({
       text: p,
-      note: `PELA BOCA (${countLetters(p)} letras) — soletra virando o baralho de face para cima`
+      letters: len,
+      note: `PELA BOCA (${len} letras) — soletra virando o baralho de face para cima (${posBottom}ª pela boca)`
     });
   }
 
@@ -180,6 +186,7 @@ function buildPhrases(posTop, posBottom) {
     const len = countLetters(base);
     list.push({
       text: base,
+      letters: len,
       note: posTop > len
         ? `${len} letras + passe mais ${posTop - len} carta(s) para chegar na ${posTop}ª`
         : `${len} letras — conte ${posTop} carta(s) do topo`
@@ -190,71 +197,65 @@ function buildPhrases(posTop, posBottom) {
 }
 
 function calculate() {
-  const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
   const targetCard = state.targetVal && state.targetSuit ? `${state.targetVal} de ${state.targetSuit}` : null;
+  const bottomCard = state.bottomVal && state.bottomSuit ? `${state.bottomVal} de ${state.bottomSuit}` : null;
 
-  document.getElementById("label-bottom").textContent = bottomCard || "—";
   document.getElementById("label-target").textContent = targetCard || "—";
+  document.getElementById("label-bottom").textContent = bottomCard || "—";
 
-  if (bottomCard) {
-    const bottomIdx = TAMARIZ.indexOf(bottomCard);
-    if (bottomIdx !== -1) {
-      const topIdx = (bottomIdx + 1) % 52;
-      document.getElementById("top-card-banner").classList.remove("hidden");
-      document.getElementById("top-card-name").textContent = TAMARIZ[topIdx];
+  if (!targetCard || !bottomCard) return;
 
-      if (targetCard) {
-        const targetIdx = TAMARIZ.indexOf(targetCard);
-        if (targetIdx !== -1) {
-          const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
-          const posBottom = 53 - posTop;
+  const targetIdx = TAMARIZ.indexOf(targetCard);
+  const bottomIdx = TAMARIZ.indexOf(bottomCard);
+  if (targetIdx === -1 || bottomIdx === -1) return;
 
-          document.getElementById("result-panel").classList.remove("hidden");
-          document.getElementById("pos-top").textContent = posTop;
-          document.getElementById("pos-bottom").textContent = posBottom;
+  const topIdx = (bottomIdx + 1) % 52;
+  const posTop = ((targetIdx - topIdx + 52) % 52) + 1;
+  const posBottom = 53 - posTop;
 
-          const phrases = buildPhrases(posTop, posBottom);
-          const listEl = document.getElementById("phrases-list");
-          listEl.innerHTML = "";
-          phrases.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "phrase-item";
-            div.innerHTML = `
-              <div class="phrase-text">"${item.text}"</div>
-              <div class="phrase-meta">${item.note}</div>
-            `;
-            listEl.appendChild(div);
-          });
+  document.getElementById("result-panel").classList.remove("hidden");
+  document.getElementById("pos-top").textContent = posTop;
+  document.getElementById("pos-bottom").textContent = posBottom;
 
-          document.getElementById("stealth-output").innerHTML = `
-            - Topo: <strong>${TAMARIZ[topIdx]}</strong><br>
-            - Topo: <strong>${posTop}</strong> | Boca: <strong>${posBottom}</strong><br>
-            - Frase: "${phrases[0].text}"<br>
-            - ${phrases[0].note}
-          `;
-        }
-      }
-    }
-  }
+  const phrases = buildPhrases(posTop, posBottom);
+  document.getElementById("spell-summary").textContent = `${phrases[0].letters} letras`;
+
+  const listEl = document.getElementById("phrases-list");
+  listEl.innerHTML = "";
+  phrases.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "phrase-item";
+    div.innerHTML = `
+      <div class="phrase-text">"${item.text}"</div>
+      <div class="phrase-meta">${item.note}</div>
+    `;
+    listEl.appendChild(div);
+  });
+
+  document.getElementById("stealth-output").innerHTML = `
+    - Carta: <strong>${targetCard}</strong><br>
+    - Topo: <strong>${posTop}ª</strong> | Boca: <strong>${posBottom}ª</strong><br>
+    - Frase (${phrases[0].letters} letras): "${phrases[0].text}"<br>
+    - ${phrases[0].note}
+  `;
 }
 
 function resetAll() {
-  state.bottomVal = null;
-  state.bottomSuit = null;
   state.targetVal = null;
   state.targetSuit = null;
+  state.bottomVal = null;
+  state.bottomSuit = null;
   document.querySelectorAll(".val-btn, .suit-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById("label-bottom").textContent = "—";
   document.getElementById("label-target").textContent = "—";
-  document.getElementById("top-card-banner").classList.add("hidden");
+  document.getElementById("label-bottom").textContent = "—";
   document.getElementById("result-panel").classList.add("hidden");
 }
 
 function init() {
-  renderGrid("bottom-values", VALUES, "val", "bottom");
-  renderGrid("bottom-suits", SUITS, "suit", "bottom");
   renderGrid("target-values", VALUES, "val", "target");
   renderGrid("target-suits", SUITS, "suit", "target");
+  renderGrid("bottom-values", VALUES, "val", "bottom");
+  renderGrid("bottom-suits", SUITS, "suit", "bottom");
 
   document.getElementById("btn-clear").onclick = resetAll;
   document.getElementById("btn-stealth").onclick = () => {
