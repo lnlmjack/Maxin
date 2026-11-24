@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0d12" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_9" />
+  <link rel="stylesheet" href="style.css?v=20261124_10" />
 </head>
 <body>
   <div class="app">
@@ -17,9 +17,9 @@
       </div>
       <div class="header-actions">
         <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksPanel()">Stacks</button>
-        <button id="btn-manual" type="button" class="btn-ghost" onclick="toggleManualPanel()">Manual</button>
         <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
         <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
+        <button id="btn-manual" type="button" class="btn-ghost" onclick="toggleManualPanel()">Manual</button>
       </div>
     </header>
 
@@ -38,9 +38,9 @@
         <h3>2. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
         <p><strong>Stacks:</strong> abre ou fecha o painel de baralhos (para sair da tela de stacks e voltar à tela principal, toque em <strong>Stacks</strong> ou <strong>Fechar</strong>).</p>
-        <p><strong>Manual:</strong> abre ou fecha este manual completo dentro do programa.</p>
         <p><strong>Limpar:</strong> desmarca <strong>Carta Escolhida</strong> e <strong>Peek da Carta de Baixo (Boca)</strong> e oculta o resultado.</p>
         <p><strong>Stealth:</strong> exibe uma tela discreta em formato de notas com o stack ativo, a posição e a frase pelo topo e pela boca. Toque em <strong>Sair</strong> para voltar.</p>
+        <p><strong>Manual:</strong> abre ou fecha este manual completo dentro do programa.</p>
 
         <h3>3. Criar, Editar e Excluir Stacks</h3>
         <p><strong>Criar:</strong> digite o nome em <strong>Novo stack — nome</strong>, cole ou digite <strong>52 cartas</strong> em <strong>Novo stack — 52 cartas</strong> (uma por linha, separadas por vírgula <code>,</code> ou ponto e vírgula <code>;</code>) e toque em <strong>Salvar Novo Stack</strong>.</p>
@@ -109,13 +109,11 @@
       <div class="positions-row">
         <div class="pos-card primary">
           <small>PELO TOPO</small>
-          <strong id="pos-top">—</strong>
-          <span>ª carta</span>
+          <div class="pos-value-line"><strong id="pos-top">—</strong><span>ª carta</span></div>
         </div>
         <div class="pos-card secondary">
           <small>PELA BOCA</small>
-          <strong id="pos-bottom">—</strong>
-          <span>ª carta</span>
+          <div class="pos-value-line"><strong id="pos-bottom">—</strong><span>ª carta</span></div>
         </div>
       </div>
 
@@ -146,6 +144,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_9"></script>
+  <script src="app.js?v=20261124_10"></script>
 </body>
 </html>
