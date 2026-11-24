@@ -3,32 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0b0d12" />
+  <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_12" />
+  <link rel="stylesheet" href="style.css?v=20261124_13" />
 </head>
 <body>
-  <!-- SIMULADOR DE TIMER (ESTILO IPHONE) -->
+  <!-- SIMULADOR DE TIMER ESTILO IPHONE -->
   <div id="timer-overlay" class="timer-overlay">
     <div class="timer-topbar">
-      <button id="btn-timer-5s" type="button" class="timer-pill-btn" onclick="startQuickTimer(5)">5s</button>
-      <button id="btn-to-calc" type="button" class="timer-pill-btn timer-pill-subtle" onclick="openCalcFromTimer()">Peek / Calc</button>
+      <div class="timer-top-left">
+        <button id="btn-timer-5s" type="button" class="timer-pill-btn" onclick="triggerFiveSecondAlarmTimer()">5s</button>
+        <button id="btn-timer-stop-sound" type="button" class="timer-pill-btn timer-pill-danger hidden" onclick="stopIphoneAlarmSound()">Parar Som</button>
+      </div>
+      <button id="btn-to-calc" type="button" class="timer-pill-btn timer-pill-subtle" onclick="openCalcFromTimer()">Cartas</button>
     </div>
 
     <div class="timer-center">
-      <div class="timer-label">Temporizador</div>
-      <div id="timer-display" class="timer-display">00:05</div>
-      <div id="timer-status" class="timer-status">Pronto para iniciar</div>
+      <div class="timer-title">Timer</div>
+
+      <!-- Seletor de Horas / Minutos / Segundos estilo iPhone -->
+      <div id="timer-picker" class="iphone-picker">
+        <div class="picker-col">
+          <div class="picker-col-label">horas</div>
+          <div id="picker-hours" class="picker-list"></div>
+        </div>
+        <div class="picker-col">
+          <div class="picker-col-label">min</div>
+          <div id="picker-minutes" class="picker-list"></div>
+        </div>
+        <div class="picker-col">
+          <div class="picker-col-label">seg</div>
+          <div id="picker-seconds" class="picker-list"></div>
+        </div>
+      </div>
+
+      <!-- Mostrador circular durante contagem ou disparo -->
+      <div id="timer-countdown-box" class="timer-countdown-box hidden">
+        <div class="timer-ring">
+          <div id="timer-display" class="timer-display">00:05</div>
+          <div id="timer-end-preview" class="timer-end-preview"></div>
+        </div>
+        <div id="timer-status" class="timer-status"></div>
+      </div>
 
       <div class="timer-controls">
-        <button id="btn-timer-toggle" type="button" class="timer-btn-start" onclick="toggleTimerStartPause()">Iniciar</button>
-        <button id="btn-timer-reset" type="button" class="timer-btn-cancel" onclick="resetTimer()">Zerar</button>
+        <button id="btn-timer-cancel" type="button" class="timer-btn-cancel" onclick="cancelOrResetIphoneTimer()">Cancelar</button>
+        <button id="btn-timer-start" type="button" class="timer-btn-start" onclick="toggleIphoneTimer()">Iniciar</button>
+      </div>
+
+      <div class="timer-when-done">
+        <span>Ao terminar</span>
+        <strong>Radar (iPhone)</strong>
       </div>
     </div>
 
-    <div class="timer-footer-hint">
-      Toque em <strong>Peek / Calc</strong> para ir ao sistema ou em <strong>5s</strong> para disparar em 5 segundos.
+    <div class="timer-bottom-bar">
+      <button type="button" class="timer-tab-btn active">Timer</button>
+      <button type="button" class="timer-tab-btn" onclick="openCalcFromTimer()">Sistema</button>
     </div>
   </div>
 
@@ -41,7 +73,7 @@
       </div>
       <div class="header-actions">
         <button id="btn-back-timer" type="button" class="btn-ghost" onclick="openTimerScreen()">Timer</button>
-        <button id="btn-quick-5s" type="button" class="btn-ghost" onclick="startQuickTimer(5)">5s</button>
+        <button id="btn-quick-5s" type="button" class="btn-ghost" onclick="triggerFiveSecondAlarmTimer()">5s</button>
         <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksPanel()">Stacks</button>
         <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
         <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
@@ -59,11 +91,12 @@
 
       <div id="manual-content" class="manual-body">
         <h3>1. Visão Geral</h3>
-        <p>O <strong>Maxin</strong> combina um simulador de <strong>Timer</strong> com o gerenciamento de baralhos mnemônicos de 52 cartas, cálculo da posição exata da carta escolhida pelo corte / peek da carta de baixo (boca) e frases de soletração pelo topo e pela boca.</p>
+        <p>O <strong>Maxin</strong> combina um simulador de <strong>Timer</strong> estilo iPhone com o gerenciamento de baralhos mnemônicos de 52 cartas, cálculo da posição exata da carta escolhida pelo corte / peek da carta de baixo (boca) e frases de soletração pelo topo e pela boca.</p>
 
-        <h3>2. Simulador de Timer e Fluxo de Performance</h3>
-        <p><strong>Timer:</strong> exibe a contagem regressiva para mostrar ao espectador. Toque em <strong>Iniciar</strong> (ou <strong>5s</strong>) para iniciar em 5 segundos; ao zerar, o alarme visual/sonoro dispara indicando onde parar de cortar o baralho.</p>
-        <p><strong>Peek / Calc:</strong> leva direto para a tela de cálculo/peek. Na tela principal, <strong>Timer</strong> volta à tela do relógio e <strong>5s</strong> inicia a contagem de 5 segundos e já abre a tela do timer para você virar ao espectador.</p>
+        <h3>2. Timer Estilo iPhone e Gatilho de 5 Segundos</h3>
+        <p><strong>Programar livremente:</strong> ajuste <strong>horas</strong>, <strong>min</strong> e <strong>seg</strong> na roda de seleção, toque em <strong>Iniciar</strong> para rodar como um timer real e em <strong>Cancelar</strong> para voltar à seleção.</p>
+        <p><strong>Botão 5s:</strong> ao voltar da tela das cartas (ou direto no timer), toque em <strong>5s</strong> para iniciar imediatamente uma contagem de 5 segundos com o som característico ao zerar.</p>
+        <p><strong>Cartas / Sistema:</strong> alterna entre a tela do timer e a tela do sistema de cartas.</p>
 
         <h3>3. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
@@ -174,6 +207,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_12"></script>
+  <script src="app.js?v=20261124_13"></script>
 </body>
 </html>
