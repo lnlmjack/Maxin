@@ -11,11 +11,12 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <div>
+      <div class="brand-row">
         <h1>MAXIN</h1>
-        <span class="badge">Tamariz</span>
+        <select id="stack-selector" class="stack-select" title="Escolher Mnemônica"></select>
       </div>
       <div class="header-actions">
+        <button id="btn-stacks" class="btn-ghost">Stacks</button>
         <button id="btn-clear" class="btn-ghost">Limpar</button>
         <button id="btn-stealth" class="btn-ghost">Stealth</button>
       </div>
@@ -62,6 +63,42 @@
         <div id="phrase-sub" class="phrase-sub">—</div>
       </div>
     </section>
+  </div>
+
+  <!-- MODAL: VER ORDEM DAS CARTAS E CRIAR MNEMÔNICAS -->
+  <div id="modal-stacks" class="modal hidden">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2 id="modal-stack-title">Ordem das Cartas</h2>
+        <button id="btn-close-stacks" class="btn-ghost">Fechar</button>
+      </div>
+
+      <div class="tabs-row">
+        <button id="tab-view" class="tab-btn active">Ver Ordem (1–52)</button>
+        <button id="tab-new" class="tab-btn">+ Nova Mnemônica</button>
+      </div>
+
+      <!-- ABA 1: VER ORDEM DA STACK ATIVA -->
+      <div id="panel-view-stack" class="tab-panel">
+        <div class="view-toolbar">
+          <span id="view-stack-name" class="muted-label">Tamariz</span>
+          <button id="btn-delete-stack" class="btn-danger hidden">Excluir esta stack</button>
+        </div>
+        <div id="stack-order-list" class="order-list"></div>
+      </div>
+
+      <!-- ABA 2: CRIAR NOVA MNEMÔNICA -->
+      <div id="panel-new-stack" class="tab-panel hidden">
+        <input type="text" id="new-stack-name" placeholder="Nome da mnemônica (ex: Minha Ordem)" />
+        <p class="helper-text">
+          Cole as <strong>52 cartas</strong> (uma por linha, do topo #1 até a boca #52).<br>
+          Aceita por extenso (ex: <code>4 de paus</code>) ou símbolo (ex: <code>4♣</code>, <code>Q♥</code>, <code>A♠</code>, <code>10♦</code>).
+        </p>
+        <textarea id="new-stack-cards" rows="10" placeholder="4 de paus&#10;2 de copas&#10;7 de ouros&#10;..."></textarea>
+        <div id="new-stack-error" class="error-msg hidden"></div>
+        <button id="btn-save-stack" class="btn-primary">Salvar Mnemônica</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modo Stealth -->
