@@ -17,10 +17,41 @@
       </div>
       <div class="header-actions">
         <button id="btn-stacks" type="button" class="btn-ghost" onclick="toggleStacksPanel()">Stacks</button>
+        <button id="btn-manual" type="button" class="btn-ghost" onclick="toggleManualPanel()">Manual</button>
         <button id="btn-clear" type="button" class="btn-ghost" onclick="resetAll()">Limpar</button>
         <button id="btn-stealth" type="button" class="btn-ghost" onclick="openStealth()">Stealth</button>
       </div>
     </header>
+
+    <!-- MANUAL DENTRO DO PROGRAMA -->
+    <section id="manual-panel" class="stacks-panel hidden">
+      <div class="panel-top">
+        <strong>MANUAL DO SISTEMA MAXIN</strong>
+        <button id="btn-close-manual" type="button" class="btn-ghost" onclick="toggleManualPanel(false)">Fechar</button>
+      </div>
+      <p class="panel-hint">Para voltar para a tela principal, toque em <strong>Manual</strong> ou <strong>Fechar</strong>.</p>
+
+      <div id="manual-content" class="manual-body">
+        <h3>1. Visão Geral</h3>
+        <p>O <strong>Maxin</strong> gerencia baralhos mnemônicos de 52 cartas, calcula a posição exata da carta escolhida a partir do corte / peek da carta de baixo (boca) e gera frases de soletração pelo topo e pela boca.</p>
+
+        <h3>2. Barra Superior</h3>
+        <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
+        <p><strong>Stacks:</strong> abre ou fecha o painel de baralhos (para sair da tela de stacks e voltar à tela principal, toque em <strong>Stacks</strong> ou <strong>Fechar</strong>).</p>
+        <p><strong>Manual:</strong> abre ou fecha este manual completo dentro do programa.</p>
+        <p><strong>Limpar:</strong> desmarca <strong>Carta Escolhida</strong> e <strong>Peek da Carta de Baixo (Boca)</strong> e oculta o resultado.</p>
+        <p><strong>Stealth:</strong> exibe uma tela discreta em formato de notas com o stack ativo, a posição e a frase pelo topo e pela boca. Toque em <strong>Sair</strong> para voltar.</p>
+
+        <h3>3. Criar, Editar e Excluir Stacks</h3>
+        <p><strong>Criar:</strong> digite o nome em <strong>Novo stack — nome</strong>, cole ou digite <strong>52 cartas</strong> em <strong>Novo stack — 52 cartas</strong> (uma por linha, separadas por vírgula <code>,</code> ou ponto e vírgula <code>;</code>) e toque em <strong>Salvar Novo Stack</strong>.</p>
+        <p><strong>Formatos aceitos:</strong> nomes completos com ou sem acento (ex.: <code>ás de espadas</code>, <code>as de espadas</code>, <code>8 de Espadas</code>, <code>valete de copas</code>, <code>dama de ouros</code>, <code>rei de paus</code>), valores (<code>A</code>, <code>2</code>–<code>10</code>, <code>J</code>, <code>Q</code>, <code>K</code>) e naipes por nome, inicial (<code>p</code>, <code>c</code>, <code>e</code>, <code>o</code>) ou símbolo (<code>♣</code>, <code>♥</code>, <code>♠</code>, <code>♦</code>).</p>
+        <p><strong>Editar:</strong> escolha qualquer stack (embutido ou criado por você) no seletor do painel, toque em <strong>Editar</strong>, ajuste nome ou cartas nos campos abaixo e toque em <strong>Salvar Alterações</strong> (ou <strong>Cancelar Edição</strong>).</p>
+        <p><strong>Excluir:</strong> escolha o stack no painel e toque em <strong>Excluir</strong> para removê-lo da lista salva no navegador.</p>
+
+        <h3>4. Cálculo de Posição e Frases</h3>
+        <p>Selecione o valor e o naipe em <strong>Carta Escolhida</strong> e em <strong>Peek da Carta de Baixo (Boca)</strong>. O sistema mostra automaticamente a posição <strong>Pelo Topo</strong> e <strong>Pela Boca</strong> e as respectivas frases de soletração.</p>
+      </div>
+    </section>
 
     <!-- PAINEL DE STACKS -->
     <section id="stacks-panel" class="stacks-panel hidden">
@@ -115,6 +146,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124_6"></script>
+  <script src="app.js?v=20261124_7"></script>
 </body>
 </html>
