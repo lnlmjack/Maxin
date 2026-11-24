@@ -10,7 +10,7 @@ body {
   padding: 0;
   background: #0b0d12;
   color: #e6ebf5;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
 }
 
@@ -18,7 +18,7 @@ body {
   display: none !important;
 }
 
-/* SIMULADOR DE TIMER */
+/* SIMULADOR DE TIMER ESTILO IPHONE */
 .timer-overlay {
   min-height: 100dvh;
   width: 100%;
@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px;
+  padding: 14px 16px 12px;
 }
 
 .timer-topbar {
@@ -35,6 +35,12 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+}
+
+.timer-top-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .timer-pill-btn {
@@ -49,34 +55,139 @@ body {
 }
 
 .timer-pill-subtle {
-  color: #8e8e93;
+  color: #a1a1aa;
+}
+
+.timer-pill-danger {
+  color: #ff453a;
+  border-color: #5c1c18;
 }
 
 .timer-center {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  text-align: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
 }
 
-.timer-label {
-  font-size: 0.9rem;
+.timer-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.iphone-picker {
+  width: 100%;
+  background: #121214;
+  border: 1px solid #232326;
+  border-radius: 14px;
+  padding: 10px 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.picker-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.picker-col-label {
+  font-size: 0.72rem;
   color: #8e8e93;
-  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  text-transform: lowercase;
+}
+
+.picker-list {
+  width: 100%;
+  height: 150px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.picker-list::-webkit-scrollbar {
+  display: none;
+}
+
+.picker-item {
+  width: 100%;
+  min-height: 36px;
+  border: none;
+  background: transparent;
+  color: #636366;
+  font-size: 1.05rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  scroll-snap-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.picker-item.selected {
+  background: #242428;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.timer-countdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.timer-ring {
+  width: 224px;
+  height: 224px;
+  border-radius: 50%;
+  border: 4px solid #ff9f0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+}
+
+.timer-ring.ringing {
+  border-color: #ff453a;
+  animation: pulseRing 0.8s infinite alternate;
+}
+
+@keyframes pulseRing {
+  from {
+    box-shadow: 0 0 0 0 rgba(255, 69, 58, 0.35);
+  }
+  to {
+    box-shadow: 0 0 24px 4px rgba(255, 69, 58, 0.25);
+  }
 }
 
 .timer-display {
-  font-size: clamp(3.6rem, 18vw, 5.5rem);
-  font-weight: 200;
+  font-size: 2.5rem;
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  line-height: 1;
+  line-height: 1.1;
+}
+
+.timer-end-preview {
+  font-size: 0.78rem;
+  color: #8e8e93;
 }
 
 .timer-status {
   font-size: 0.85rem;
-  color: #a1a1aa;
+  color: #ff9f0a;
   min-height: 1.2em;
 }
 
@@ -86,16 +197,17 @@ body {
 }
 
 .timer-controls {
+  width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
 }
 
 .timer-btn-start,
 .timer-btn-cancel {
-  width: 76px;
-  height: 76px;
+  width: 78px;
+  height: 78px;
   border-radius: 50%;
   border: 2px solid transparent;
   font-size: 0.9rem;
@@ -121,10 +233,48 @@ body {
   color: #ff453a;
 }
 
-.timer-footer-hint {
-  text-align: center;
-  font-size: 0.75rem;
-  color: #636366;
+.timer-when-done {
+  width: 100%;
+  background: #1c1c1e;
+  border-radius: 12px;
+  padding: 11px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.timer-when-done span {
+  color: #ffffff;
+}
+
+.timer-when-done strong {
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.timer-bottom-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border-top: 1px solid #1c1c1e;
+  padding-top: 8px;
+}
+
+.timer-tab-btn {
+  background: transparent;
+  border: none;
+  color: #8e8e93;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.timer-tab-btn.active {
+  color: #ff9f0a;
+  background: #161618;
 }
 
 /* SISTEMA PRINCIPAL MAXIN */
