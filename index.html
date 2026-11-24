@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#000000" />
   <title>Maxin</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20261124_15" />
+  <link rel="stylesheet" href="style.css?v=20261124_16" />
 </head>
 <body>
   <!-- SIMULADOR DE TIMER -->
@@ -14,8 +14,9 @@
     <div class="timer-header-row">
       <h2 class="timer-screen-title">Timers</h2>
       <div class="timer-top-actions">
-        <button id="btn-timer-5s" type="button" class="timer-5s-chip" onclick="triggerFiveSecondAlarmTimer()">5s</button>
-        <button id="btn-timer-stop-sound" type="button" class="timer-5s-chip timer-stop-chip hidden" onclick="stopIphoneAlarmSound()">Parar</button>
+        <button id="btn-timer-edit" type="button" class="timer-header-pill" onclick="cancelOrResetIphoneTimer()">Editar</button>
+        <button id="btn-timer-5s" type="button" class="timer-header-circle" aria-label="Timer de 5 segundos" onclick="triggerFiveSecondAlarmTimer()">+</button>
+        <button id="btn-timer-stop-sound" type="button" class="timer-header-pill timer-stop-chip hidden" onclick="stopIphoneAlarmSound()">Parar</button>
       </div>
     </div>
 
@@ -26,7 +27,7 @@
 
         <div class="ios-wheel-col">
           <div id="picker-hours" class="ios-wheel-list"></div>
-          <span class="ios-unit-inline">hora</span>
+          <span id="label-unit-hours" class="ios-unit-inline">horas</span>
         </div>
 
         <div class="ios-wheel-col">
@@ -40,14 +41,20 @@
         </div>
       </div>
 
-      <!-- Mostrador durante contagem ou disparo -->
-      <div id="timer-countdown-box" class="timer-countdown-box hidden">
-        <div id="timer-display" class="timer-display">00:05</div>
+      <!-- Mostrador em execução / disparo (idêntico ao print) -->
+      <div id="timer-countdown-box" class="timer-running-panel hidden">
+        <div class="timer-running-row">
+          <div class="timer-running-meta">
+            <div id="timer-display" class="timer-display">00:37</div>
+            <div id="timer-sublabel" class="timer-sublabel">37 seg</div>
+          </div>
+          <button id="btn-timer-running-toggle" type="button" class="ios-running-pause-btn" aria-label="Pausar ou retomar" onclick="toggleIphoneTimer()">❚❚</button>
+        </div>
         <div id="timer-status" class="timer-status"></div>
       </div>
 
-      <!-- Botões circulares X e Play/Pause -->
-      <div class="ios-action-row">
+      <!-- Botões circulares X e Play na tela de ajuste -->
+      <div id="timer-setup-controls" class="ios-action-row">
         <button id="btn-timer-cancel" type="button" class="ios-circle-btn ios-btn-x" aria-label="Cancelar" onclick="cancelOrResetIphoneTimer()">✕</button>
         <button id="btn-timer-start" type="button" class="ios-circle-btn ios-btn-play" aria-label="Iniciar" onclick="toggleIphoneTimer()">▶</button>
       </div>
@@ -118,7 +125,7 @@
 
         <h3>2. Timers, Som e Acesso Oculto</h3>
         <p><strong>Acesso ao sistema:</strong> na tela de <strong>Timers</strong>, toque no ícone <strong>Relógio</strong> na barra inferior para abrir o sistema das cartas.</p>
-        <p><strong>5 segundos e som:</strong> toque em <strong>5s</strong> (ou ajuste o tempo na roda e toque em <strong>▶</strong>) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar.</p>
+        <p><strong>Ajustar e tocar som:</strong> role ou toque nos valores de <strong>horas</strong>, <strong>min</strong> e <strong>s</strong> e aperte <strong>▶</strong> (ou toque em <strong>+</strong> para 5 segundos) para iniciar a contagem e tocar <code>somalarme.mp3</code> ao terminar.</p>
 
         <h3>3. Barra Superior</h3>
         <p><strong>Seletor de Stack:</strong> troca o baralho mnemônico ativo na hora.</p>
@@ -230,6 +237,6 @@
   </div>
 
   <audio id="alarm-audio" src="somalarme.mp3" preload="auto"></audio>
-  <script src="app.js?v=20261124_15"></script>
+  <script src="app.js?v=20261124_16"></script>
 </body>
 </html>
